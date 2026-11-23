@@ -1,4 +1,4 @@
-# Pawpate 🐾
+# Pawpote 🐾
 
 ## Des papattes, des potes, des balades
 
