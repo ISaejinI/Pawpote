@@ -3,6 +3,7 @@ import { sql } from 'drizzle-orm'
 import {
     check,
     date,
+    doublePrecision,
     index,
     integer,
     pgTable,
@@ -63,23 +64,51 @@ export const characters = pgTable('characters', {
 // PROFILS
 // ==========================================
 
-// Profils des propriétaires
-export const profiles = pgTable('profiles', {
-  userId: text('user_id')
-    .primaryKey()
-    .references(() => user.id, {
-      onDelete: 'cascade',
-    }),
+ // Profils des propriétaires
+export const profiles = pgTable(
+  'profiles',
+  {
+    userId: text('user_id')
+      .primaryKey()
+      .references(() => user.id, {
+        onDelete: 'cascade',
+      }),
 
-  firstName: text('first_name').notNull(),
-  birthDate: date('birth_date'),
-  city: text('city'),
-  avatarKey: text('avatar_key'),
+    firstName: text('first_name').notNull(),
+    birthDate: date('birth_date'),
 
-  createdAt: timestamp('created_at', {
-    withTimezone: true,
-  }).defaultNow().notNull(),
-})
+    address: text('address'),
+    postalCode: text('postal_code'),
+    city: text('city'),
+
+    latitude: doublePrecision('latitude'),
+    longitude: doublePrecision('longitude'),
+
+    avatarKey: text('avatar_key'),
+
+    createdAt: timestamp('created_at', {
+      withTimezone: true,
+    }).defaultNow().notNull(),
+  },
+  (table) => [
+    check(
+      'profiles_valid_latitude',
+      sql`${table.latitude} BETWEEN -90 AND 90`,
+    ),
+
+    check(
+      'profiles_valid_longitude',
+      sql`${table.longitude} BETWEEN -180 AND 180`,
+    ),
+
+    check(
+      'profiles_coordinates_together',
+      sql`(${table.latitude} IS NULL AND ${table.longitude} IS NULL)
+          OR (${table.latitude} IS NOT NULL AND ${table.longitude} IS NOT NULL)`,
+    ),
+  ],
+)
+
 
 // Profils des chiens
 export const dogs = pgTable(
