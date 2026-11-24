@@ -15,6 +15,13 @@
       "when": 1795525834576,
       "tag": "0001_add_profile_location",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795532878517,
+      "tag": "0002_add_owner_last_name_and_favorite_toy",
+      "breakpoints": true
     }
   ]
 }

@@ -1,4 +1,3 @@
-
 import { sql } from 'drizzle-orm'
 import {
     check,
@@ -64,7 +63,7 @@ export const characters = pgTable('characters', {
 // PROFILS
 // ==========================================
 
- // Profils des propriétaires
+// Profils des propriétaires
 export const profiles = pgTable(
   'profiles',
   {
@@ -75,12 +74,18 @@ export const profiles = pgTable(
       }),
 
     firstName: text('first_name').notNull(),
+
+    // Nom de famille du propriétaire
+    lastName: text('last_name'),
+
     birthDate: date('birth_date'),
 
+    // Adresse du propriétaire
     address: text('address'),
     postalCode: text('postal_code'),
     city: text('city'),
 
+    // Localisation géographique
     latitude: doublePrecision('latitude'),
     longitude: doublePrecision('longitude'),
 
@@ -109,7 +114,6 @@ export const profiles = pgTable(
   ],
 )
 
-
 // Profils des chiens
 export const dogs = pgTable(
   'dogs',
@@ -137,6 +141,9 @@ export const dogs = pgTable(
 
     description: text('description'),
 
+    // Jouet préféré du chien (32 caractères maximum)
+    favoriteToy: text('favorite_toy'),
+
     createdAt: timestamp('created_at', {
       withTimezone: true,
     }).defaultNow().notNull(),
@@ -149,6 +156,11 @@ export const dogs = pgTable(
     check(
       'dogs_valid_sex',
       sql`${table.sex} IN ('male', 'female')`,
+    ),
+
+    check(
+      'dogs_favorite_toy_max_length',
+      sql`char_length(${table.favoriteToy}) <= 32`,
     ),
   ],
 )
