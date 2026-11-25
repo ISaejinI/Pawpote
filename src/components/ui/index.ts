@@ -49,6 +49,10 @@ export {
 export { Select, type SelectProps } from './select';
 
 // Templates
+export {
+  OnboardingStepPage,
+  type OnboardingStepPageProps,
+} from './onboarding-step-page';
 export { TabPage, type TabPageProps } from './tab-page';
 
 // Organismes
