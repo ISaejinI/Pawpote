@@ -31,6 +31,7 @@ export {
   type StickerSize,
   type StickerVariant,
 } from './sticker';
+export { Tag, type TagColor, type TagProps } from './tag';
 export { TextArea, type TextAreaProps } from './text-area';
 export { TextLink, type TextLinkProps } from './text-link';
 export { WaveBackground } from './wave-background';
