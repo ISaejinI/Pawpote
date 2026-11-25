@@ -26,9 +26,10 @@ export type MatchCardProps = {
 
 const RADIUS = 32;
 
-function formatAge(age: number) {
-  if (age < 1) return 'Bébé';
-  return `${age}\n${age > 1 ? 'ans' : 'an'}`;
+/** Chiffre et unité du macaron d'âge (« 3 » + « ans »), ou « Bébé » avant 1 an. */
+function ageSticker(age: number) {
+  if (age < 1) return { value: 'Bébé', unit: undefined };
+  return { value: String(age), unit: age > 1 ? 'ans' : 'an' };
 }
 
 /**
@@ -82,8 +83,8 @@ export function MatchCard({
       )}
 
       {age !== undefined && (
-        <Sticker variant="age" size={size} style={styles.age}>
-          {formatAge(age)}
+        <Sticker variant="age" size={size} label={ageSticker(age).unit} style={styles.age}>
+          {ageSticker(age).value}
         </Sticker>
       )}
 
