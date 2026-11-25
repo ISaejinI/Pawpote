@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { borderWidth, colors, radius, shadows, spacing, typography } from '@/theme';
@@ -28,6 +29,9 @@ export type OnboardingStepPageProps = {
   onSkip?: () => void;
 };
 
+/** Espace gardé entre le champ actif et le haut du clavier. */
+const KEYBOARD_OFFSET = spacing[6];
+
 /** Gabarit des étapes d'onboarding (TemplateEtape du design system). Pas de Tapbar. */
 export function OnboardingStepPage({
   step,
@@ -47,38 +51,36 @@ export function OnboardingStepPage({
     <View style={styles.root}>
       <WaveBackground />
 
-      <KeyboardAvoidingView
+      {/* Fait défiler la page pour garder le champ actif au-dessus du clavier */}
+      <KeyboardAwareScrollView
         style={styles.root}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        bottomOffset={KEYBOARD_OFFSET}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={[
+          styles.content,
+          {
+            paddingTop: insets.top + spacing[2],
+            paddingBottom: insets.bottom + spacing[5],
+          },
+        ]}
       >
-        <ScrollView
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={[
-            styles.content,
-            {
-              paddingTop: insets.top + spacing[2],
-              paddingBottom: insets.bottom + spacing[5],
-            },
-          ]}
-        >
-          <OnboardingSteps step={step} total={total} label={stepLabel} onBack={onBack} />
+        <OnboardingSteps step={step} total={total} label={stepLabel} onBack={onBack} />
 
-          <View style={styles.heading}>
-            <Text style={styles.title} accessibilityRole="header">
-              {title}
-            </Text>
-            <Text style={styles.subtitle}>{subtitle}</Text>
-          </View>
+        <View style={styles.heading}>
+          <Text style={styles.title} accessibilityRole="header">
+            {title}
+          </Text>
+          <Text style={styles.subtitle}>{subtitle}</Text>
+        </View>
 
-          <View style={styles.card}>{children}</View>
+        <View style={styles.card}>{children}</View>
 
-          <Button icon="arrow-right" iconPosition="end" onPress={onContinue}>
-            {continueLabel}
-          </Button>
+        <Button icon="arrow-right" iconPosition="end" onPress={onContinue}>
+          {continueLabel}
+        </Button>
 
-          {onSkip && <TextLink onPress={onSkip}>Passer cette étape</TextLink>}
-        </ScrollView>
-      </KeyboardAvoidingView>
+        {onSkip && <TextLink onPress={onSkip}>Passer cette étape</TextLink>}
+      </KeyboardAwareScrollView>
     </View>
   );
 }

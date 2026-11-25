@@ -2,6 +2,7 @@ import { useFonts } from 'expo-font'
 import { DefaultTheme, Stack, ThemeProvider, type Theme } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
 import { useEffect } from 'react'
+import { KeyboardProvider } from 'react-native-keyboard-controller'
 
 import { authClient } from '@/lib/auth-client'
 import { OnboardingStatusProvider, useOnboardingStatus } from '@/lib/onboarding-status'
@@ -41,9 +42,12 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={navigationTheme}>
-      <OnboardingStatusProvider userId={session?.user.id}>
-        <RootStack signedIn={!!session} />
-      </OnboardingStatusProvider>
+      {/* Suit le clavier pour que les formulaires gardent le champ actif visible */}
+      <KeyboardProvider>
+        <OnboardingStatusProvider userId={session?.user.id}>
+          <RootStack signedIn={!!session} />
+        </OnboardingStatusProvider>
+      </KeyboardProvider>
     </ThemeProvider>
   )
 }
