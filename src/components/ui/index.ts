@@ -16,6 +16,7 @@ export {
 export { icons, type IconName } from './icons';
 export { Input, type InputProps } from './input';
 export { Logo, type LogoProps } from './logo';
+export { WaveBackground } from './wave-background';
 
 // Molécules
 export { FormField, useFormField, type FormFieldProps } from './form-field';
