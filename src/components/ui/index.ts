@@ -38,6 +38,7 @@ export {
 } from './choice-group';
 export { DateInput, type DateInputProps } from './date-input';
 export { FormField, useFormField, type FormFieldProps } from './form-field';
+export { OnboardingSteps, type OnboardingStepsProps } from './onboarding-steps';
 export { ParkRow, type ParkRowProps } from './park-row';
 export { PasswordInput, type PasswordInputProps } from './password-input';
 export {
