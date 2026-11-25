@@ -1,3 +1,5 @@
+// Atomes
+export { Badge, type BadgeProps, type BadgeVariant } from './badge';
 export {
   Button,
   type ButtonProps,
@@ -12,6 +14,8 @@ export {
   type IconButtonVariant,
 } from './icon-button';
 export { icons, type IconName } from './icons';
+
+// Organismes
 export {
   Tapbar,
   TapbarTab,
