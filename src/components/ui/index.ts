@@ -19,6 +19,7 @@ export { Input, type InputProps } from './input';
 export { Logo, type LogoProps } from './logo';
 export { PhotoSlot, type PhotoSlotProps, type PhotoSlotVariant } from './photo-slot';
 export { ProgressBar, type ProgressBarProps } from './progress-bar';
+export { TextArea, type TextAreaProps } from './text-area';
 export { WaveBackground } from './wave-background';
 
 // Molécules
