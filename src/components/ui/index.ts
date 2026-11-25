@@ -4,6 +4,7 @@ export {
   type ActionTileColor,
   type ActionTileProps,
 } from './action-tile';
+export { Avatar, type AvatarProps } from './avatar';
 export { Badge, type BadgeProps, type BadgeVariant } from './badge';
 export {
   Button,
