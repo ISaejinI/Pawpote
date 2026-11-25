@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Button, useTapbarInset } from '@/components/ui';
+import { Button, TabPage } from '@/components/ui';
 import { authClient } from '@/lib/auth-client';
 import {
   borderWidth,
@@ -15,7 +14,6 @@ import {
 
 export default function ProfileScreen() {
   const { data: session } = authClient.useSession();
-  const tapbarInset = useTapbarInset();
 
   const [loading, setLoading] = useState(false);
   const [signOutError, setSignOutError] = useState('');
@@ -43,12 +41,7 @@ export default function ProfileScreen() {
   }
 
   return (
-    <SafeAreaView
-      edges={['top']}
-      style={[styles.container, { paddingBottom: tapbarInset }]}
-    >
-      <Text style={styles.title}>Mon profil</Text>
-
+    <TabPage title="Mon profil">
       <View style={styles.card}>
         <Text style={styles.label}>Connecté en tant que :</Text>
         <Text style={styles.email}>
@@ -69,22 +62,11 @@ export default function ProfileScreen() {
           <Text style={styles.errorText}>{signOutError}</Text>
         ) : null}
       </View>
-    </SafeAreaView>
+    </TabPage>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-    paddingHorizontal: spacing[4],
-    gap: spacing[6],
-  },
-  title: {
-    ...typography.titleXl,
-    color: colors.text,
-    paddingTop: spacing[5],
-  },
   card: {
     backgroundColor: colors.surface,
     borderWidth: borderWidth.regular,

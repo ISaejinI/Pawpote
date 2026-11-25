@@ -1,34 +1,27 @@
-import { StyleSheet, Text } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { StyleSheet, Text, View } from 'react-native'
 
-import { useTapbarInset } from '@/components/ui'
-import { colors, spacing, typography } from '@/theme'
+import { TabPage } from '@/components/ui'
+import { borderWidth, colors, radius, shadows, spacing, typography } from '@/theme'
 
 export default function MessagesScreen() {
-  const tapbarInset = useTapbarInset()
-
   return (
-    <SafeAreaView
-      edges={['top']}
-      style={[styles.container, { paddingBottom: tapbarInset }]}
-    >
-      <Text style={styles.title}>Messages</Text>
-      <Text style={styles.hint}>Tes conversations arrivent bientôt.</Text>
-    </SafeAreaView>
+    <TabPage title="Messages">
+      {/* Le contenu est toujours posé dans une boîte unie, jamais directement sur les vagues */}
+      <View style={styles.card}>
+        <Text style={styles.hint}>Tes conversations arrivent bientôt.</Text>
+      </View>
+    </TabPage>
   )
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-    paddingHorizontal: spacing[4],
-    gap: spacing[2],
-  },
-  title: {
-    ...typography.titleXl,
-    color: colors.text,
-    paddingTop: spacing[5],
+  card: {
+    backgroundColor: colors.surface,
+    borderWidth: borderWidth.regular,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    padding: spacing[4],
+    ...shadows.md,
   },
   hint: {
     ...typography.hand,

@@ -27,6 +27,9 @@ export {
   type SegmentedOption,
 } from './segmented-control';
 
+// Templates
+export { TabPage, type TabPageProps } from './tab-page';
+
 // Organismes
 export {
   Tapbar,
