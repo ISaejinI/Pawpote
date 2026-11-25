@@ -22,6 +22,7 @@ export { PhotoSlot, type PhotoSlotProps, type PhotoSlotVariant } from './photo-s
 export { ProgressBar, type ProgressBarProps } from './progress-bar';
 export { Sticker, type StickerProps, type StickerVariant } from './sticker';
 export { TextArea, type TextAreaProps } from './text-area';
+export { TextLink, type TextLinkProps } from './text-link';
 export { WaveBackground } from './wave-background';
 
 // Molécules
