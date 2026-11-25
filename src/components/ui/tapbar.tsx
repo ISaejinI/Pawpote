@@ -69,10 +69,12 @@ export function TapbarTab({
       accessibilityRole="tab"
       accessibilityLabel={label}
       accessibilityState={{ selected: isFocused }}
+      // TabTrigger injecte son propre style (flexDirection: 'row') :
+      // la mise en page de l'onglet passe après pour garder le libellé sous l'icône
       style={(state) => [
+        typeof style === 'function' ? style(state) : style,
         styles.tab,
         state.pressed && styles.tabPressed,
-        typeof style === 'function' ? style(state) : style,
       ]}
       {...rest}
     >
@@ -103,7 +105,9 @@ const styles = StyleSheet.create({
   },
   tab: {
     width: 96,
+    flexDirection: 'column',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 2,
   },
   tabPressed: {
