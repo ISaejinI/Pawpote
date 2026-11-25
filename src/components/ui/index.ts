@@ -14,6 +14,7 @@ export {
   type IconButtonVariant,
 } from './icon-button';
 export { icons, type IconName } from './icons';
+export { Input, type InputProps } from './input';
 
 // Molécules
 export { FormField, useFormField, type FormFieldProps } from './form-field';
