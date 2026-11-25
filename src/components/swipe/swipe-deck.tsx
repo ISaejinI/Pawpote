@@ -1,8 +1,9 @@
-import { DogCard } from '@/components/swipe/dog-card'
-import { IconButton } from '@/components/ui'
+import { MatchCard, SwipeActions } from '@/components/ui'
 import type { MockDog } from '@/data/mock-dogs'
+import { consumeSwipeIntent, type SwipeDirection } from '@/lib/swipe-intent'
 import { BlurTargetView, BlurView } from 'expo-blur'
-import { useRef, useState, type ComponentRef } from 'react'
+import { router, useFocusEffect } from 'expo-router'
+import { useCallback, useRef, useState, type ComponentRef } from 'react'
 import {
     Pressable,
     StyleSheet,
@@ -31,8 +32,6 @@ const EXIT_DURATION = 220
 const REVEAL_DURATION = 160
 const BLUR_INTENSITY = 10
 
-type SwipeDirection = -1 | 1
-
 type SwipeDeckProps = {
   dogs: MockDog[]
 }
@@ -41,6 +40,25 @@ type NextDogCardProps = {
   dog: MockDog
   blurOpacity: SharedValue<number>
   scale: SharedValue<number>
+}
+
+// ==========================================
+// CARTE D'UN CHIEN
+// ==========================================
+
+function DogMatchCard({ dog }: { dog: MockDog }) {
+  return (
+    <MatchCard
+      name={dog.name}
+      photoUri={dog.image}
+      age={dog.age}
+      breed={dog.breed}
+      distance={dog.distance}
+      favoriteToy={dog.favoriteToy}
+      quirk={dog.quirk}
+      style={styles.card}
+    />
+  )
 }
 
 // ==========================================
@@ -75,7 +93,7 @@ function NextDogCard({
         ref={blurTargetRef}
         style={styles.blurTarget}
       >
-        <DogCard dog={dog} />
+        <DogMatchCard dog={dog} />
       </BlurTargetView>
 
       <Animated.View
@@ -210,6 +228,15 @@ function SwipeCardRound({
     }
   })
 
+  // Choix fait depuis la page de détail : on l'anime au retour sur l'écran de match
+  useFocusEffect(
+    useCallback(() => {
+      const direction = consumeSwipeIntent(dog.id)
+      if (direction) triggerSwipe(direction)
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [dog.id]),
+  )
+
   return (
     <View style={styles.round}>
       <View style={styles.cardContainer}>
@@ -231,29 +258,19 @@ function SwipeCardRound({
               animatedCardStyle,
             ]}
           >
-            <DogCard dog={dog} />
+            <DogMatchCard dog={dog} />
           </Animated.View>
         </GestureDetector>
       </View>
 
-      {/* Boutons */}
-      <View style={styles.actions}>
-        <IconButton
-          icon="close"
-          variant="pass"
-          size="lg"
-          onPress={() => triggerSwipe(-1)}
-          accessibilityLabel="Passer ce chien"
-        />
-
-        <IconButton
-          icon="heart"
-          variant="like"
-          size="lg"
-          onPress={() => triggerSwipe(1)}
-          accessibilityLabel="Liker ce chien"
-        />
-      </View>
+      {/* Boutons : Passer, Voir tout son profil, J'aime */}
+      <SwipeActions
+        dogName={dog.name}
+        onPass={() => triggerSwipe(-1)}
+        onLike={() => triggerSwipe(1)}
+        onDetails={() => router.push({ pathname: '/dog/[id]', params: { id: dog.id } })}
+        style={styles.actions}
+      />
 
       <Text style={styles.hint}>
         Glisse à gauche ou à droite
@@ -329,20 +346,25 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingBottom: 60,
   },
 
   round: {
+    flex: 1,
     width: '100%',
     alignItems: 'center',
     gap: 20,
   },
 
+  // La carte occupe toute la hauteur disponible (CarteMatch)
   cardContainer: {
+    flex: 1,
     width: '100%',
-    maxWidth: 340,
-    aspectRatio: 1,
+    maxWidth: 400,
     position: 'relative',
+  },
+
+  card: {
+    flex: 1,
   },
 
   cardLayer: {
@@ -372,7 +394,7 @@ const styles = StyleSheet.create({
     left: 0,
     width: '100%',
     height: '100%',
-    borderRadius: 20,
+    borderRadius: 32,
     overflow: 'hidden',
   },
 
@@ -382,10 +404,6 @@ const styles = StyleSheet.create({
   },
 
   actions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 48, // écart Passer / J'aime défini par le design system
     marginTop: 8,
   },
 

@@ -64,6 +64,7 @@ function RootStack({ signedIn }: { signedIn: boolean }) {
 
       <Stack.Protected guard={signedIn && !needsOnboarding}>
         <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
+        <Stack.Screen name="dog/[id]" options={{ animation: 'slide_from_bottom' }} />
       </Stack.Protected>
 
       <Stack.Protected guard={!signedIn}>
