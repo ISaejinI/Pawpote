@@ -52,6 +52,7 @@ export { Select, type SelectProps } from './select';
 export { TabPage, type TabPageProps } from './tab-page';
 
 // Organismes
+export { BottomSheet, type BottomSheetProps } from './bottom-sheet';
 export {
   Tapbar,
   TapbarTab,
