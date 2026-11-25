@@ -1,4 +1,9 @@
 // Atomes
+export {
+  ActionTile,
+  type ActionTileColor,
+  type ActionTileProps,
+} from './action-tile';
 export { Badge, type BadgeProps, type BadgeVariant } from './badge';
 export {
   Button,
