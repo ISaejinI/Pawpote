@@ -66,6 +66,11 @@ export { TabPage, type TabPageProps } from './tab-page';
 
 // Organismes
 export { BottomSheet, type BottomSheetProps } from './bottom-sheet';
+export {
+  DogProfile,
+  type DogProfilePark,
+  type DogProfileProps,
+} from './dog-profile';
 export { MatchCard, type MatchCardProps } from './match-card';
 export { PhotoCarousel, type PhotoCarouselProps } from './photo-carousel';
 export {
