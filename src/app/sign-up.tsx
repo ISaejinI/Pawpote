@@ -1,57 +1,81 @@
-import { Link } from 'expo-router'
-import { useState } from 'react'
-import {
-    ActivityIndicator,
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
-} from 'react-native'
+import { useRef, useState } from 'react'
+import { StyleSheet, Text, View, type TextInputInstance } from 'react-native'
 
+import { AuthLayout } from '@/components/auth/auth-layout'
+import { Button, FormField, Input, PasswordInput } from '@/components/ui'
 import { authClient } from '@/lib/auth-client'
+import { getAuthErrorMessage, isValidEmail } from '@/lib/auth-errors'
+import { colors, typography } from '@/theme'
+
+const MIN_PASSWORD_LENGTH = 8
+
+type Field = 'firstName' | 'lastName' | 'email' | 'password' | 'confirmPassword'
+type FieldErrors = Partial<Record<Field, string>>
 
 export default function SignUpScreen() {
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
+  const lastNameRef = useRef<TextInputInstance>(null)
+  const emailRef = useRef<TextInputInstance>(null)
+  const passwordRef = useRef<TextInputInstance>(null)
+  const confirmRef = useRef<TextInputInstance>(null)
+
+  const [values, setValues] = useState<Record<Field, string>>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  })
   const [loading, setLoading] = useState(false)
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
   const [error, setError] = useState('')
 
+  function update(field: Field) {
+    return (text: string) => {
+      setValues((current) => ({ ...current, [field]: text }))
+      setFieldErrors((errors) => ({ ...errors, [field]: undefined }))
+    }
+  }
+
+  function validate() {
+    const errors: FieldErrors = {}
+    const email = values.email.trim()
+
+    if (!values.firstName.trim()) errors.firstName = 'Renseigne ton prénom.'
+    if (!values.lastName.trim()) errors.lastName = 'Renseigne ton nom.'
+
+    if (!email) errors.email = 'Renseigne ton adresse e-mail.'
+    else if (!isValidEmail(email)) errors.email = 'Cette adresse e-mail n’est pas valide.'
+
+    if (values.password.length < MIN_PASSWORD_LENGTH) {
+      errors.password = `Au moins ${MIN_PASSWORD_LENGTH} caractères.`
+    }
+    if (values.confirmPassword !== values.password) {
+      errors.confirmPassword = 'Les mots de passe ne correspondent pas.'
+    }
+
+    setFieldErrors(errors)
+    return Object.keys(errors).length === 0
+  }
+
   async function handleSignUp() {
-    if (!name.trim() || !email.trim() || !password) {
-      setError('Tous les champs sont obligatoires.')
-      return
-    }
-
-    if (password.length < 8) {
-      setError('Le mot de passe doit contenir au moins 8 caractères.')
-      return
-    }
-
-    if (password !== confirmPassword) {
-      setError('Les mots de passe ne correspondent pas.')
-      return
-    }
+    if (loading || !validate()) return
 
     setLoading(true)
     setError('')
 
     try {
       const result = await authClient.signUp.email({
-        name: name.trim(),
-        email: email.trim(),
-        password,
+        // Better Auth n'a qu'un champ `name` : prénom et nom y sont réunis
+        name: `${values.firstName.trim()} ${values.lastName.trim()}`,
+        email: values.email.trim(),
+        password: values.password,
       })
 
       if (result.error) {
-        setError(result.error.message ?? 'Inscription impossible.')
+        setError(getAuthErrorMessage(result.error, 'Inscription impossible.'))
       }
-    } catch {
+    } catch (caught) {
+      console.error('Better Auth sign-up error:', caught)
       setError('Impossible de contacter le serveur.')
     } finally {
       setLoading(false)
@@ -59,159 +83,112 @@ export default function SignUpScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView
-        contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View style={styles.form}>
-          <Text style={styles.logo}>🐾 Pawpote</Text>
-          <Text style={styles.title}>Rejoins la meute !</Text>
-          <Text style={styles.subtitle}>
-            Crée ton compte pour commencer l'aventure.
-          </Text>
-
-          <Text style={styles.label}>Prénom ou pseudo</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Ton prénom"
-            autoComplete="name"
-            value={name}
-            onChangeText={setName}
+    <AuthLayout mode="sign-up" tagline="Bienvenue dans la meute !">
+      <View style={styles.row}>
+        <FormField label="Prénom" error={fieldErrors.firstName} style={styles.half}>
+          <Input
+            placeholder="Camille"
+            value={values.firstName}
+            onChangeText={update('firstName')}
+            autoComplete="given-name"
+            textContentType="givenName"
+            autoCapitalize="words"
+            returnKeyType="next"
+            submitBehavior="submit"
+            onSubmitEditing={() => lastNameRef.current?.focus()}
             editable={!loading}
           />
+        </FormField>
 
-          <Text style={styles.label}>Adresse email</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="ton@email.fr"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoComplete="email"
-            value={email}
-            onChangeText={setEmail}
+        <FormField label="Nom" error={fieldErrors.lastName} style={styles.half}>
+          <Input
+            ref={lastNameRef}
+            placeholder="Martin"
+            value={values.lastName}
+            onChangeText={update('lastName')}
+            autoComplete="family-name"
+            textContentType="familyName"
+            autoCapitalize="words"
+            returnKeyType="next"
+            submitBehavior="submit"
+            onSubmitEditing={() => emailRef.current?.focus()}
             editable={!loading}
           />
+        </FormField>
+      </View>
 
-          <Text style={styles.label}>Mot de passe</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="8 caractères minimum"
-            secureTextEntry
-            autoComplete="new-password"
-            value={password}
-            onChangeText={setPassword}
-            editable={!loading}
-          />
+      <FormField label="Adresse e-mail" error={fieldErrors.email}>
+        <Input
+          ref={emailRef}
+          placeholder="toi@exemple.fr"
+          value={values.email}
+          onChangeText={update('email')}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
+          autoComplete="email"
+          textContentType="emailAddress"
+          returnKeyType="next"
+          submitBehavior="submit"
+          onSubmitEditing={() => passwordRef.current?.focus()}
+          editable={!loading}
+        />
+      </FormField>
 
-          <Text style={styles.label}>Confirmer le mot de passe</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Confirme ton mot de passe"
-            secureTextEntry
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            editable={!loading}
-          />
+      <FormField label="Mot de passe" error={fieldErrors.password}>
+        <PasswordInput
+          ref={passwordRef}
+          placeholder={`${MIN_PASSWORD_LENGTH} caractères minimum`}
+          value={values.password}
+          onChangeText={update('password')}
+          autoComplete="new-password"
+          textContentType="newPassword"
+          returnKeyType="next"
+          submitBehavior="submit"
+          onSubmitEditing={() => confirmRef.current?.focus()}
+          editable={!loading}
+        />
+      </FormField>
 
-          {error ? (
-            <Text style={styles.error}>{error}</Text>
-          ) : null}
+      <FormField label="Confirme ton mot de passe" error={fieldErrors.confirmPassword}>
+        <PasswordInput
+          ref={confirmRef}
+          placeholder="Le même, une deuxième fois"
+          value={values.confirmPassword}
+          onChangeText={update('confirmPassword')}
+          autoComplete="new-password"
+          textContentType="newPassword"
+          returnKeyType="go"
+          onSubmitEditing={handleSignUp}
+          editable={!loading}
+        />
+      </FormField>
 
-          <Pressable
-            style={[styles.button, loading && styles.disabled]}
-            onPress={handleSignUp}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <Text style={styles.buttonText}>
-                Créer mon compte
-              </Text>
-            )}
-          </Pressable>
+      {error ? (
+        <Text style={styles.error} accessibilityRole="alert" accessibilityLiveRegion="polite">
+          {error}
+        </Text>
+      ) : null}
 
-          <Link href="/sign-in" style={styles.link}>
-            Déjà un compte ? Se connecter
-          </Link>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      <Button onPress={handleSignUp} loading={loading}>
+        Créer mon compte
+      </Button>
+    </AuthLayout>
   )
 }
 
 const styles = StyleSheet.create({
-  container: {
+  row: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  half: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  content: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: 24,
-  },
-  form: {
-    width: '100%',
-    maxWidth: 420,
-    alignSelf: 'center',
-    gap: 12,
-  },
-  logo: {
-    fontSize: 23,
-    fontWeight: '700',
-    color: '#208AEF',
-    marginBottom: 18,
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: '800',
-    color: '#1B1B1B',
-  },
-  subtitle: {
-    fontSize: 15,
-    color: '#666666',
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333333',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#DDDDDD',
-    borderRadius: 12,
-    padding: 15,
-    fontSize: 16,
-    color: '#1B1B1B',
-  },
-  button: {
-    backgroundColor: '#208AEF',
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    marginTop: 12,
-  },
-  disabled: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '700',
+    minWidth: 0,
   },
   error: {
-    color: '#C62828',
-    fontSize: 14,
-  },
-  link: {
-    color: '#208AEF',
+    ...typography.small,
+    color: colors.danger,
     textAlign: 'center',
-    marginTop: 16,
-    fontWeight: '600',
   },
 })

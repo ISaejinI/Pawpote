@@ -1,32 +1,40 @@
-import { NativeTabs } from 'expo-router/native-tabs';
-import { useColorScheme } from 'react-native';
+import { TabList, Tabs, TabSlot, TabTrigger } from 'expo-router/ui';
+import { StyleSheet } from 'react-native';
 
-import { Colors } from '@/constants/theme';
+import { Tapbar, TapbarTab } from '@/components/ui';
+import { colors } from '@/theme';
 
+/**
+ * Navigation principale : onglets « headless » d'Expo Router,
+ * rendus avec la Tapbar du design system sur toutes les plateformes.
+ */
 export default function AppTabs() {
-  const scheme = useColorScheme();
-  const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
-
   return (
-    <NativeTabs
-      backgroundColor={colors.background}
-      indicatorColor={colors.backgroundElement}
-      labelStyle={{ selected: { color: colors.text } }}>
-      <NativeTabs.Trigger name="index">
-        <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/home.png')}
-          renderingMode="template"
-        />
-      </NativeTabs.Trigger>
+    <Tabs style={styles.root}>
+      <TabSlot />
 
-      <NativeTabs.Trigger name="explore">
-        <NativeTabs.Trigger.Label>Explore</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/explore.png')}
-          renderingMode="template"
-        />
-      </NativeTabs.Trigger>
-    </NativeTabs>
+      <TabList asChild>
+        <Tapbar>
+          <TabTrigger name="profile" href="/profile" asChild>
+            <TapbarTab icon="tab-profile" label="Profil" />
+          </TabTrigger>
+
+          <TabTrigger name="index" href="/" asChild>
+            <TapbarTab icon="tab-match" label="Match" />
+          </TabTrigger>
+
+          <TabTrigger name="messages" href="/messages" asChild>
+            <TapbarTab icon="tab-messages" label="Messages" />
+          </TabTrigger>
+        </Tapbar>
+      </TabList>
+    </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+});
