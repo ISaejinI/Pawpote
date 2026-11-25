@@ -4,7 +4,7 @@ import { borderWidth, colors, radius, shadows, typography } from '@/theme';
 
 import { Icon } from './icon';
 
-export type BadgeVariant = 'unread' | 'todo' | 'distance' | 'date';
+export type BadgeVariant = 'unread' | 'todo' | 'distance' | 'date' | 'highlight';
 
 export type BadgeProps = {
   /**
@@ -12,6 +12,7 @@ export type BadgeProps = {
    * - `todo` : « À compléter », rose, à côté d'un libellé.
    * - `distance` : lime façon sticker, sur une photo.
    * - `date` : cream, au centre d'une conversation.
+   * - `highlight` : lime, point positif dans une ligne (« En commun »).
    */
   variant: BadgeVariant;
   children: string | number;
@@ -62,6 +63,12 @@ const styles = StyleSheet.create({
     borderColor: colors.white,
     ...shadows.sticker,
   },
+  highlight: {
+    paddingVertical: 2,
+    paddingHorizontal: 8,
+    backgroundColor: colors.lime500,
+    borderWidth: 1.5,
+  },
   date: {
     paddingVertical: 3,
     paddingHorizontal: 12,
@@ -80,4 +87,5 @@ const textStyles = StyleSheet.create({
   todo: { fontWeight: 800 },
   distance: { ...typography.small, fontWeight: 700 },
   date: { fontSize: 12, lineHeight: 15, fontWeight: 800 },
+  highlight: { fontSize: 12, lineHeight: 15, fontWeight: 800 },
 });

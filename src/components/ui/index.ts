@@ -4,6 +4,7 @@ export {
   type ActionTileColor,
   type ActionTileProps,
 } from './action-tile';
+export { Avatar, type AvatarProps } from './avatar';
 export { Badge, type BadgeProps, type BadgeVariant } from './badge';
 export {
   Button,
@@ -23,9 +24,16 @@ export {
 export { icons, type IconName } from './icons';
 export { Input, type InputProps } from './input';
 export { Logo, type LogoProps } from './logo';
+export { PageDots, type PageDotsProps } from './page-dots';
 export { PhotoSlot, type PhotoSlotProps, type PhotoSlotVariant } from './photo-slot';
 export { ProgressBar, type ProgressBarProps } from './progress-bar';
-export { Sticker, type StickerProps, type StickerVariant } from './sticker';
+export {
+  Sticker,
+  type StickerProps,
+  type StickerSize,
+  type StickerVariant,
+} from './sticker';
+export { Tag, type TagColor, type TagProps } from './tag';
 export { TextArea, type TextAreaProps } from './text-area';
 export { TextLink, type TextLinkProps } from './text-link';
 export { WaveBackground } from './wave-background';
@@ -47,6 +55,7 @@ export {
   type SegmentedOption,
 } from './segmented-control';
 export { Select, type SelectProps } from './select';
+export { SwipeActions, type SwipeActionsProps } from './swipe-actions';
 
 // Templates
 export {
@@ -58,9 +67,17 @@ export { TabPage, type TabPageProps } from './tab-page';
 // Organismes
 export { BottomSheet, type BottomSheetProps } from './bottom-sheet';
 export {
+  DogProfile,
+  type DogProfilePark,
+  type DogProfileProps,
+} from './dog-profile';
+export { MatchCard, type MatchCardProps } from './match-card';
+export { PhotoCarousel, type PhotoCarouselProps } from './photo-carousel';
+export {
   PhotoSourceSheet,
   type PhotoSourceSheetProps,
 } from './photo-source-sheet';
+export { PullToClose, type PullToCloseProps } from './pull-to-close';
 export {
   Tapbar,
   TapbarTab,

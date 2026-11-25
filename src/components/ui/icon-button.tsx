@@ -13,7 +13,7 @@ import type { IconName } from './icons';
 import { pressFeedback, type ShadowSize } from './press-feedback';
 
 export type IconButtonVariant = 'primary' | 'surface' | 'white' | 'pass' | 'like';
-export type IconButtonSize = 'lg' | 'md' | 'sm';
+export type IconButtonSize = 'lg' | 'ml' | 'md' | 'sm';
 
 export type IconButtonProps = Omit<
   PressableProps,
@@ -30,7 +30,7 @@ export type IconButtonProps = Omit<
    * - `like` : orange, icône crème cerclée d'ink (J'aime).
    */
   variant?: IconButtonVariant;
-  /** lg 64 px (swipe) · md 46 px (Retour, Envoyer) · sm 44 px (Filtres). */
+  /** lg 64 px (swipe) · ml 54 px (Voir le profil) · md 46 px (Retour, Envoyer) · sm 44 px (Filtres). */
   size?: IconButtonSize;
   /** `square` : carré arrondi `radius-sm` (Filtres). */
   shape?: 'circle' | 'square';
@@ -61,6 +61,7 @@ const SIZES: Record<
   { box: number; icon: number; strokeWidth: number }
 > = {
   lg: { box: 64, icon: 24, strokeWidth: 3.4 },
+  ml: { box: 54, icon: 24, strokeWidth: 2.6 },
   md: { box: 46, icon: 20, strokeWidth: 2.8 },
   sm: { box: 44, icon: 22, strokeWidth: 2.4 },
 };
@@ -83,10 +84,14 @@ export function IconButton({
   const { box, icon: iconSize, strokeWidth } = SIZES[size];
   const isDisabled = !!disabled;
 
-  // Grand format (swipe) : shadow-md. Action lime moyenne (Envoyer) : shadow-sm.
+  // Grands formats (swipe, Voir le profil) : shadow-md. Action lime moyenne (Envoyer) : shadow-sm.
   // Les autres (Retour, Filtres) n'ont pas d'ombre.
   const shadow: ShadowSize | null =
-    size === 'lg' ? 'md' : size === 'md' && variant === 'primary' ? 'sm' : null;
+    size === 'lg' || size === 'ml'
+      ? 'md'
+      : size === 'md' && variant === 'primary'
+        ? 'sm'
+        : null;
 
   return (
     <Pressable
