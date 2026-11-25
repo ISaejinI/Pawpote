@@ -54,6 +54,10 @@ export { TabPage, type TabPageProps } from './tab-page';
 // Organismes
 export { BottomSheet, type BottomSheetProps } from './bottom-sheet';
 export {
+  PhotoSourceSheet,
+  type PhotoSourceSheetProps,
+} from './photo-source-sheet';
+export {
   Tapbar,
   TapbarTab,
   useTapbarInset,
