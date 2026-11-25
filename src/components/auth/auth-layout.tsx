@@ -1,13 +1,7 @@
 import { router } from 'expo-router';
 import type { ReactNode } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Logo, SegmentedControl, WaveBackground } from '@/components/ui';
@@ -35,34 +29,32 @@ export function AuthLayout({ mode, tagline, children }: AuthLayoutProps) {
     <View style={styles.root}>
       <WaveBackground />
 
-      <KeyboardAvoidingView
+      {/* Fait défiler la page pour garder le champ actif au-dessus du clavier */}
+      <KeyboardAwareScrollView
         style={styles.root}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        bottomOffset={spacing[6]}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={[
+          styles.content,
+          {
+            paddingTop: insets.top + spacing[6],
+            paddingBottom: insets.bottom + spacing[6],
+          },
+        ]}
       >
-        <ScrollView
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={[
-            styles.content,
-            {
-              paddingTop: insets.top + spacing[6],
-              paddingBottom: insets.bottom + spacing[6],
-            },
-          ]}
-        >
-          <Logo />
-          <Text style={styles.tagline}>{tagline}</Text>
+        <Logo />
+        <Text style={styles.tagline}>{tagline}</Text>
 
-          <View style={styles.card}>
-            <SegmentedControl
-              accessibilityLabel="Connexion ou inscription"
-              options={MODES}
-              value={mode}
-              onChange={(next) => router.replace(next === 'sign-in' ? '/sign-in' : '/sign-up')}
-            />
-            {children}
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        <View style={styles.card}>
+          <SegmentedControl
+            accessibilityLabel="Connexion ou inscription"
+            options={MODES}
+            value={mode}
+            onChange={(next) => router.replace(next === 'sign-in' ? '/sign-in' : '/sign-up')}
+          />
+          {children}
+        </View>
+      </KeyboardAwareScrollView>
     </View>
   );
 }
