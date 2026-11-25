@@ -271,10 +271,6 @@ function SwipeCardRound({
         onDetails={() => router.push({ pathname: '/dog/[id]', params: { id: dog.id } })}
         style={styles.actions}
       />
-
-      <Text style={styles.hint}>
-        Glisse à gauche ou à droite
-      </Text>
     </View>
   )
 }
@@ -353,6 +349,8 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     gap: 20,
+    // Laisse la place à l'ombre décalée des boutons, sinon elle est rognée
+    paddingBottom: 8,
   },
 
   // La carte occupe toute la hauteur disponible (CarteMatch)
@@ -405,12 +403,6 @@ const styles = StyleSheet.create({
 
   actions: {
     marginTop: 8,
-  },
-
-  hint: {
-    fontSize: 13,
-    color: '#888888',
-    textAlign: 'center',
   },
 
   emptyState: {
