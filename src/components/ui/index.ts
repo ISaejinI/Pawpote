@@ -67,6 +67,7 @@ export { TabPage, type TabPageProps } from './tab-page';
 // Organismes
 export { BottomSheet, type BottomSheetProps } from './bottom-sheet';
 export { MatchCard, type MatchCardProps } from './match-card';
+export { PhotoCarousel, type PhotoCarouselProps } from './photo-carousel';
 export {
   PhotoSourceSheet,
   type PhotoSourceSheetProps,
