@@ -21,6 +21,11 @@ export { WaveBackground } from './wave-background';
 // Molécules
 export { FormField, useFormField, type FormFieldProps } from './form-field';
 export { PasswordInput, type PasswordInputProps } from './password-input';
+export {
+  SegmentedControl,
+  type SegmentedControlProps,
+  type SegmentedOption,
+} from './segmented-control';
 
 // Organismes
 export {
