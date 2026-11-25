@@ -25,7 +25,12 @@ export { Input, type InputProps } from './input';
 export { Logo, type LogoProps } from './logo';
 export { PhotoSlot, type PhotoSlotProps, type PhotoSlotVariant } from './photo-slot';
 export { ProgressBar, type ProgressBarProps } from './progress-bar';
-export { Sticker, type StickerProps, type StickerVariant } from './sticker';
+export {
+  Sticker,
+  type StickerProps,
+  type StickerSize,
+  type StickerVariant,
+} from './sticker';
 export { TextArea, type TextAreaProps } from './text-area';
 export { TextLink, type TextLinkProps } from './text-link';
 export { WaveBackground } from './wave-background';
