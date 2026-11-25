@@ -36,6 +36,7 @@ export {
   type ChoiceGroupProps,
   type ChoiceOption,
 } from './choice-group';
+export { DateInput, type DateInputProps } from './date-input';
 export { FormField, useFormField, type FormFieldProps } from './form-field';
 export { PasswordInput, type PasswordInputProps } from './password-input';
 export {
