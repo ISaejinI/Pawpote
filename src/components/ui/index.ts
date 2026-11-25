@@ -16,6 +16,7 @@ export {
 export { icons, type IconName } from './icons';
 export { Input, type InputProps } from './input';
 export { Logo, type LogoProps } from './logo';
+export { ProgressBar, type ProgressBarProps } from './progress-bar';
 export { WaveBackground } from './wave-background';
 
 // Molécules
