@@ -1,43 +1,22 @@
-
-import * as Device from 'expo-device';
 import { useState } from 'react';
 import {
   ActivityIndicator,
-  Platform,
   Pressable,
   StyleSheet,
+  Text,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { authClient } from '@/lib/auth-client';
-
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+import {
+  borderWidth,
+  colors,
+  radius,
+  shadows,
+  spacing,
+  typography,
+} from '@/theme';
 
 export default function HomeScreen() {
   const { data: session } = authClient.useSession();
@@ -68,142 +47,87 @@ export default function HomeScreen() {
   }
 
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>PawPote</Text>
 
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+      <View style={styles.card}>
+        <Text style={styles.label}>Connecté en tant que :</Text>
+        <Text style={styles.email}>
+          {session?.user.email ?? 'Utilisateur'}
+        </Text>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+        <Pressable
+          style={[styles.button, loading && styles.buttonDisabled]}
+          onPress={handleSignOut}
+          disabled={loading}
+          accessibilityRole="button"
+        >
+          {loading ? (
+            <ActivityIndicator color={colors.text} />
+          ) : (
+            <Text style={styles.buttonText}>Se déconnecter</Text>
+          )}
+        </Pressable>
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={
-              <ThemedText type="code">
-                src/app/(tabs)/index.tsx
-              </ThemedText>
-            }
-          />
-
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-
-          <HintRow
-            title="Fresh start"
-            hint={
-              <ThemedText type="code">
-                npm run reset-project
-              </ThemedText>
-            }
-          />
-        </ThemedView>
-
-        <ThemedView style={styles.authSection}>
-          <ThemedText type="small">
-            Connecté en tant que :
-          </ThemedText>
-
-          <ThemedText type="smallBold">
-            {session?.user.email ?? 'Utilisateur'}
-          </ThemedText>
-
-          <Pressable
-            style={[
-              styles.signOutButton,
-              loading && styles.signOutButtonDisabled,
-            ]}
-            onPress={handleSignOut}
-            disabled={loading}
-            accessibilityRole="button"
-          >
-            {loading ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <ThemedText style={styles.signOutButtonText}>
-                Se déconnecter
-              </ThemedText>
-            )}
-          </Pressable>
-
-          {signOutError ? (
-            <ThemedText style={styles.errorText}>
-              {signOutError}
-            </ThemedText>
-          ) : null}
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+        {signOutError ? (
+          <Text style={styles.errorText}>{signOutError}</Text>
+        ) : null}
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+    backgroundColor: colors.background,
+    paddingHorizontal: spacing[4],
+    gap: spacing[6],
   },
   title: {
-    textAlign: 'center',
+    ...typography.titleXl,
+    color: colors.text,
+    paddingTop: spacing[5],
   },
-  code: {
-    textTransform: 'uppercase',
+  card: {
+    backgroundColor: colors.surface,
+    borderWidth: borderWidth.regular,
+    borderColor: colors.border,
+    borderRadius: radius.xl,
+    padding: spacing[4],
+    gap: spacing[2],
+    ...shadows.lg,
   },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+  label: {
+    ...typography.label,
+    color: colors.textMuted,
   },
-  authSection: {
-    alignSelf: 'stretch',
+  email: {
+    ...typography.bodyStrong,
+    color: colors.text,
+  },
+  button: {
+    backgroundColor: colors.primary,
+    borderWidth: borderWidth.regular,
+    borderColor: colors.border,
+    borderRadius: radius.pill,
+    minHeight: 52,
+    paddingHorizontal: spacing[6],
     alignItems: 'center',
-    gap: Spacing.two,
-    paddingVertical: Spacing.three,
+    justifyContent: 'center',
+    marginTop: spacing[2],
+    ...shadows.md,
   },
-  signOutButton: {
-    backgroundColor: '#208AEF',
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 12,
-    alignItems: 'center',
-    alignSelf: 'stretch',
-    marginTop: Spacing.two,
-  },
-  signOutButtonDisabled: {
+  buttonDisabled: {
     opacity: 0.6,
   },
-  signOutButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+  buttonText: {
+    ...typography.button,
+    color: colors.text,
   },
   errorText: {
-    color: '#D32F2F',
-    fontSize: 14,
+    ...typography.small,
+    color: colors.danger,
     textAlign: 'center',
   },
 });

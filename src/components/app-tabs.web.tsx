@@ -5,9 +5,9 @@ import {
   TabSlot,
   TabTrigger,
 } from 'expo-router/ui';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 
-import { ThemedText } from '@/components/themed-text';
+import { colors, spacing, typography } from '@/theme';
 
 export default function AppTabs() {
   return (
@@ -20,9 +20,7 @@ export default function AppTabs() {
           href="/"
           style={styles.tab}
         >
-          <ThemedText type="smallBold">
-            Home
-          </ThemedText>
+          <Text style={styles.label}>Home</Text>
         </TabTrigger>
 
         <TabTrigger
@@ -30,9 +28,7 @@ export default function AppTabs() {
           href="/explore"
           style={styles.tab}
         >
-          <ThemedText type="smallBold">
-            Explore
-          </ThemedText>
+          <Text style={styles.label}>Explore</Text>
         </TabTrigger>
       </TabList>
     </Tabs>
@@ -47,11 +43,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 24,
-    padding: 16,
+    gap: spacing[6],
+    padding: spacing[4],
+    backgroundColor: colors.surface,
   },
   tab: {
     paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing[5],
+  },
+  label: {
+    ...typography.label,
+    color: colors.text,
   },
 });

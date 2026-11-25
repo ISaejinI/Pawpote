@@ -71,7 +71,7 @@ export default function SignUpScreen() {
           <Text style={styles.logo}>🐾 Pawpote</Text>
           <Text style={styles.title}>Rejoins la meute !</Text>
           <Text style={styles.subtitle}>
-            Crée ton compte pour commencer l'aventure.
+            Crée ton compte pour commencer l’aventure.
           </Text>
 
           <Text style={styles.label}>Prénom ou pseudo</Text>

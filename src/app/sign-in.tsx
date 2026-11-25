@@ -121,7 +121,7 @@ export default function SignInScreen() {
                 </Pressable>
 
                 <Link href="/sign-up" style={styles.link}>
-                    Pas encore de compte ? S'inscrire
+                    Pas encore de compte ? S’inscrire
                 </Link>
             </View>
         </KeyboardAvoidingView>
