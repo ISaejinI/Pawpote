@@ -2,25 +2,18 @@ import { router } from 'expo-router'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { DogPreviewCard } from '@/components/onboarding/dog-preview-card'
-import { Button, TextLink, WaveBackground } from '@/components/ui'
+import { Button, MatchCard, TextLink, WaveBackground } from '@/components/ui'
 import { ageInYears, parseDateInput } from '@/lib/dates'
 import { useOnboardingDraft } from '@/lib/onboarding-draft'
 import { useOnboardingStatus } from '@/lib/onboarding-status'
 import { colors, spacing, typography } from '@/theme'
-
-function formatAge(birthDate: string) {
-  const date = parseDateInput(birthDate)
-  if (!date) return undefined
-  const years = ageInYears(date)
-  return years < 1 ? 'Bébé' : `${years}\n${years > 1 ? 'ans' : 'an'}`
-}
 
 /** Fin de l'onboarding : aperçu de la carte du chien. */
 export default function PreviewScreen() {
   const insets = useSafeAreaInsets()
   const { dog, startNewDog } = useOnboardingDraft()
   const { completeOnboarding } = useOnboardingStatus()
+  const birthDate = parseDateInput(dog.birthDate)
 
   return (
     <View style={styles.root}>
@@ -39,11 +32,16 @@ export default function PreviewScreen() {
           <Text style={styles.subtitle}>Voilà comment les autres verront {dog.name}</Text>
         </View>
 
-        <DogPreviewCard
+        {/* La vraie carte de match, en version réduite et légèrement inclinée */}
+        <MatchCard
+          size="sm"
           name={dog.name}
-          age={formatAge(dog.birthDate)}
+          age={birthDate ? ageInYears(birthDate) : undefined}
           breed={dog.breed ?? undefined}
           photoUri={dog.mainPhoto}
+          favoriteToy={dog.favoriteToy}
+          quirk={dog.quirk}
+          style={styles.card}
         />
 
         <View style={styles.actions}>
@@ -94,6 +92,13 @@ const styles = StyleSheet.create({
     ...typography.handLg,
     color: colors.text,
     textAlign: 'center',
+  },
+  card: {
+    alignSelf: 'center',
+    width: '82%',
+    maxWidth: 300,
+    aspectRatio: 290 / 400,
+    transform: [{ rotate: '-2deg' }],
   },
   actions: {
     marginTop: 'auto',
