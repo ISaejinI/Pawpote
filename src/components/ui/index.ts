@@ -31,6 +31,11 @@ export { TextLink, type TextLinkProps } from './text-link';
 export { WaveBackground } from './wave-background';
 
 // Molécules
+export {
+  ChoiceGroup,
+  type ChoiceGroupProps,
+  type ChoiceOption,
+} from './choice-group';
 export { FormField, useFormField, type FormFieldProps } from './form-field';
 export { PasswordInput, type PasswordInputProps } from './password-input';
 export {
