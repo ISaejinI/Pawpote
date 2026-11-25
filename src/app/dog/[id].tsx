@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router'
-import { ScrollView, StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import {
@@ -7,6 +7,7 @@ import {
   DogProfile,
   IconButton,
   PhotoCarousel,
+  PullToClose,
   SwipeActions,
 } from '@/components/ui'
 import { findMockDog } from '@/data/mock-dogs'
@@ -46,61 +47,60 @@ export default function DogDetailScreen() {
   }
 
   return (
-    <View style={styles.root}>
-      <ScrollView contentContainerStyle={{ paddingBottom: actionBarHeight + spacing[5] }}>
-        <View>
-          <PhotoCarousel
-            photos={[dog.image, ...(dog.photos ?? [])]}
-            height={PHOTO_HEIGHT}
-            dotsOffset={SHEET_OVERLAP + 16}
-            accessibilityLabel={`Photo de ${dog.name}`}
-          />
+    // Tirer vers le bas depuis le haut de la page referme le profil
+    <PullToClose
+      onClose={() => router.back()}
+      style={styles.root}
+      contentContainerStyle={{ paddingBottom: actionBarHeight + spacing[5] }}
+      overlay={
+        <View style={[styles.actionBar, { paddingBottom: ACTION_BAR_PADDING + insets.bottom }]}>
+          <SwipeActions dogName={dog.name} onPass={() => decide(-1)} onLike={() => decide(1)} />
+        </View>
+      }
+    >
+      <View>
+        <PhotoCarousel
+          photos={[dog.image, ...(dog.photos ?? [])]}
+          height={PHOTO_HEIGHT}
+          dotsOffset={SHEET_OVERLAP + 16}
+          accessibilityLabel={`Photo de ${dog.name}`}
+        />
 
-          <View style={[styles.topBar, { top: insets.top + spacing[2] }]}>
-            <IconButton
-              icon="back"
-              variant="surface"
-              accessibilityLabel="Revenir à la carte"
-              onPress={() => router.back()}
-            />
-            <View style={styles.titlePill}>
-              <Text style={styles.title} accessibilityRole="header">
-                Son profil
-              </Text>
-            </View>
-            {/* Garde le titre centré */}
-            <View style={styles.topBarSpacer} />
+        <View style={[styles.topBar, { top: insets.top + spacing[2] }]}>
+          <IconButton
+            icon="back"
+            variant="surface"
+            accessibilityLabel="Revenir à la carte"
+            onPress={() => router.back()}
+          />
+          <View style={styles.titlePill}>
+            <Text style={styles.title} accessibilityRole="header">
+              Son profil
+            </Text>
           </View>
+          {/* Garde le titre centré */}
+          <View style={styles.topBarSpacer} />
         </View>
-
-        <View style={styles.sheet}>
-          <DogProfile
-            name={dog.name}
-            distance={dog.distance}
-            sex={dog.sex}
-            age={dog.age}
-            breed={dog.breed}
-            activities={dog.activities}
-            traits={dog.traits}
-            favoriteToy={dog.favoriteToy}
-            quirk={dog.quirk}
-            description={dog.description}
-            parks={dog.parks}
-            ownerName={dog.owner.firstName}
-            ownerPhoto={dog.owner.photo}
-          />
-        </View>
-      </ScrollView>
-
-      <View
-        style={[
-          styles.actionBar,
-          { paddingBottom: ACTION_BAR_PADDING + insets.bottom },
-        ]}
-      >
-        <SwipeActions dogName={dog.name} onPass={() => decide(-1)} onLike={() => decide(1)} />
       </View>
-    </View>
+
+      <View style={styles.sheet}>
+        <DogProfile
+          name={dog.name}
+          distance={dog.distance}
+          sex={dog.sex}
+          age={dog.age}
+          breed={dog.breed}
+          activities={dog.activities}
+          traits={dog.traits}
+          favoriteToy={dog.favoriteToy}
+          quirk={dog.quirk}
+          description={dog.description}
+          parks={dog.parks}
+          ownerName={dog.owner.firstName}
+          ownerPhoto={dog.owner.photo}
+        />
+      </View>
+    </PullToClose>
   )
 }
 
