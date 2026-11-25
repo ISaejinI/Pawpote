@@ -2,21 +2,27 @@
   "name": "server",
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy --minify",
-    "cf-typegen": "wrangler types --env-interface CloudflareBindings"
+    "dev": "neon dev",
+    "dev:lan": "tsx watch src/dev.ts",
+    "deploy": "neon deploy --no-env-pull"
   },
   "dependencies": {
     "@better-auth/expo": "^1.7.27",
-    "@neondatabase/serverless": "^1.2.1",
+    "@neon/env": "^2.1.0",
+    "@neon/functions": "^0.11.0",
     "better-auth": "^1.7.27",
     "drizzle-orm": "^0.45.4",
-    "hono": "^4.13.16"
+    "hono": "^4.13.16",
+    "pg": "^8.23.1"
   },
   "devDependencies": {
+    "@hono/node-server": "^2.1.11",
+    "@neon/config": "^1.14.8",
     "@types/node": "^26.6.6",
+    "@types/pg": "^8.23.1",
     "dotenv": "^18.0.10",
     "drizzle-kit": "^0.31.11",
-    "wrangler": "^4.110.0"
+    "neon": "^9.9.10",
+    "tsx": "^4.23.15"
   }
 }
