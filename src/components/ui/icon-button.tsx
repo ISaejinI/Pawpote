@@ -12,7 +12,7 @@ import { Icon } from './icon';
 import type { IconName } from './icons';
 import { pressFeedback, type ShadowSize } from './press-feedback';
 
-export type IconButtonVariant = 'primary' | 'surface' | 'pass' | 'like';
+export type IconButtonVariant = 'primary' | 'surface' | 'white' | 'pass' | 'like';
 export type IconButtonSize = 'lg' | 'md' | 'sm';
 
 export type IconButtonProps = Omit<
@@ -25,6 +25,7 @@ export type IconButtonProps = Omit<
   /**
    * - `primary` : lime (Envoyer, Proposer une balade, Filtres).
    * - `surface` : cream (Retour).
+   * - `white` : blanc, sur une surface cream (Fermer une modale).
    * - `pass` : rose (Passer).
    * - `like` : orange, icône crème cerclée d'ink (J'aime).
    */
@@ -46,6 +47,7 @@ type VariantConfig = {
 const VARIANTS: Record<IconButtonVariant, VariantConfig> = {
   primary: { backgroundColor: colors.primary, iconColor: colors.text },
   surface: { backgroundColor: colors.surface, iconColor: colors.text },
+  white: { backgroundColor: colors.field, iconColor: colors.text },
   pass: { backgroundColor: colors.pass, iconColor: colors.text },
   like: {
     backgroundColor: colors.like,
