@@ -15,6 +15,9 @@ export {
 } from './icon-button';
 export { icons, type IconName } from './icons';
 
+// Molécules
+export { FormField, useFormField, type FormFieldProps } from './form-field';
+
 // Organismes
 export {
   Tapbar,
