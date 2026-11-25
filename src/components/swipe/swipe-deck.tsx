@@ -1,4 +1,5 @@
 import { DogCard } from '@/components/swipe/dog-card'
+import { IconButton } from '@/components/ui'
 import type { MockDog } from '@/data/mock-dogs'
 import { BlurTargetView, BlurView } from 'expo-blur'
 import { useRef, useState, type ComponentRef } from 'react'
@@ -237,31 +238,21 @@ function SwipeCardRound({
 
       {/* Boutons */}
       <View style={styles.actions}>
-        <Pressable
-          style={({ pressed }) => [
-            styles.actionButton,
-            styles.dislikeButton,
-            pressed && styles.buttonPressed,
-          ]}
+        <IconButton
+          icon="close"
+          variant="pass"
+          size="lg"
           onPress={() => triggerSwipe(-1)}
-          accessibilityRole="button"
           accessibilityLabel="Passer ce chien"
-        >
-          <Text style={styles.dislikeIcon}>✕</Text>
-        </Pressable>
+        />
 
-        <Pressable
-          style={({ pressed }) => [
-            styles.actionButton,
-            styles.likeButton,
-            pressed && styles.buttonPressed,
-          ]}
+        <IconButton
+          icon="heart"
+          variant="like"
+          size="lg"
           onPress={() => triggerSwipe(1)}
-          accessibilityRole="button"
           accessibilityLabel="Liker ce chien"
-        >
-          <Text style={styles.likeIcon}>✓</Text>
-        </Pressable>
+        />
       </View>
 
       <Text style={styles.hint}>
@@ -394,43 +385,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 32,
+    gap: 48, // écart Passer / J'aime défini par le design system
     marginTop: 8,
-  },
-
-  actionButton: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 2,
-  },
-
-  dislikeButton: {
-    borderColor: '#EF5350',
-  },
-
-  likeButton: {
-    borderColor: '#4CAF50',
-  },
-
-  dislikeIcon: {
-    fontSize: 34,
-    color: '#EF5350',
-    fontWeight: '600',
-  },
-
-  likeIcon: {
-    fontSize: 34,
-    color: '#4CAF50',
-    fontWeight: '600',
-  },
-
-  buttonPressed: {
-    transform: [{ scale: 0.92 }],
-    opacity: 0.7,
   },
 
   hint: {
