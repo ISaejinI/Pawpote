@@ -44,6 +44,7 @@ export {
   type SegmentedControlProps,
   type SegmentedOption,
 } from './segmented-control';
+export { Select, type SelectProps } from './select';
 
 // Templates
 export { TabPage, type TabPageProps } from './tab-page';
