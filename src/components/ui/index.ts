@@ -77,6 +77,7 @@ export {
   PhotoSourceSheet,
   type PhotoSourceSheetProps,
 } from './photo-source-sheet';
+export { PullToClose, type PullToCloseProps } from './pull-to-close';
 export {
   Tapbar,
   TapbarTab,
