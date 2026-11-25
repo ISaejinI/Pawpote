@@ -6,6 +6,7 @@ export {
   type ButtonSize,
   type ButtonVariant,
 } from './button';
+export { Chip, type ChipColor, type ChipProps } from './chip';
 export { Icon, type IconProps } from './icon';
 export {
   IconButton,
