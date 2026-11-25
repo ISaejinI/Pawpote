@@ -55,6 +55,7 @@ export {
   type SegmentedOption,
 } from './segmented-control';
 export { Select, type SelectProps } from './select';
+export { SwipeActions, type SwipeActionsProps } from './swipe-actions';
 
 // Templates
 export {
