@@ -18,6 +18,7 @@ export { Input, type InputProps } from './input';
 
 // Molécules
 export { FormField, useFormField, type FormFieldProps } from './form-field';
+export { PasswordInput, type PasswordInputProps } from './password-input';
 
 // Organismes
 export {
