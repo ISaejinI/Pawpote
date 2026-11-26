@@ -13,6 +13,7 @@ export {
   type ButtonVariant,
 } from './button';
 export { Callout, type CalloutProps } from './callout';
+export { ChatBackground } from './chat-background';
 export { Chip, type ChipColor, type ChipProps } from './chip';
 export { Icon, type IconProps } from './icon';
 export {
