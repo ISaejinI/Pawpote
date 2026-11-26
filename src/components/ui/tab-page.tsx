@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -7,54 +7,62 @@ import { colors, spacing, typography } from '@/theme';
 import { useTapbarInset } from './tapbar';
 import { WaveBackground } from './wave-background';
 
+type TabPageInsets = { top: number; bottom: number };
+
 export type TabPageProps = {
   /** Titre de page en `title-xl`. */
   title: string;
-  /**
-   * `true` (par défaut) : la page défile sous la Tapbar fixe.
-   * `false` : contenu en pleine hauteur (ex. le swipe).
-   */
-  scroll?: boolean;
-  children: ReactNode;
   contentStyle?: StyleProp<ViewStyle>;
-};
+} & (
+  | { scroll?: true; children: ReactNode }
+  // Le contenu occupe tout l'écran et reçoit les marges à conserver au repos.
+  | { scroll: false; children: (insets: TabPageInsets) => ReactNode }
+);
 
 /** Espace entre les blocs d'une page à onglet. */
 const BLOCK_GAP = 22;
 
 /** Gabarit des pages principales : fond à vagues, titre, contenu au-dessus de la Tapbar. */
-export function TabPage({ title, scroll = true, children, contentStyle }: TabPageProps) {
+export function TabPage(props: TabPageProps) {
+  const { title, contentStyle } = props;
   const insets = useSafeAreaInsets();
   const tapbarInset = useTapbarInset();
+  const [titleHeight, setTitleHeight] = useState<number>();
 
   const padding = {
     paddingTop: insets.top + spacing[5],
     paddingBottom: tapbarInset,
   };
 
-  const content = (
-    <>
-      <Text style={styles.title} accessibilityRole="header">
-        {title}
-      </Text>
-      {children}
-    </>
-  );
-
   return (
     <View style={styles.root}>
       <WaveBackground />
 
-      {scroll ? (
+      {props.scroll !== false ? (
         <ScrollView
           style={styles.root}
           contentContainerStyle={[styles.content, padding, contentStyle]}
           keyboardShouldPersistTaps="handled"
         >
-          {content}
+          <Text style={styles.title} accessibilityRole="header">{title}</Text>
+          {props.children}
         </ScrollView>
       ) : (
-        <View style={[styles.root, styles.content, padding, contentStyle]}>{content}</View>
+        <View style={[styles.root, contentStyle]}>
+          <View pointerEvents="none" style={[styles.fixedHeader, { top: padding.paddingTop }]}>
+            <Text
+              style={styles.title}
+              accessibilityRole="header"
+              onLayout={({ nativeEvent }) => setTitleHeight(nativeEvent.layout.height)}
+            >
+              {title}
+            </Text>
+          </View>
+          {titleHeight !== undefined && props.children({
+            top: padding.paddingTop + titleHeight + BLOCK_GAP,
+            bottom: tapbarInset,
+          })}
+        </View>
       )}
     </View>
   );
@@ -71,5 +79,11 @@ const styles = StyleSheet.create({
   title: {
     ...typography.titleXl,
     color: colors.text,
+  },
+  fixedHeader: {
+    position: 'absolute',
+    left: spacing[4],
+    right: spacing[4],
+    zIndex: 1,
   },
 });

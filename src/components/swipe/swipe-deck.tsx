@@ -38,16 +38,16 @@ const CARD_SHADOW_OFFSET = 6
 
 type SwipeDeckProps = {
   dogs: DiscoveryDog[]
+  insets: { top: number; bottom: number }
   onComplete: () => void
 }
 
-type SwipeCardRoundProps = {
+type SwipeCardRoundProps = Pick<SwipeDeckProps, 'insets' | 'onComplete'> & {
   dog: DiscoveryDog
   active: boolean
   nextDogId?: string
   revealedDogId: SharedValue<string | undefined>
   width: number
-  onComplete: () => void
 }
 
 function SwipeCardRound({
@@ -56,6 +56,7 @@ function SwipeCardRound({
   nextDogId,
   revealedDogId,
   width,
+  insets,
   onComplete,
 }: SwipeCardRoundProps) {
   const dogId = dog.id
@@ -193,40 +194,42 @@ function SwipeCardRound({
 
   return (
     <View
-      style={[styles.round, active && styles.frontCard]}
+      style={[
+        styles.round,
+        { paddingTop: insets.top, paddingBottom: insets.bottom + spacing[2] },
+        active && styles.frontCard,
+      ]}
       pointerEvents={active ? 'box-none' : 'none'}
       accessibilityElementsHidden={!active}
       importantForAccessibility={active ? 'auto' : 'no-hide-descendants'}
     >
-      <View style={styles.cardContainer}>
-        <GestureDetector gesture={panGesture}>
-          <Animated.View style={[styles.cardLayer, animatedCardStyle]}>
-            <View pointerEvents="none" style={styles.cardShadow} />
-            <BlurTargetView ref={blurTargetRef} style={styles.cardFace}>
-              <MatchCard
-                name={dog.name}
-                photoUri={dog.photo}
-                age={dog.age ?? undefined}
-                breed={dog.breed ?? undefined}
-                favoriteToy={dog.favoriteToy ?? undefined}
-                style={styles.matchCard}
+      <GestureDetector gesture={panGesture}>
+        <Animated.View style={[styles.cardLayer, animatedCardStyle]}>
+          <View pointerEvents="none" style={styles.cardShadow} />
+          <BlurTargetView ref={blurTargetRef} style={styles.cardFace}>
+            <MatchCard
+              name={dog.name}
+              photoUri={dog.photo}
+              age={dog.age ?? undefined}
+              breed={dog.breed ?? undefined}
+              favoriteToy={dog.favoriteToy ?? undefined}
+              style={styles.matchCard}
+            />
+          </BlurTargetView>
+          {!active && (
+            <Animated.View style={[styles.blurOverlay, animatedBlurStyle]} pointerEvents="none">
+              <BlurView
+                blurTarget={blurTargetRef}
+                blurMethod="dimezisBlurView"
+                blurReductionFactor={2}
+                intensity={BLUR_INTENSITY}
+                tint="default"
+                style={StyleSheet.absoluteFill}
               />
-            </BlurTargetView>
-            {!active && (
-              <Animated.View style={[styles.blurOverlay, animatedBlurStyle]} pointerEvents="none">
-                <BlurView
-                  blurTarget={blurTargetRef}
-                  blurMethod="dimezisBlurView"
-                  blurReductionFactor={2}
-                  intensity={BLUR_INTENSITY}
-                  tint="default"
-                  style={StyleSheet.absoluteFill}
-                />
-              </Animated.View>
-            )}
-          </Animated.View>
-        </GestureDetector>
-      </View>
+            </Animated.View>
+          )}
+        </Animated.View>
+      </GestureDetector>
 
       {/* Boutons : Passer, Voir tout son profil, J'aime */}
       <SwipeActions
@@ -242,7 +245,7 @@ function SwipeCardRound({
   )
 }
 
-export function SwipeDeck({ dogs, onComplete }: SwipeDeckProps) {
+export function SwipeDeck({ dogs, insets, onComplete }: SwipeDeckProps) {
   const { width } = useWindowDimensions()
   const revealedDogId = useSharedValue<string | undefined>(undefined)
 
@@ -257,6 +260,7 @@ export function SwipeDeck({ dogs, onComplete }: SwipeDeckProps) {
           nextDogId={index === 0 ? dogs[1]?.id : undefined}
           revealedDogId={revealedDogId}
           width={width}
+          insets={insets}
           onComplete={onComplete}
         />
       ))}
@@ -267,7 +271,6 @@ export function SwipeDeck({ dogs, onComplete }: SwipeDeckProps) {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    marginHorizontal: -spacing[4],
     overflow: 'visible',
   },
 
@@ -275,15 +278,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     alignItems: 'center',
     gap: 20,
-    paddingBottom: 8,
-    overflow: 'visible',
-  },
-
-  cardContainer: {
-    flex: 1,
-    alignSelf: 'stretch',
     paddingHorizontal: spacing[4],
-    alignItems: 'center',
     overflow: 'visible',
   },
 
@@ -327,6 +322,7 @@ const styles = StyleSheet.create({
 
   actions: {
     marginTop: 8,
+    zIndex: 1,
   },
   hidden: {
     opacity: 0,

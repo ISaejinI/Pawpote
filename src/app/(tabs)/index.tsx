@@ -30,42 +30,47 @@ export default function MatchScreen() {
 
   return (
     <TabPage title="Découvrir" scroll={false}>
-      <View style={styles.content}>
-        {data?.dogs.length ? (
-          <SwipeDeck dogs={data.dogs} onComplete={() => {
-            if (data.dogs.length === 1) retry()
-            else setData({ ...data, dogs: data.dogs.slice(1) })
-          }} />
-        ) : (
-          <View style={styles.state}>
-            {error ? (
-              <>
-                <Text style={styles.message} accessibilityRole="alert">Impossible de charger les chiens.</Text>
-                <Button variant="secondary" onPress={retry}>Réessayer</Button>
-              </>
-            ) : data ? (
-              <>
-                <Text style={styles.message}>
-                  {data.canRestart ? 'Tu as vu tous les chiens !' : 'Aucun chien à découvrir pour le moment.'}
-                </Text>
-                {restartError && <Text accessibilityRole="alert">Impossible de recommencer. Réessaie.</Text>}
-                {data.canRestart ? (
-                  <View style={styles.restartFrame}>
-                    {!restarting && <View pointerEvents="none" style={styles.restartShadow} />}
-                    <Button onPress={restart} loading={restarting} style={styles.restartButton}>
-                      Recommencer
-                    </Button>
-                  </View>
-                ) : (
-                  <Button variant="secondary" onPress={retry}>Actualiser</Button>
-                )}
-              </>
-            ) : (
-              <ActivityIndicator color={colors.active} accessibilityLabel="Chargement des chiens" />
-            )}
-          </View>
-        )}
-      </View>
+      {insets => (
+        <View style={styles.content}>
+          {data?.dogs.length ? (
+            <SwipeDeck dogs={data.dogs} insets={insets} onComplete={() => {
+              if (data.dogs.length === 1) retry()
+              else setData({ ...data, dogs: data.dogs.slice(1) })
+            }} />
+          ) : (
+            <View style={[
+              styles.state,
+              { paddingTop: insets.top + spacing[4], paddingBottom: insets.bottom + spacing[4] },
+            ]}>
+              {error ? (
+                <>
+                  <Text style={styles.message} accessibilityRole="alert">Impossible de charger les chiens.</Text>
+                  <Button variant="secondary" onPress={retry}>Réessayer</Button>
+                </>
+              ) : data ? (
+                <>
+                  <Text style={styles.message}>
+                    {data.canRestart ? 'Tu as vu tous les chiens !' : 'Aucun chien à découvrir pour le moment.'}
+                  </Text>
+                  {restartError && <Text accessibilityRole="alert">Impossible de recommencer. Réessaie.</Text>}
+                  {data.canRestart ? (
+                    <View style={styles.restartFrame}>
+                      {!restarting && <View pointerEvents="none" style={styles.restartShadow} />}
+                      <Button onPress={restart} loading={restarting} style={styles.restartButton}>
+                        Recommencer
+                      </Button>
+                    </View>
+                  ) : (
+                    <Button variant="secondary" onPress={retry}>Actualiser</Button>
+                  )}
+                </>
+              ) : (
+                <ActivityIndicator color={colors.active} accessibilityLabel="Chargement des chiens" />
+              )}
+            </View>
+          )}
+        </View>
+      )}
     </TabPage>
   )
 }
@@ -79,7 +84,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: spacing[4],
-    paddingVertical: spacing[4],
+    paddingHorizontal: spacing[4],
   },
   restartFrame: {
     width: '100%',
