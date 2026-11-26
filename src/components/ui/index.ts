@@ -48,6 +48,7 @@ export {
 } from './choice-group';
 export { ConversationRow, type ConversationRowProps } from './conversation-row';
 export { DateInput, type DateInputProps } from './date-input';
+export { DuoAvatar, type DuoAvatarProps } from './duo-avatar';
 export { FormField, useFormField, type FormFieldProps } from './form-field';
 export { NewMatchItem, type NewMatchItemProps } from './new-match-item';
 export { OnboardingSteps, type OnboardingStepsProps } from './onboarding-steps';
