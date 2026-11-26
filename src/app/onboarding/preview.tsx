@@ -1,11 +1,17 @@
 import { router } from 'expo-router'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { Button, MatchCard, TextLink, WaveBackground } from '@/components/ui'
 import { ageInYears, parseDateInput } from '@/lib/dates'
-import { ApiError, saveOnboarding, toOnboardingPayload } from '@/lib/onboarding-api'
+import {
+  ApiError,
+  dogPhotoUris,
+  saveOnboarding,
+  toOnboardingPayload,
+  uploadPhoto,
+} from '@/lib/onboarding-api'
 import { useOnboardingDraft } from '@/lib/onboarding-draft'
 import { useOnboardingStatus } from '@/lib/onboarding-status'
 import { colors, spacing, typography } from '@/theme'
@@ -18,15 +24,24 @@ export default function PreviewScreen() {
   const birthDate = parseDateInput(dog.birthDate)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  // Photos déjà envoyées (URI locale → clé) : un nouvel essai ne les renvoie pas
+  const uploadedPhotos = useRef(new Map<string, string>())
 
-  /** Enregistre le propriétaire et tous ses chiens en une fois, puis ouvre les onglets. */
+  /** Envoie les photos, enregistre le propriétaire et tous ses chiens, puis ouvre les onglets. */
   async function handleStart() {
     if (saving) return
     setSaving(true)
     setError('')
 
     try {
-      await saveOnboarding(toOnboardingPayload(dogs, owner))
+      const uris = [...dogs.flatMap(dogPhotoUris), ...(owner.photo ? [owner.photo] : [])]
+      await Promise.all(
+        uris
+          .filter((uri) => !uploadedPhotos.current.has(uri))
+          .map(async (uri) => uploadedPhotos.current.set(uri, await uploadPhoto(uri))),
+      )
+
+      await saveOnboarding(toOnboardingPayload(dogs, owner, uploadedPhotos.current))
       // La garde du layout racine bascule alors vers les onglets
       completeOnboarding()
     } catch (caught) {

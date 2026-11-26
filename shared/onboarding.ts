@@ -40,6 +40,8 @@ export const ONBOARDING_LIMITS = {
   city: 60,
   /** Chiens enregistrables en une fois. */
   dogs: 5,
+  /** Photo principale + trois photos secondaires. */
+  dogPhotos: 4,
 } as const
 
 export type OnboardingDog = {
@@ -53,6 +55,8 @@ export type OnboardingDog = {
   favoriteToy: string | null
   activities: string[]
   description: string
+  /** Clés des photos envoyées au stockage, la principale en premier. */
+  photos: string[]
 }
 
 export type OnboardingOwner = {
@@ -61,7 +65,12 @@ export type OnboardingOwner = {
   address: string
   postalCode: string
   city: string
+  /** Clé de la photo envoyée au stockage. */
+  photo: string | null
 }
+
+/** Réponse de `POST /api/uploads/photos`. */
+export type PhotoUpload = { key: string; uploadUrl: string }
 
 export type OnboardingPayload = {
   owner: OnboardingOwner
