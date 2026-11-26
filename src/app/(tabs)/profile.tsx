@@ -124,6 +124,7 @@ export default function ProfileScreen() {
           iconColor="lavender"
           title="Adresse e-mail"
           subtitle={session?.user.email}
+          onPress={() => router.push('/account/email')}
         />
         <MenuRow icon="key" iconColor="lime" title="Mot de passe" />
         <MenuRow icon="trash" iconColor="pink" title="Supprimer mon compte" danger />

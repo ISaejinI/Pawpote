@@ -51,6 +51,14 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  user: {
+    // Changement d'adresse depuis le profil. L'app n'envoie pas encore d'e-mail de confirmation :
+    // l'adresse, jamais vérifiée, est remplacée directement.
+    changeEmail: {
+      enabled: true,
+      updateEmailWithoutVerification: true,
+    },
+  },
   databaseHooks: {
     user: {
       create: {
