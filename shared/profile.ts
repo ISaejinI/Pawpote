@@ -36,8 +36,14 @@ export type DogSheet = {
   description: string | null
   /** URL publiques, la photo principale en premier. */
   photos: string[]
-  /** Faux pour mon dernier chien : un compte garde toujours au moins un chien. */
-  canRemove: boolean
+  /** Mon seul chien : le retirer renvoie dans l'onboarding. */
+  isLastDog: boolean
+}
+
+/** Réponse de `POST /api/profile/dogs/:id/delete`. */
+export type DogRemoval = {
+  /** Chiens restants : à 0, le compte repasse par l'onboarding. */
+  remainingDogs: number
 }
 
 /** Corps de `POST /api/profile/dogs/:id` : la fiche modifiée. */

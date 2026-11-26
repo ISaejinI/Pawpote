@@ -3,7 +3,7 @@ import { Hono } from 'hono'
 
 import { ACTIVITIES, ONBOARDING_LIMITS, TRAITS } from '../../shared/onboarding'
 import {
-  dogCompletion, type DogSheet, type DogUpdate, type ProfileSummary,
+  dogCompletion, type DogRemoval, type DogSheet, type DogUpdate, type ProfileSummary,
 } from '../../shared/profile'
 import { db } from './db'
 import {
@@ -146,7 +146,7 @@ profile.get('/dogs/:id', async (c) => {
     activities: ACTIVITIES.filter((name) => activityNames.has(name)),
     description: dog.description,
     photos,
-    canRemove: !!otherDog,
+    isLastDog: !otherDog,
   } satisfies DogSheet)
 })
 
@@ -248,19 +248,21 @@ profile.post('/dogs/:id', async (c) => {
   return c.json({ ok: true })
 })
 
-/** Retire un chien de mon compte. Refusé pour le dernier : le compte repasserait par l'onboarding. */
+/**
+ * Retire un chien de mon compte. Sans chien, le compte repasse par l'onboarding :
+ * la réponse indique combien il en reste.
+ */
 profile.post('/dogs/:id/delete', async (c) => {
   const userId = c.get('userId')
   const dog = await findOwnDog(userId, c.req.param('id'))
   if (!dog) return c.json({ error: 'Chien introuvable.' }, 404)
 
-  const [otherDog] = await db.select({ id: dogs.id }).from(dogs)
-    .where(and(eq(dogs.ownerId, userId), ne(dogs.id, dog.id))).limit(1)
-  if (!otherDog) return c.json({ error: 'Impossible de retirer ton dernier chien.' }, 409)
-
   // Photos, traits, activités, swipes et matchs partent avec lui (suppression en cascade)
   await db.delete(dogs).where(eq(dogs.id, dog.id))
-  return c.json({ ok: true })
+
+  const [{ remaining }] = await db.select({ remaining: sql<number>`count(*)::integer` })
+    .from(dogs).where(eq(dogs.ownerId, userId))
+  return c.json({ remainingDogs: remaining } satisfies DogRemoval)
 })
 
 export { profile }

@@ -27,6 +27,7 @@ import { ACTIVITIES, ONBOARDING_LIMITS, TRAITS } from '@/data/onboarding-options
 import { useBreedCatalog } from '@/lib/breed-catalog'
 import { ageInYears, dateInputToIso, isoToDateInput, parseDateInput, validateBirthDate } from '@/lib/dates'
 import { uploadPhoto } from '@/lib/onboarding-api'
+import { useOnboardingStatus } from '@/lib/onboarding-status'
 import { toggleValue } from '@/lib/onboarding-draft'
 import { pickImage, type ImageSource } from '@/lib/pick-image'
 import { getDogSheet, removeDog, saveDogSheet } from '@/lib/profile-api'
@@ -122,6 +123,7 @@ export default function MyDogScreen() {
   const [previewOpen, setPreviewOpen] = useState(false)
 
   const { catalog, retry: retryBreeds } = useBreedCatalog()
+  const { restartOnboarding } = useOnboardingStatus()
   const breeds = catalog.status === 'ready' ? catalog.breeds : []
 
   // Photos déjà envoyées (URI locale → clé) : un nouvel essai ne les renvoie pas
@@ -297,9 +299,13 @@ export default function MyDogScreen() {
   }
 
   function handleRemove() {
+    const consequences = sheet!.isLastDog
+      ? 'C’est ton seul chien : tu devras en présenter un nouveau pour continuer à utiliser PawPote.'
+      : 'Cette action est définitive.'
+
     Alert.alert(
       `Retirer ${sheet!.name} ?`,
-      'Sa fiche, ses photos et ses matchs seront supprimés. Cette action est définitive.',
+      `Sa fiche, ses photos et ses matchs seront supprimés. ${consequences}`,
       [
         { text: 'Annuler', style: 'cancel' },
         {
@@ -308,9 +314,11 @@ export default function MyDogScreen() {
           onPress: async () => {
             setRemoving(true)
             try {
-              await removeDog(sheet!.id)
+              const { remainingDogs } = await removeDog(sheet!.id)
               allowLeave()
-              router.back()
+              // Plus aucun chien : la garde du layout racine bascule vers l'onboarding
+              if (remainingDogs === 0) restartOnboarding()
+              else router.back()
             } catch (error) {
               console.error('Dog removal error:', error)
               setRemoving(false)
@@ -456,11 +464,9 @@ export default function MyDogScreen() {
         </FormField>
       </FormSection>
 
-      {sheet.canRemove && (
-        <Button variant="danger" icon="trash" onPress={handleRemove} loading={removing}>
-          {`Retirer ${sheet.name} de mon compte`}
-        </Button>
-      )}
+      <Button variant="danger" icon="trash" onPress={handleRemove} loading={removing}>
+        {`Retirer ${sheet.name} de mon compte`}
+      </Button>
 
       <PhotoSourceSheet
         visible={photoSheetOpen}

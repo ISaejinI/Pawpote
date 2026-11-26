@@ -15,6 +15,8 @@ type OnboardingStatusValue = {
   needsOnboarding: boolean;
   /** À appeler une fois l'onboarding enregistré en base. */
   completeOnboarding: () => void;
+  /** À appeler quand le compte n'a plus de chien : l'app repasse par l'onboarding. */
+  restartOnboarding: () => void;
 };
 
 const OnboardingStatusContext = createContext<OnboardingStatusValue | null>(null);
@@ -32,9 +34,9 @@ function readCompleted(userId: string) {
   }
 }
 
-function saveCompleted(userId: string) {
+function saveCompleted(userId: string, completed = true) {
   try {
-    SecureStore.setItem(storageKey(userId), 'true');
+    SecureStore.setItem(storageKey(userId), completed ? 'true' : 'false');
   } catch (error) {
     console.error('Onboarding status save error:', error);
   }
@@ -85,6 +87,11 @@ export function OnboardingStatusProvider({
       if (!userId) return;
       saveCompleted(userId);
       setServerStatus((current) => ({ ...current, [userId]: true }));
+    },
+    restartOnboarding: () => {
+      if (!userId) return;
+      saveCompleted(userId, false);
+      setServerStatus((current) => ({ ...current, [userId]: false }));
     },
   };
 

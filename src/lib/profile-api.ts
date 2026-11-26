@@ -2,7 +2,7 @@ import { useFocusEffect } from 'expo-router'
 import { useCallback, useRef, useState } from 'react'
 import { Platform } from 'react-native'
 
-import type { DogSheet, DogUpdate, ProfileDog, ProfileSummary } from '../../shared/profile'
+import type { DogRemoval, DogSheet, DogUpdate, ProfileDog, ProfileSummary } from '../../shared/profile'
 import { API_TIMEOUT_MS, apiUrl } from './api-url'
 import { authClient } from './auth-client'
 
@@ -56,9 +56,9 @@ export const getDogSheet = (id: string, signal?: AbortSignal) =>
 export const saveDogSheet = (id: string, update: DogUpdate) =>
   profileRequest<{ ok: true }>(`/dogs/${encodeURIComponent(id)}`, { body: update })
 
-/** Retire un chien de mon compte (refusé pour le dernier). */
+/** Retire un chien de mon compte et indique combien il en reste. */
 export const removeDog = (id: string) =>
-  profileRequest<{ ok: true }>(`/dogs/${encodeURIComponent(id)}/delete`, { body: {} })
+  profileRequest<DogRemoval>(`/dogs/${encodeURIComponent(id)}/delete`, { body: {} })
 
 /**
  * Charge le profil et le recharge à chaque retour sur l'écran (après une fiche modifiée).
