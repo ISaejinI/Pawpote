@@ -42,6 +42,7 @@ export { TextLink, type TextLinkProps } from './text-link';
 export { WaveBackground } from './wave-background';
 
 // Molécules
+export { AvatarField, type AvatarFieldProps } from './avatar-field';
 export {
   ChoiceGroup,
   type ChoiceGroupProps,

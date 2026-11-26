@@ -1,23 +1,22 @@
 import { router } from 'expo-router'
 import { useRef, useState } from 'react'
-import { StyleSheet, Text, View, type TextInputInstance } from 'react-native'
+import { StyleSheet, View, type TextInputInstance } from 'react-native'
 
 import { AddressField } from '@/components/onboarding/address-field'
 import { stepProps } from '@/components/onboarding/steps'
 import {
+  AvatarField,
   Callout,
   DateInput,
   FormField,
   Input,
   OnboardingStepPage,
-  PhotoSlot,
   PhotoSourceSheet,
 } from '@/components/ui'
 import { ONBOARDING_LIMITS } from '@/data/onboarding-options'
 import { validateBirthDate } from '@/lib/dates'
 import { useOnboardingDraft, type OwnerDraft } from '@/lib/onboarding-draft'
 import { pickImage, type ImageSource } from '@/lib/pick-image'
-import { colors, typography } from '@/theme'
 
 type Field = 'birthDate' | 'address' | 'postalCode' | 'city'
 
@@ -65,20 +64,7 @@ export default function OwnerStep() {
       onBack={router.back}
       onContinue={handleContinue}
     >
-      <View style={styles.photoRow}>
-        <PhotoSlot
-          variant="avatar"
-          uri={owner.photo}
-          accessibilityLabel={owner.photo ? 'Changer ta photo' : 'Ajouter ta photo'}
-          onPress={() => setSheetOpen(true)}
-        />
-        <View style={styles.photoText}>
-          <Text style={styles.photoTitle}>
-            Ta photo<Text style={styles.optional}> (facultatif)</Text>
-          </Text>
-          <Text style={styles.photoHint}>Pour que les autres maîtres te reconnaissent au parc</Text>
-        </View>
-      </View>
+      <AvatarField uri={owner.photo} onPress={() => setSheetOpen(true)} />
 
       <FormField label="Ta date de naissance" error={errors.birthDate}>
         <DateInput value={owner.birthDate} onChangeText={(birthDate) => update({ birthDate })} />
@@ -140,28 +126,6 @@ export default function OwnerStep() {
 }
 
 const styles = StyleSheet.create({
-  photoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-  },
-  photoText: {
-    flex: 1,
-    gap: 2,
-  },
-  photoTitle: {
-    ...typography.bodyStrong,
-    color: colors.text,
-  },
-  optional: {
-    fontWeight: 500,
-    color: colors.textMuted,
-  },
-  photoHint: {
-    ...typography.label,
-    fontWeight: 500,
-    color: colors.text,
-  },
   row: {
     flexDirection: 'row',
     gap: 10,
