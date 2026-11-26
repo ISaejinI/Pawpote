@@ -50,6 +50,7 @@ export { ConversationRow, type ConversationRowProps } from './conversation-row';
 export { DateInput, type DateInputProps } from './date-input';
 export { DuoAvatar, type DuoAvatarProps } from './duo-avatar';
 export { FormField, useFormField, type FormFieldProps } from './form-field';
+export { MatchBanner, type MatchBannerProps } from './match-banner';
 export { NewMatchItem, type NewMatchItemProps } from './new-match-item';
 export { OnboardingSteps, type OnboardingStepsProps } from './onboarding-steps';
 export { ParkRow, type ParkRowProps } from './park-row';
