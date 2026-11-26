@@ -11,6 +11,7 @@ import {
   Select,
   TextLink,
 } from '@/components/ui'
+import { ONBOARDING_LIMITS } from '@/data/onboarding-options'
 import { useBreedCatalog } from '@/lib/breed-catalog'
 import { validateBirthDate } from '@/lib/dates'
 import { useOnboardingDraft, type DogDraft, type DogSex } from '@/lib/onboarding-draft'
@@ -70,6 +71,7 @@ export default function DogStep() {
           placeholder="Ex. Biscotte"
           value={dog.name}
           onChangeText={(name) => update({ name })}
+          maxLength={ONBOARDING_LIMITS.dogName}
           autoCapitalize="words"
           returnKeyType="next"
         />

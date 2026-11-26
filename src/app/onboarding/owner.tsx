@@ -12,6 +12,7 @@ import {
   PhotoSlot,
   PhotoSourceSheet,
 } from '@/components/ui'
+import { ONBOARDING_LIMITS } from '@/data/onboarding-options'
 import { validateBirthDate } from '@/lib/dates'
 import { useOnboardingDraft, type OwnerDraft } from '@/lib/onboarding-draft'
 import { pickImage, type ImageSource } from '@/lib/pick-image'
@@ -87,6 +88,7 @@ export default function OwnerStep() {
           placeholder="N° et nom de rue"
           value={owner.address}
           onChangeText={(address) => update({ address })}
+          maxLength={ONBOARDING_LIMITS.address}
           autoComplete="street-address"
           textContentType="streetAddressLine1"
           returnKeyType="next"
@@ -118,6 +120,7 @@ export default function OwnerStep() {
             placeholder="Paris"
             value={owner.city}
             onChangeText={(city) => update({ city })}
+            maxLength={ONBOARDING_LIMITS.city}
             autoComplete="postal-address-locality"
             textContentType="addressCity"
             autoCapitalize="words"

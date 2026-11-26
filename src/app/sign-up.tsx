@@ -64,12 +64,21 @@ export default function SignUpScreen() {
     setError('')
 
     try {
-      const result = await authClient.signUp.email({
-        // Better Auth n'a qu'un champ `name` : prénom et nom y sont réunis
-        name: `${values.firstName.trim()} ${values.lastName.trim()}`,
+      const firstName = values.firstName.trim()
+      const lastName = values.lastName.trim()
+
+      const body = {
+        // `name` (Better Auth) réunit prénom et nom pour l'affichage
+        name: `${firstName} ${lastName}`,
         email: values.email.trim(),
         password: values.password,
-      })
+        // Champs en plus, lus par le serveur pour créer la ligne `profiles` du propriétaire.
+        // Ils ne font pas partie du type de Better Auth : d'où l'objet intermédiaire.
+        firstName,
+        lastName,
+      }
+
+      const result = await authClient.signUp.email(body)
 
       if (result.error) {
         setError(getAuthErrorMessage(result.error, 'Inscription impossible.'))

@@ -5,6 +5,7 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 
 import { db } from './db'
 import * as authSchema from './db/auth-schema'
+import { profiles } from './db/schema'
 
 const secret = process.env.BETTER_AUTH_SECRET
 
@@ -27,6 +28,18 @@ export const webOrigins = (process.env.BETTER_AUTH_WEB_ORIGINS ?? '')
     return url.origin
   })
 
+/** Longueur maximale acceptée pour un prénom ou un nom. */
+const MAX_NAME_LENGTH = 50
+
+/** Lit un champ texte facultatif du corps de l'inscription, nettoyé et borné. */
+function readName(body: unknown, key: 'firstName' | 'lastName') {
+  if (!body || typeof body !== 'object') return undefined
+  const value = (body as Record<string, unknown>)[key]
+  if (typeof value !== 'string') return undefined
+  const trimmed = value.trim().slice(0, MAX_NAME_LENGTH)
+  return trimmed || undefined
+}
+
 export const auth = betterAuth({
   appName: 'Pawpote',
   baseURL: process.env.BETTER_AUTH_URL?.trim() || functionBaseUrl('pawpote'),
@@ -37,6 +50,24 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        // Crée le profil du propriétaire avec le prénom et le nom saisis à l'inscription.
+        // Better Auth lance ce hook une fois l'utilisateur enregistré : la clé étrangère est valide.
+        after: async (user, context) => {
+          const firstName =
+            readName(context?.body, 'firstName') ?? (user.name.trim().split(/\s+/)[0] || user.name)
+          const lastName = readName(context?.body, 'lastName') ?? null
+
+          await db
+            .insert(profiles)
+            .values({ userId: user.id, firstName, lastName })
+            .onConflictDoNothing()
+        },
+      },
+    },
   },
   trustedOrigins: [
     'pawpote://',

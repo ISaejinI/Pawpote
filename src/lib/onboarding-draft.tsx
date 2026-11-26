@@ -62,6 +62,8 @@ const initialDraft: OnboardingDraft = {
 
 type OnboardingDraftValue = {
   dog: DogDraft;
+  /** Tous les chiens saisis, dans l'ordre. */
+  dogs: DogDraft[];
   owner: OwnerDraft;
   parks: string[];
   updateDog: (patch: Partial<DogDraft>) => void;
@@ -75,13 +77,14 @@ const OnboardingDraftContext = createContext<OnboardingDraftValue | null>(null);
 
 /**
  * Garde en mémoire les réponses de l'onboarding d'une étape à l'autre.
- * Rien n'est enregistré en base pour l'instant : le brouillon disparaît en quittant l'onboarding.
+ * Rien n'est envoyé avant la dernière étape : tout est enregistré en une fois avec « Commencer à swiper ».
  */
 export function OnboardingDraftProvider({ children }: { children: ReactNode }) {
   const [draft, setDraft] = useState(initialDraft);
 
   const value: OnboardingDraftValue = {
     dog: draft.dogs[draft.currentDog],
+    dogs: draft.dogs,
     owner: draft.owner,
     parks: draft.parks,
     updateDog: (patch) =>

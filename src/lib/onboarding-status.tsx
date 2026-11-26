@@ -1,16 +1,19 @@
 import * as SecureStore from 'expo-secure-store';
-import { createContext, use, useState, type ReactNode } from 'react';
+import { createContext, use, useEffect, useState, type ReactNode } from 'react';
+
+import { getOnboardingStatus } from './onboarding-api';
 
 /**
  * Indique si l'utilisateur connecté doit passer par l'onboarding.
  *
- * Règle visée : onboarding tant que l'utilisateur n'a pas de ligne `profiles` ni de chien.
- * L'API n'expose pas encore ces tables : en attendant, la fin de l'onboarding
- * est mémorisée sur l'appareil, par utilisateur. À remplacer par un appel à l'API.
+ * Règle : onboarding tant que l'utilisateur n'a aucun chien en base (`GET /api/onboarding`).
+ * La réponse positive est gardée sur l'appareil : l'API n'est interrogée qu'une fois par compte.
  */
 type OnboardingStatusValue = {
+  /** Vérification en cours auprès de l'API. */
+  isLoading: boolean;
   needsOnboarding: boolean;
-  /** À appeler à la fin de l'onboarding. */
+  /** À appeler une fois l'onboarding enregistré en base. */
   completeOnboarding: () => void;
 };
 
@@ -29,6 +32,14 @@ function readCompleted(userId: string) {
   }
 }
 
+function saveCompleted(userId: string) {
+  try {
+    SecureStore.setItem(storageKey(userId), 'true');
+  } catch (error) {
+    console.error('Onboarding status save error:', error);
+  }
+}
+
 export function OnboardingStatusProvider({
   userId,
   children,
@@ -37,21 +48,43 @@ export function OnboardingStatusProvider({
   userId: string | undefined;
   children: ReactNode;
 }) {
-  // Fins d'onboarding de la session en cours, en plus de celles lues sur l'appareil
-  const [completedNow, setCompletedNow] = useState<string[]>([]);
+  // Réponses de l'API, par utilisateur
+  const [serverStatus, setServerStatus] = useState<Record<string, boolean>>({});
 
-  const completed = !!userId && (completedNow.includes(userId) || readCompleted(userId));
+  const completed = !!userId && (serverStatus[userId] === true || readCompleted(userId));
+  const isLoading = !!userId && !completed && serverStatus[userId] === undefined;
+
+  useEffect(() => {
+    if (!userId || !isLoading) return;
+    let cancelled = false;
+
+    getOnboardingStatus()
+      .then(({ completed: done }) => {
+        if (done) saveCompleted(userId);
+        return done;
+      })
+      .catch((error: unknown) => {
+        // API injoignable : on passe par l'onboarding. S'il était déjà fait,
+        // l'API le signale à l'enregistrement et l'app bascule vers les onglets.
+        console.error('Onboarding status error:', error);
+        return false;
+      })
+      .then((done) => {
+        if (!cancelled) setServerStatus((current) => ({ ...current, [userId]: done }));
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, isLoading]);
 
   const value: OnboardingStatusValue = {
-    needsOnboarding: !!userId && !completed,
+    isLoading,
+    needsOnboarding: !!userId && !completed && !isLoading,
     completeOnboarding: () => {
       if (!userId) return;
-      try {
-        SecureStore.setItem(storageKey(userId), 'true');
-      } catch (error) {
-        console.error('Onboarding status save error:', error);
-      }
-      setCompletedNow((current) => [...current, userId]);
+      saveCompleted(userId);
+      setServerStatus((current) => ({ ...current, [userId]: true }));
     },
   };
 

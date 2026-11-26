@@ -1,9 +1,11 @@
 import { router } from 'expo-router'
+import { useState } from 'react'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { Button, MatchCard, TextLink, WaveBackground } from '@/components/ui'
 import { ageInYears, parseDateInput } from '@/lib/dates'
+import { ApiError, saveOnboarding, toOnboardingPayload } from '@/lib/onboarding-api'
 import { useOnboardingDraft } from '@/lib/onboarding-draft'
 import { useOnboardingStatus } from '@/lib/onboarding-status'
 import { colors, spacing, typography } from '@/theme'
@@ -11,9 +13,33 @@ import { colors, spacing, typography } from '@/theme'
 /** Fin de l'onboarding : aperçu de la carte du chien. */
 export default function PreviewScreen() {
   const insets = useSafeAreaInsets()
-  const { dog, startNewDog } = useOnboardingDraft()
+  const { dog, dogs, owner, startNewDog } = useOnboardingDraft()
   const { completeOnboarding } = useOnboardingStatus()
   const birthDate = parseDateInput(dog.birthDate)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+
+  /** Enregistre le propriétaire et tous ses chiens en une fois, puis ouvre les onglets. */
+  async function handleStart() {
+    if (saving) return
+    setSaving(true)
+    setError('')
+
+    try {
+      await saveOnboarding(toOnboardingPayload(dogs, owner))
+      // La garde du layout racine bascule alors vers les onglets
+      completeOnboarding()
+    } catch (caught) {
+      // 409 : l'onboarding a déjà été enregistré (ex. depuis un autre appareil)
+      if (caught instanceof ApiError && caught.status === 409) {
+        completeOnboarding()
+        return
+      }
+      console.error('Onboarding save error:', caught)
+      setError('Impossible d’enregistrer le profil. Vérifie ta connexion, puis réessaie.')
+      setSaving(false)
+    }
+  }
 
   return (
     <View style={styles.root}>
@@ -44,12 +70,17 @@ export default function PreviewScreen() {
         />
 
         <View style={styles.actions}>
-          {/* La garde du layout racine bascule alors vers les onglets */}
-          <Button icon="arrow-right" iconPosition="end" onPress={completeOnboarding}>
+          {error ? (
+            <Text style={styles.error} accessibilityRole="alert" accessibilityLiveRegion="polite">
+              {error}
+            </Text>
+          ) : null}
+          <Button icon="arrow-right" iconPosition="end" onPress={handleStart} loading={saving}>
             Commencer à swiper
           </Button>
           <Button
             variant="secondary"
+            disabled={saving}
             background="cream"
             icon="plus"
             onPress={() => {
@@ -59,7 +90,9 @@ export default function PreviewScreen() {
           >
             Ajouter un autre chien
           </Button>
-          <TextLink onPress={() => router.dismissTo('/onboarding/dog')}>Modifier son profil</TextLink>
+          <TextLink onPress={() => router.dismissTo('/onboarding/dog')} disabled={saving}>
+            Modifier son profil
+          </TextLink>
         </View>
       </ScrollView>
     </View>
@@ -98,6 +131,11 @@ const styles = StyleSheet.create({
     maxWidth: 300,
     aspectRatio: 290 / 400,
     transform: [{ rotate: '-2deg' }],
+  },
+  error: {
+    ...typography.small,
+    color: colors.danger,
+    textAlign: 'center',
   },
   actions: {
     marginTop: 'auto',

@@ -4,10 +4,8 @@ import { StyleSheet, View } from 'react-native'
 
 import { stepProps } from '@/components/onboarding/steps'
 import { Chip, FormField, OnboardingStepPage, TextArea } from '@/components/ui'
-import { ACTIVITIES } from '@/data/onboarding-options'
+import { ACTIVITIES, ONBOARDING_LIMITS } from '@/data/onboarding-options'
 import { toggleValue, useOnboardingDraft } from '@/lib/onboarding-draft'
-
-const DESCRIPTION_MAX_LENGTH = 300
 
 /** Étape 4 · Ce qu'il aime */
 export default function ActivitiesStep() {
@@ -52,7 +50,7 @@ export default function ActivitiesStep() {
             updateDog({ description })
             setError('')
           }}
-          maxLength={DESCRIPTION_MAX_LENGTH}
+          maxLength={ONBOARDING_LIMITS.description}
           style={styles.grow}
         />
       </FormField>
