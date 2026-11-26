@@ -73,6 +73,7 @@ export { WalkProposalCard, type WalkProposalCardProps } from './walk-proposal-ca
 
 // Templates
 export { ConversationPage, type ConversationPageProps } from './conversation-page';
+export { EditPage, type EditPageProps, type EditPageScrollRef } from './edit-page';
 export {
   OnboardingStepPage,
   type OnboardingStepPageProps,
