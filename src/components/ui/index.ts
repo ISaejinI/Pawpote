@@ -79,6 +79,7 @@ export {
   ConversationHeader,
   type ConversationHeaderProps,
 } from './conversation-header';
+export { ConversationList, type ConversationListProps } from './conversation-list';
 export {
   DogProfile,
   type DogProfilePark,
