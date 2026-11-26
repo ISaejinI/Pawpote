@@ -3,8 +3,11 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 
 import { auth, webOrigins } from './auth'
+import { db } from './db'
+import { breeds } from './db/schema'
 
 const app = new Hono()
+const frenchOrder = new Intl.Collator('fr')
 
 // Autoriser les requêtes depuis Expo Web
 app.use(
@@ -23,6 +26,16 @@ app.get('/', (c) => {
     name: 'Pawpote API',
     status: 'ok',
   })
+})
+
+app.use('/api/breeds', cors({ origin: webOrigins, allowMethods: ['GET', 'OPTIONS'] }))
+
+app.get('/api/breeds', async (c) => {
+  const catalog = await db.select().from(breeds)
+  catalog.sort((a, b) => frenchOrder.compare(a.name, b.name))
+
+  c.header('Cache-Control', 'public, max-age=300')
+  return c.json({ breeds: catalog })
 })
 
 // Routes Better Auth

@@ -1,19 +1,14 @@
 import { expo } from '@better-auth/expo'
 import { functionBaseUrl } from '@neon/env'
-import { attachDatabasePool } from '@neon/functions'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
-import { drizzle } from 'drizzle-orm/node-postgres'
-import { Pool } from 'pg'
 
+import { db } from './db'
 import * as authSchema from './db/auth-schema'
 
-const databaseUrl = process.env.DATABASE_URL
 const secret = process.env.BETTER_AUTH_SECRET
 
-if (!databaseUrl || !secret) {
-  throw new Error('DATABASE_URL and BETTER_AUTH_SECRET are required')
-}
+if (!secret) throw new Error('BETTER_AUTH_SECRET is required')
 
 export const webOrigins = (process.env.BETTER_AUTH_WEB_ORIGINS ?? '')
   .split(',')
@@ -31,10 +26,6 @@ export const webOrigins = (process.env.BETTER_AUTH_WEB_ORIGINS ?? '')
     }
     return url.origin
   })
-
-const pool = new Pool({ connectionString: databaseUrl, max: 5 })
-attachDatabasePool(pool)
-const db = drizzle(pool, { schema: authSchema })
 
 export const auth = betterAuth({
   appName: 'Pawpote',

@@ -11,6 +11,7 @@ export type SelectProps = {
   options: readonly string[];
   value: string | null;
   onChange: (value: string) => void;
+  disabled?: boolean;
   placeholder?: string;
   searchPlaceholder?: string;
   /** Affiché quand la recherche ne donne rien. */
@@ -20,6 +21,15 @@ export type SelectProps = {
   style?: StyleProp<ViewStyle>;
 };
 
+const PAGE_SIZE = 40;
+
+function normalizeSearch(value: string) {
+  return value.toLowerCase().normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/œ/g, 'oe')
+    .replace(/[-'’]/g, ' ');
+}
+
 /**
  * Liste déroulante avec recherche (ex. la race).
  * La liste s'ouvre sous le champ et pousse le contenu, pour rester lisible dans une page qui défile.
@@ -28,6 +38,7 @@ export function Select({
   options,
   value,
   onChange,
+  disabled = false,
   placeholder = 'Choisis une option',
   searchPlaceholder = 'Rechercher…',
   emptyMessage = 'Aucun résultat.',
@@ -40,16 +51,19 @@ export function Select({
 
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
-  const normalizedQuery = query.trim().toLowerCase();
-  const filtered = options.filter(
-    (option) => !normalizedQuery || option.toLowerCase().includes(normalizedQuery),
-  );
+  const words = normalizeSearch(query).trim().split(/\s+/).filter(Boolean);
+  const filtered = words.length ? options.filter((option) => {
+    const name = normalizeSearch(option);
+    return words.every((word) => name.includes(word));
+  }) : options;
 
   function pick(option: string) {
     onChange(option);
     setOpen(false);
     setQuery('');
+    setVisibleCount(PAGE_SIZE);
   }
 
   return (
@@ -57,7 +71,8 @@ export function Select({
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={label ? `${label} : ${value ?? placeholder}` : undefined}
-        accessibilityState={{ expanded: open }}
+        accessibilityState={{ expanded: open, disabled }}
+        disabled={disabled}
         onPress={() => setOpen((current) => !current)}
         style={[styles.trigger, invalid && styles.invalid]}
       >
@@ -79,7 +94,10 @@ export function Select({
         <View style={styles.panel}>
           <Input
             value={query}
-            onChangeText={setQuery}
+            onChangeText={(text) => {
+              setQuery(text);
+              setVisibleCount(PAGE_SIZE);
+            }}
             placeholder={searchPlaceholder}
             accessibilityLabel={searchPlaceholder}
             icon="search"
@@ -94,7 +112,7 @@ export function Select({
             keyboardShouldPersistTaps="handled"
             accessibilityLabel={label}
           >
-            {filtered.map((option) => {
+            {filtered.slice(0, visibleCount).map((option) => {
               const selected = option === value;
 
               return (
@@ -115,6 +133,15 @@ export function Select({
             })}
 
             {filtered.length === 0 && <Text style={styles.empty}>{emptyMessage}</Text>}
+            {filtered.length > visibleCount && (
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => setVisibleCount((count) => count + PAGE_SIZE)}
+                style={styles.option}
+              >
+                <Text style={styles.optionText}>Afficher plus de résultats</Text>
+              </Pressable>
+            )}
           </ScrollView>
         </View>
       )}

@@ -1,22 +1,7 @@
 /**
  * Listes de choix de l'onboarding, reprises de la maquette.
- * À remplacer par les tables `breeds`, `characters` et `activities` quand l'API les exposera.
+ * À remplacer par les tables `characters` et `activities` quand l'API les exposera.
  */
-export const BREEDS = [
-  'Berger australien',
-  'Border collie',
-  'Bouledogue français',
-  'Cavalier King Charles',
-  'Cocker anglais',
-  'Golden retriever',
-  'Jack Russell',
-  'Labrador',
-  'Shiba inu',
-  'Teckel',
-  'Croisé',
-  'Autre race',
-] as const;
-
 export const TRAITS = [
   'Joueur',
   'Calme',
