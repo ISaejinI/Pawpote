@@ -8,7 +8,7 @@ export type DogDraft = {
   sex: DogSex | null;
   /** « JJ / MM / AAAA » */
   birthDate: string;
-  breed: string | null;
+  breed: { id: number | null; name: string } | null;
   mainPhoto: string | null;
   /** Trois emplacements de photos secondaires. */
   extraPhotos: (string | null)[];

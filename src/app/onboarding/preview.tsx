@@ -37,7 +37,7 @@ export default function PreviewScreen() {
           size="sm"
           name={dog.name}
           age={birthDate ? ageInYears(birthDate) : undefined}
-          breed={dog.breed ?? undefined}
+          breed={dog.breed?.name}
           photoUri={dog.mainPhoto}
           favoriteToy={dog.favoriteToy}
           quirk={dog.quirk}

@@ -9,8 +9,9 @@ import {
   Input,
   OnboardingStepPage,
   Select,
+  TextLink,
 } from '@/components/ui'
-import { BREEDS } from '@/data/onboarding-options'
+import { useBreedCatalog } from '@/lib/breed-catalog'
 import { validateBirthDate } from '@/lib/dates'
 import { useOnboardingDraft, type DogDraft, type DogSex } from '@/lib/onboarding-draft'
 
@@ -19,12 +20,16 @@ const SEX_OPTIONS = [
   { value: 'male', label: 'Mâle' },
 ] as const satisfies { value: DogSex; label: string }[]
 
+const OTHER_BREEDS = ['Croisé', 'Autre race']
+
 type Field = 'name' | 'sex' | 'birthDate' | 'breed'
 
 /** Étape 1 · Ton chien */
 export default function DogStep() {
   const { dog, updateDog } = useOnboardingDraft()
+  const { catalog, retry } = useBreedCatalog()
   const [errors, setErrors] = useState<Partial<Record<Field, string>>>({})
+  const breeds = catalog.status === 'ready' ? catalog.breeds : []
 
   function update(patch: Partial<DogDraft>) {
     updateDog(patch)
@@ -33,6 +38,11 @@ export default function DogStep() {
       for (const key of Object.keys(patch)) delete next[key as Field]
       return next
     })
+  }
+
+  function chooseBreed(name: string) {
+    const id = breeds.find((breed) => breed.name === name)?.id ?? null
+    update({ breed: { id, name } })
   }
 
   function handleContinue() {
@@ -75,13 +85,17 @@ export default function DogStep() {
 
       <FormField label="Race" error={errors.breed}>
         <Select
-          options={BREEDS}
-          value={dog.breed}
-          onChange={(breed) => update({ breed })}
-          placeholder="Choisis une race"
+          options={[...OTHER_BREEDS, ...breeds.map((breed) => breed.name)]}
+          value={dog.breed?.name ?? null}
+          onChange={chooseBreed}
+          disabled={catalog.status !== 'ready'}
+          placeholder={catalog.status === 'loading' ? 'Chargement des races…' : 'Choisis une race'}
           searchPlaceholder="Rechercher une race…"
-          emptyMessage="Aucune race trouvée. Choisis « Autre race »."
+          emptyMessage="Aucune race trouvée. Recherche « Autre race »."
         />
+        {catalog.status === 'error' && (
+          <TextLink onPress={retry}>Liste indisponible. Réessayer</TextLink>
+        )}
       </FormField>
     </OnboardingStepPage>
   )

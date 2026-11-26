@@ -4,7 +4,8 @@
   "scripts": {
     "dev": "neon dev",
     "dev:lan": "tsx watch src/dev.ts",
-    "deploy": "neon deploy --no-env-pull"
+    "deploy": "neon deploy --no-env-pull",
+    "seed:breeds": "tsx scripts/seed-breeds.ts"
   },
   "dependencies": {
     "@better-auth/expo": "^1.7.27",
