@@ -60,7 +60,7 @@ function SwipeCardRound({
   onComplete,
 }: SwipeCardRoundProps) {
   const dogId = dog.id
-  const distance = formatDiscoveryDistance(dog.distanceKm)
+  const distance = formatDiscoveryDistance(dog.distanceKm, dog.distanceApproximate)
   const blurTargetRef = useRef<ComponentRef<typeof View>>(null)
   const translateX = useSharedValue(0)
   const translateY = useSharedValue(0)

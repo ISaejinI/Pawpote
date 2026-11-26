@@ -26,15 +26,6 @@ export function readDiscoveryFilters(query: Record<string, string>): DiscoveryFi
   return { sizes, ages, sex, nearby: query.nearby === '1' || radiusKm !== undefined, radiusKm }
 }
 
-export function readCoordinates(input: unknown): Coordinates | null {
-  if (!input || typeof input !== 'object') return null
-  const { latitude, longitude } = input as Partial<Coordinates>
-  if (typeof latitude !== 'number' || typeof longitude !== 'number' ||
-    !Number.isFinite(latitude) || !Number.isFinite(longitude) ||
-    Math.abs(latitude) > 90 || Math.abs(longitude) > 180) return null
-  return { latitude, longitude }
-}
-
 export function matchesAge(age: SQL<number | null>, group: DogAge) {
   switch (group) {
     case 'puppy': return sql`${age} < 1`
@@ -44,18 +35,27 @@ export function matchesAge(age: SQL<number | null>, group: DogAge) {
   }
 }
 
-export function distanceForDisplay(distance: SQL<number | null>) {
-  return sql<number | null>`round((${distance})::numeric, 1)::double precision`
-}
+const homeFallback = sql<boolean>`${profiles.latitude} is null and ${profiles.homeLatitude} is not null`
 
 export function distanceFrom(origin: Coordinates | null) {
   if (!origin) return sql<number | null>`null::double precision`
+  const latitude = sql`coalesce(${profiles.latitude}, ${profiles.homeLatitude})`
+  const longitude = sql`coalesce(${profiles.longitude}, ${profiles.homeLongitude})`
   return sql<number | null>`case
-    when ${profiles.latitude} is not null and ${profiles.longitude} is not null then
+    when ${latitude} is not null and ${longitude} is not null then
       6371 * acos(least(1, greatest(-1,
-        sin(radians(${origin.latitude}::double precision)) * sin(radians(${profiles.latitude})) +
-        cos(radians(${origin.latitude}::double precision)) * cos(radians(${profiles.latitude})) *
-        cos(radians(${profiles.longitude} - ${origin.longitude}::double precision))
+        sin(radians(${origin.latitude}::double precision)) * sin(radians(${latitude})) +
+        cos(radians(${origin.latitude}::double precision)) * cos(radians(${latitude})) *
+        cos(radians(${longitude} - ${origin.longitude}::double precision))
       )))
     end`
+}
+
+export function distanceForDisplay(distance: SQL<number | null>, hasOrigin: boolean) {
+  return {
+    distanceKm: sql<number | null>`
+      round((${distance})::numeric, case when ${homeFallback} then 0 else 1 end)::double precision
+    `,
+    distanceApproximate: hasOrigin ? homeFallback : sql<boolean>`false`,
+  }
 }

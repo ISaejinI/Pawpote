@@ -2,6 +2,7 @@ import { and, asc, eq, inArray, ne, notExists, or, sql } from 'drizzle-orm'
 import { Hono } from 'hono'
 
 import type { Coordinates, DiscoveryFeed, DogDetails, SwipeResult } from '../../shared/discovery'
+import { readCoordinates } from '../../shared/location'
 import demoPhotos from '../data/demo-photos.json'
 import { db } from './db'
 import { user } from './db/auth-schema'
@@ -10,7 +11,7 @@ import {
   profiles, swipes,
 } from './db/schema'
 import {
-  distanceForDisplay, distanceFrom, matchesAge, readCoordinates, readDiscoveryFilters,
+  distanceForDisplay, distanceFrom, matchesAge, readDiscoveryFilters,
 } from './discovery-filters'
 import { requireSession, sessionCors, type SessionVariables } from './session'
 
@@ -59,7 +60,7 @@ discovery.get('/', async (c) => {
   if (filters.nearby && !origin) return c.json({ error: 'Position indisponible.' }, 409)
 
   const distanceKm = distanceFrom(origin)
-  const feed = await db.select({ ...card, distanceKm: distanceForDisplay(distanceKm) }).from(dogs)
+  const feed = await db.select({ ...card, ...distanceForDisplay(distanceKm, !!origin) }).from(dogs)
     .leftJoin(breeds, eq(breeds.id, dogs.breedId))
     .innerJoin(profiles, eq(profiles.userId, dogs.ownerId))
     .where(and(
@@ -99,7 +100,7 @@ discovery.get('/dogs/:id', async (c) => {
   const origin = c.req.query('nearby') === '1' ? await profileLocation(c.get('userId')) : null
   const [dog] = await db.select({
     ...card, sex: dogs.sex, description: dogs.description, quirk: dogs.quirk,
-    distanceKm: distanceForDisplay(distanceFrom(origin)),
+    ...distanceForDisplay(distanceFrom(origin), !!origin),
     firstName: profiles.firstName, avatar: profiles.avatarKey,
   }).from(dogs).innerJoin(profiles, eq(profiles.userId, dogs.ownerId))
     .leftJoin(breeds, eq(breeds.id, dogs.breedId)).where(eq(dogs.id, id)).limit(1)

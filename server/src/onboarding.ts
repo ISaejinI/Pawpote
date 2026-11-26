@@ -1,6 +1,7 @@
 import { eq, inArray } from 'drizzle-orm'
 import { Hono } from 'hono'
 
+import { approximateHomeLocation, readCoordinates } from '../../shared/location'
 import {
   ACTIVITIES, ONBOARDING_LIMITS, TRAITS,
   type OnboardingDog, type OnboardingOwner, type OnboardingPayload, type OnboardingStatus,
@@ -95,11 +96,14 @@ function readOwner(userId: string, value: unknown): OnboardingOwner {
   if (typeof postalCode !== 'string' || !/^\d{5}$/.test(postalCode)) {
     throw new InvalidPayload('postalCode invalide.')
   }
+  const homeLocation = readCoordinates(value.homeLocation)
+  if (value.homeLocation != null && !homeLocation) throw new InvalidPayload('Position du domicile invalide.')
   return {
     birthDate: readBirthDate(value, 'birthDate', 120),
     address: readText(value, 'address', ONBOARDING_LIMITS.address)!,
     postalCode,
     city: readText(value, 'city', ONBOARDING_LIMITS.city)!,
+    homeLocation: homeLocation ? approximateHomeLocation(homeLocation) : null,
     photo: value.photo === null || value.photo === undefined
       ? null : readPhotoKeys(userId, [value.photo], 1, 1)[0],
   }
@@ -160,8 +164,13 @@ onboarding.post('/', async (c) => {
   const uploaded = await Promise.all(photoKeys.map(photoExists))
   if (uploaded.includes(false)) return c.json({ error: 'Photo introuvable dans le stockage.' }, 400)
 
-  const { photo: ownerPhoto, ...ownerFields } = payload.owner
-  const owner = { ...ownerFields, avatarKey: ownerPhoto ? photoUrl(ownerPhoto) : null }
+  const { photo: ownerPhoto, homeLocation, ...ownerFields } = payload.owner
+  const owner = {
+    ...ownerFields,
+    homeLatitude: homeLocation?.latitude ?? null,
+    homeLongitude: homeLocation?.longitude ?? null,
+    avatarKey: ownerPhoto ? photoUrl(ownerPhoto) : null,
+  }
 
   const breedIds = [...new Set(payload.dogs.flatMap((dog) => (dog.breedId ? [dog.breedId] : [])))]
   if (breedIds.length) {

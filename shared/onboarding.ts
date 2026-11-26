@@ -1,3 +1,5 @@
+import type { Coordinates } from './discovery'
+
 /**
  * Contrat de l'enregistrement de l'onboarding, partagé entre l'app et l'API.
  */
@@ -65,6 +67,7 @@ export type OnboardingOwner = {
   address: string
   postalCode: string
   city: string
+  homeLocation?: Coordinates | null
   /** Clé de la photo envoyée au stockage. */
   photo: string | null
 }

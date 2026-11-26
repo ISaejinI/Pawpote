@@ -118,6 +118,7 @@ export function toOnboardingPayload(
       address: owner.address.trim(),
       postalCode: owner.postalCode.trim(),
       city: owner.city.trim(),
+      homeLocation: owner.homeLocation ?? null,
       photo: owner.photo ? keyOf(owner.photo) : null,
     },
     dogs: dogs.map((dog) => {
