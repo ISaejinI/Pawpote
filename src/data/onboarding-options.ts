@@ -1,32 +1,5 @@
-/**
- * Listes de choix de l'onboarding, reprises de la maquette.
- * À remplacer par les tables `characters` et `activities` quand l'API les exposera.
- */
-export const TRAITS = [
-  'Joueur',
-  'Calme',
-  'Câlin',
-  'Timide',
-  'Foufou',
-  'Curieux',
-  'Gourmand',
-  'Protecteur',
-  'Sociable',
-  'Indépendant',
-  'Têtu',
-  'Bavard',
-] as const;
-
-export const ACTIVITIES = [
-  'Balade en forêt',
-  'Course',
-  'Baignade',
-  'Jeu de balle',
-  'Randonnée',
-  'Parc à chiens',
-  'Plage',
-  'Agility',
-] as const;
+/** Listes de choix de l'onboarding. Traits et activités sont partagés avec l'API. */
+export { ACTIVITIES, ONBOARDING_LIMITS, TRAITS } from '../../shared/onboarding';
 
 /** Parcs fictifs en attendant la recherche géolocalisée. */
 export const MOCK_PARKS = [

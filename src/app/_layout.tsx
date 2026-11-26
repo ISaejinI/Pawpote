@@ -27,16 +27,13 @@ export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts(fontDefinitions)
   const { data: session, isPending } = authClient.useSession()
 
-  // L'écran de démarrage reste affiché tant que les polices et la session ne sont pas prêtes
+  // L'écran de démarrage reste affiché tant que les polices et la session ne sont pas prêtes,
+  // puis tant que l'état de l'onboarding n'est pas connu (voir RootStack)
   const ready = (fontsLoaded || !!fontError) && !isPending
 
   useEffect(() => {
     if (fontError) console.error('Font loading error:', fontError)
   }, [fontError])
-
-  useEffect(() => {
-    if (ready) void SplashScreen.hideAsync()
-  }, [ready])
 
   if (!ready) return null
 
@@ -53,7 +50,13 @@ export default function RootLayout() {
 }
 
 function RootStack({ signedIn }: { signedIn: boolean }) {
-  const { needsOnboarding } = useOnboardingStatus()
+  const { isLoading, needsOnboarding } = useOnboardingStatus()
+
+  useEffect(() => {
+    if (!isLoading) void SplashScreen.hideAsync()
+  }, [isLoading])
+
+  if (isLoading) return null
 
   return (
     <Stack screenOptions={{ headerShown: false }}>

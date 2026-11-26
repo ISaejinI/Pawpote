@@ -4,11 +4,8 @@ import { StyleSheet, View } from 'react-native'
 
 import { stepProps } from '@/components/onboarding/steps'
 import { Chip, FormField, Input, OnboardingStepPage } from '@/components/ui'
-import { TRAITS } from '@/data/onboarding-options'
+import { ONBOARDING_LIMITS, TRAITS } from '@/data/onboarding-options'
 import { toggleValue, useOnboardingDraft } from '@/lib/onboarding-draft'
-
-/** Limite de la colonne `dogs.favorite_toy`. */
-const FAVORITE_TOY_MAX_LENGTH = 32
 
 /** Étape 3 · Son caractère */
 export default function CharacterStep() {
@@ -57,6 +54,7 @@ export default function CharacterStep() {
           placeholder="Ex. Boude si la balade est trop courte"
           value={dog.quirk}
           onChangeText={(quirk) => updateDog({ quirk })}
+          maxLength={ONBOARDING_LIMITS.quirk}
         />
       </FormField>
 
@@ -65,7 +63,7 @@ export default function CharacterStep() {
           placeholder="Ex. La poule qui couine"
           value={dog.favoriteToy}
           onChangeText={(favoriteToy) => updateDog({ favoriteToy })}
-          maxLength={FAVORITE_TOY_MAX_LENGTH}
+          maxLength={ONBOARDING_LIMITS.favoriteToy}
         />
       </FormField>
     </OnboardingStepPage>

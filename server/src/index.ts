@@ -6,11 +6,13 @@ import { auth, webOrigins } from './auth'
 import { db } from './db'
 import { breeds } from './db/schema'
 import { discovery } from './discovery'
+import { onboarding } from './onboarding'
 
 const app = new Hono()
 const frenchOrder = new Intl.Collator('fr')
 
 app.route('/api/discovery', discovery)
+app.route('/api/onboarding', onboarding)
 
 // Autoriser les requêtes depuis Expo Web
 app.use(
