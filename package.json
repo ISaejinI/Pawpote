@@ -62,7 +62,10 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "test:api": "npm --prefix server test",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p server",
+    "check": "npm run lint && npm run typecheck && npm test && npm run test:api"
   },
   "private": true
 }
