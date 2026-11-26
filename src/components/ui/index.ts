@@ -51,6 +51,7 @@ export { FormField, useFormField, type FormFieldProps } from './form-field';
 export { OnboardingSteps, type OnboardingStepsProps } from './onboarding-steps';
 export { ParkRow, type ParkRowProps } from './park-row';
 export { PasswordInput, type PasswordInputProps } from './password-input';
+export { SearchField, type SearchFieldProps } from './search-field';
 export {
   SegmentedControl,
   type SegmentedControlProps,
