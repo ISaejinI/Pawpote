@@ -23,6 +23,8 @@ export type OnboardingStepPageProps = {
   children: ReactNode;
   onContinue: () => void;
   continueLabel?: string;
+  /** Enregistrement en cours : bouton Continuer en chargement. */
+  continueLoading?: boolean;
   /** Sans `onBack`, pas de bouton retour (première étape). */
   onBack?: () => void;
   /** Lien « Passer cette étape », seulement si toute l'étape est facultative. */
@@ -42,6 +44,7 @@ export function OnboardingStepPage({
   children,
   onContinue,
   continueLabel = 'Continuer',
+  continueLoading = false,
   onBack,
   onSkip,
 }: OnboardingStepPageProps) {
@@ -75,7 +78,7 @@ export function OnboardingStepPage({
 
         <View style={styles.card}>{children}</View>
 
-        <Button icon="arrow-right" iconPosition="end" onPress={onContinue}>
+        <Button icon="arrow-right" iconPosition="end" onPress={onContinue} loading={continueLoading}>
           {continueLabel}
         </Button>
 
