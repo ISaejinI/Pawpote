@@ -1,22 +1,40 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 
-import { Button, TabPage } from '@/components/ui';
-import { authClient } from '@/lib/auth-client';
 import {
-  borderWidth,
-  colors,
-  radius,
-  shadows,
-  spacing,
-  typography,
-} from '@/theme';
+  Button,
+  DogRow,
+  MenuRow,
+  MenuSection,
+  ProfileSummaryCard,
+  TabPage,
+} from '@/components/ui';
+import { MOCK_PARK_COUNT } from '@/data/mock-profile';
+import { authClient } from '@/lib/auth-client';
+import { dogDetails, getProfileSummary } from '@/lib/profile-api';
+import { useDiscoveryQuery } from '@/lib/use-discovery-query';
+import { colors, shadows, typography } from '@/theme';
 
+/** Fonds des photos manquantes, attribués aux chiens dans l'ordre. */
+const DOG_COLORS = [colors.peach300, colors.lime500, colors.pink300, colors.lavender200];
+
+/**
+ * Onglet Profil : aperçu, mes chiens, mon profil, paramètres et sécurité.
+ * L'aperçu, mes chiens, l'e-mail et la déconnexion sont réels ; les parcs sont fictifs.
+ */
 export default function ProfileScreen() {
   const { data: session } = authClient.useSession();
 
   const [loading, setLoading] = useState(false);
   const [signOutError, setSignOutError] = useState('');
+
+  const summary = useDiscoveryQuery(getProfileSummary);
+  // Même couleur de fond pour un chien sans photo, dans l'en-tête et dans la liste
+  const dogs = (summary.data?.dogs ?? []).map((dog, index) => ({
+    ...dog,
+    details: dogDetails(dog),
+    color: DOG_COLORS[index % DOG_COLORS.length],
+  }));
 
   async function handleSignOut() {
     if (loading) return;
@@ -28,9 +46,7 @@ export default function ProfileScreen() {
       const result = await authClient.signOut();
 
       if (result.error) {
-        setSignOutError(
-          result.error.message ?? 'Impossible de se déconnecter.',
-        );
+        setSignOutError(result.error.message ?? 'Impossible de se déconnecter.');
       }
     } catch (error) {
       console.error('Better Auth sign-out error:', error);
@@ -42,52 +58,89 @@ export default function ProfileScreen() {
 
   return (
     <TabPage title="Mon profil">
-      <View style={styles.card}>
-        <Text style={styles.label}>Connecté en tant que :</Text>
-        <Text style={styles.email}>
-          {session?.user.email ?? 'Utilisateur'}
+      <ProfileSummaryCard
+        status={summary.data ? 'ready' : summary.error ? 'error' : 'loading'}
+        onRetry={summary.retry}
+        owner={{
+          firstName: summary.data?.owner.firstName ?? '',
+          photoUri: summary.data?.owner.photo,
+          color: colors.lavender200,
+        }}
+        dogs={dogs.map((dog) => ({ ...dog, photoUri: dog.photo }))}
+      />
+
+      <MenuSection title="Mes chiens">
+        {dogs.map((dog) => (
+          <DogRow
+            key={dog.id}
+            name={dog.name}
+            details={dog.details}
+            photoUri={dog.photo}
+            color={dog.color}
+            completion={dog.completion}
+          />
+        ))}
+        <MenuRow icon="plus" iconColor="lime" title="Ajouter un chien" />
+      </MenuSection>
+
+      <MenuSection title="Mon profil">
+        <MenuRow
+          icon="user"
+          iconColor="lavender"
+          title="Infos personnelles"
+          subtitle="Nom, prénom, date de naissance, photo"
+        />
+        <MenuRow icon="pin" iconColor="pink" title="Adresse" subtitle="Pour calculer les distances" />
+        <MenuRow
+          icon="park"
+          iconColor="lime"
+          title="Mes parcs"
+          subtitle={`${MOCK_PARK_COUNT} parc${MOCK_PARK_COUNT > 1 ? 's' : ''} ajouté${MOCK_PARK_COUNT > 1 ? 's' : ''}`}
+        />
+      </MenuSection>
+
+      <MenuSection title="Paramètres">
+        <MenuRow icon="bell" iconColor="peach" title="Notifications" />
+        <MenuRow icon="eye" iconColor="pink" title="Confidentialité" />
+        <MenuRow icon="help" iconColor="lime" title="Aide et contact" />
+      </MenuSection>
+
+      <MenuSection title="Sécurité">
+        <MenuRow
+          icon="mail"
+          iconColor="lavender"
+          title="Adresse e-mail"
+          subtitle={session?.user.email}
+        />
+        <MenuRow icon="key" iconColor="lime" title="Mot de passe" />
+        <MenuRow icon="trash" iconColor="pink" title="Supprimer mon compte" danger />
+      </MenuSection>
+
+      <Button
+        variant="secondary"
+        background="cream"
+        icon="log-out"
+        onPress={handleSignOut}
+        loading={loading}
+        style={styles.signOut}
+      >
+        Se déconnecter
+      </Button>
+
+      {signOutError ? (
+        <Text style={styles.error} accessibilityRole="alert">
+          {signOutError}
         </Text>
-
-        <Button
-          variant="secondary"
-          icon="log-out"
-          onPress={handleSignOut}
-          loading={loading}
-          style={styles.button}
-        >
-          Se déconnecter
-        </Button>
-
-        {signOutError ? (
-          <Text style={styles.errorText}>{signOutError}</Text>
-        ) : null}
-      </View>
+      ) : null}
     </TabPage>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.surface,
-    borderWidth: borderWidth.regular,
-    borderColor: colors.border,
-    borderRadius: radius.xl,
-    padding: spacing[4],
-    gap: spacing[2],
-    ...shadows.lg,
+  signOut: {
+    ...shadows.md,
   },
-  label: {
-    ...typography.label,
-    color: colors.textMuted,
-  },
-  email: {
-    ...typography.bodyStrong,
-    color: colors.text,
-  },
-  button: {
-    marginTop: spacing[2],
-  },
-  errorText: {
+  error: {
     ...typography.small,
     color: colors.danger,
     textAlign: 'center',
