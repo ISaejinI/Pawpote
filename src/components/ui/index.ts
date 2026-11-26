@@ -63,6 +63,7 @@ export {
 } from './segmented-control';
 export { Select, type SelectProps } from './select';
 export { SwipeActions, type SwipeActionsProps } from './swipe-actions';
+export { WalkProposalCard, type WalkProposalCardProps } from './walk-proposal-card';
 
 // Templates
 export {
