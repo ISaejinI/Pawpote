@@ -42,6 +42,7 @@ export { TextLink, type TextLinkProps } from './text-link';
 export { WaveBackground } from './wave-background';
 
 // Molécules
+export { AvatarField, type AvatarFieldProps } from './avatar-field';
 export {
   ChoiceGroup,
   type ChoiceGroupProps,
@@ -53,6 +54,7 @@ export { DogRow, type DogRowProps } from './dog-row';
 export { DuoAvatar, type DuoAvatarProps } from './duo-avatar';
 export { FormField, useFormField, type FormFieldProps } from './form-field';
 export { FormSection, type FormSectionProps } from './form-section';
+export { LoadStatus, type LoadStatusProps } from './load-status';
 export { MatchBanner, type MatchBannerProps } from './match-banner';
 export { MenuRow, type MenuRowProps } from './menu-row';
 export { MessageComposer, type MessageComposerProps } from './message-composer';

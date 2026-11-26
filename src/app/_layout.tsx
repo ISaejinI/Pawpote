@@ -73,6 +73,11 @@ function RootStack({ signedIn }: { signedIn: boolean }) {
         <Stack.Screen name="conversation/[id]" options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="my-dog/[id]" options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="add-dog" options={{ animation: 'slide_from_bottom' }} />
+        <Stack.Screen name="account/identity" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="account/address" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="account/email" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="account/password" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="account/delete" options={{ animation: 'slide_from_right' }} />
         <Stack.Screen
           name="dog/[id]"
           // Transparente : la carte reste visible derrière quand on tire le profil vers le bas

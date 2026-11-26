@@ -9,6 +9,9 @@ const MESSAGES: Record<string, string> = {
     'Un compte existe déjà avec cette adresse e-mail.',
   PASSWORD_TOO_SHORT: 'Le mot de passe doit contenir au moins 8 caractères.',
   PASSWORD_TOO_LONG: 'Le mot de passe est trop long.',
+  INVALID_PASSWORD: 'Mot de passe actuel incorrect.',
+  CREDENTIAL_ACCOUNT_NOT_FOUND: 'Ce compte n’a pas de mot de passe.',
+  PASSWORD_REQUIRED: 'Renseigne ton mot de passe.',
 };
 
 export function getAuthErrorMessage(error: AuthError, fallback: string) {

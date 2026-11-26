@@ -1,11 +1,13 @@
 import { expo } from '@better-auth/expo'
 import { functionBaseUrl } from '@neon/env'
 import { betterAuth } from 'better-auth'
+import { APIError, createAuthMiddleware } from 'better-auth/api'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 
 import { db } from './db'
 import * as authSchema from './db/auth-schema'
 import { profiles } from './db/schema'
+import { deleteUserPhotos } from './storage'
 
 const secret = process.env.BETTER_AUTH_SECRET
 
@@ -50,6 +52,38 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+  },
+  user: {
+    // Changement d'adresse depuis le profil. L'app n'envoie pas encore d'e-mail de confirmation :
+    // l'adresse, jamais vérifiée, est remplacée directement.
+    changeEmail: {
+      enabled: true,
+      updateEmailWithoutVerification: true,
+    },
+    // Suppression du compte depuis le profil. Le profil, les chiens, les matchs et les messages
+    // partent en cascade avec l'utilisateur ; ses photos sont retirées du stockage ensuite.
+    deleteUser: {
+      enabled: true,
+      afterDelete: async (user) => {
+        try {
+          await deleteUserPhotos(user.id)
+        } catch (error) {
+          // Le compte est déjà supprimé : des photos orphelines ne doivent pas faire échouer la demande
+          console.error('Photo cleanup after account deletion failed:', error)
+        }
+      },
+    },
+  },
+  hooks: {
+    // Sans mot de passe, Better Auth accepte la suppression depuis une session récente :
+    // on l'exige toujours, un téléphone déverrouillé ne doit pas suffire à supprimer le compte.
+    before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path !== '/delete-user') return
+      const password = (ctx.body as { password?: unknown } | undefined)?.password
+      if (typeof password !== 'string' || !password) {
+        throw new APIError('BAD_REQUEST', { message: 'Password is required', code: 'PASSWORD_REQUIRED' })
+      }
+    }),
   },
   databaseHooks: {
     user: {
