@@ -1,8 +1,9 @@
-import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { borderWidth, colors, radius, shadows, typography } from '@/theme';
 
 import { ProfileAvatars } from './profile-avatars';
+import { TextLink } from './text-link';
 
 type SummaryDog = {
   name: string;
@@ -15,6 +16,9 @@ type SummaryDog = {
 export type ProfileSummaryCardProps = {
   owner: { firstName: string; photoUri?: string | null; color?: string };
   dogs: SummaryDog[];
+  /** `loading` : chargement en cours · `error` : échec, avec le lien Réessayer. */
+  status?: 'ready' | 'loading' | 'error';
+  onRetry?: () => void;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -29,8 +33,34 @@ function joinNames(names: string[]) {
  * - Un chien : il est à l'honneur, son maître en médaillon.
  * - Plusieurs chiens : le maître au centre, ses chiens en médaillons.
  */
-export function ProfileSummaryCard({ owner, dogs, style }: ProfileSummaryCardProps) {
+export function ProfileSummaryCard({
+  owner,
+  dogs,
+  status = 'ready',
+  onRetry,
+  style,
+}: ProfileSummaryCardProps) {
   const single = dogs.length === 1 ? dogs[0] : null;
+
+  if (status !== 'ready') {
+    return (
+      <View
+        accessibilityLabel="Aperçu de mon profil"
+        style={[styles.card, styles.pending, style]}
+      >
+        {status === 'loading' ? (
+          <ActivityIndicator color={colors.text} accessibilityLabel="Chargement du profil" />
+        ) : (
+          <>
+            <Text style={styles.error} accessibilityRole="alert">
+              Impossible de charger ton profil.
+            </Text>
+            {onRetry && <TextLink onPress={onRetry}>Réessayer</TextLink>}
+          </>
+        )}
+      </View>
+    );
+  }
 
   return (
     <View accessibilityLabel="Aperçu de mon profil" style={[styles.card, style]}>
@@ -56,7 +86,9 @@ export function ProfileSummaryCard({ owner, dogs, style }: ProfileSummaryCardPro
         <Text style={styles.hand}>
           {single
             ? `et sa personne préférée, ${owner.firstName}`
-            : `${dogs.length} chiens, ${dogs.length} fois plus de balades`}
+            : dogs.length === 0
+              ? 'Ajoute ton premier chien !'
+              : `${dogs.length} chiens, ${dogs.length} fois plus de balades`}
         </Text>
       </View>
     </View>
@@ -76,6 +108,18 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: radius.xl,
     ...shadows.lg,
+  },
+  // Chargement ou erreur : même hauteur que la carte remplie (photo de 96 px)
+  pending: {
+    minHeight: 96 + 18 + 16 + 5,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  error: {
+    ...typography.small,
+    color: colors.danger,
+    textAlign: 'center',
   },
   text: {
     flex: 1,

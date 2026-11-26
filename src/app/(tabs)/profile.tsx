@@ -9,13 +9,18 @@ import {
   ProfileSummaryCard,
   TabPage,
 } from '@/components/ui';
-import { dogDetails, MOCK_OWNER, MOCK_PARK_COUNT, MOCK_PROFILE_DOGS } from '@/data/mock-profile';
+import { dogDetails, MOCK_PARK_COUNT, MOCK_PROFILE_DOGS } from '@/data/mock-profile';
 import { authClient } from '@/lib/auth-client';
+import { dogDetails as summaryDetails, getProfileSummary } from '@/lib/profile-api';
+import { useDiscoveryQuery } from '@/lib/use-discovery-query';
 import { colors, shadows, typography } from '@/theme';
+
+/** Fonds des photos manquantes, attribués aux chiens dans l'ordre. */
+const DOG_COLORS = [colors.peach300, colors.lime500, colors.pink300, colors.lavender200];
 
 /**
  * Onglet Profil : aperçu, mes chiens, mon profil, paramètres et sécurité.
- * Les chiens et les parcs sont fictifs ; le prénom, l'e-mail et la déconnexion sont réels.
+ * L'aperçu, l'e-mail et la déconnexion sont réels ; la liste des chiens et les parcs sont fictifs.
  */
 export default function ProfileScreen() {
   const { data: session } = authClient.useSession();
@@ -23,8 +28,7 @@ export default function ProfileScreen() {
   const [loading, setLoading] = useState(false);
   const [signOutError, setSignOutError] = useState('');
 
-  const firstName = session?.user.name.trim().split(/\s+/)[0] || MOCK_OWNER.firstName;
-  const owner = { ...MOCK_OWNER, firstName };
+  const summary = useDiscoveryQuery(getProfileSummary);
   const dogs = MOCK_PROFILE_DOGS;
 
   async function handleSignOut() {
@@ -50,8 +54,19 @@ export default function ProfileScreen() {
   return (
     <TabPage title="Mon profil">
       <ProfileSummaryCard
-        owner={owner}
-        dogs={dogs.map((dog) => ({ ...dog, details: dogDetails(dog) }))}
+        status={summary.data ? 'ready' : summary.error ? 'error' : 'loading'}
+        onRetry={summary.retry}
+        owner={{
+          firstName: summary.data?.owner.firstName ?? '',
+          photoUri: summary.data?.owner.photo,
+          color: colors.lavender200,
+        }}
+        dogs={(summary.data?.dogs ?? []).map((dog, index) => ({
+          name: dog.name,
+          details: summaryDetails(dog),
+          photoUri: dog.photo,
+          color: DOG_COLORS[index % DOG_COLORS.length],
+        }))}
       />
 
       <MenuSection title="Mes chiens">

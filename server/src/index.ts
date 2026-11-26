@@ -7,6 +7,7 @@ import { db } from './db'
 import { breeds } from './db/schema'
 import { discovery } from './discovery'
 import { onboarding } from './onboarding'
+import { profile } from './profile'
 import { uploads } from './uploads'
 
 const app = new Hono()
@@ -14,6 +15,7 @@ const frenchOrder = new Intl.Collator('fr')
 
 app.route('/api/discovery', discovery)
 app.route('/api/onboarding', onboarding)
+app.route('/api/profile', profile)
 app.route('/api/uploads', uploads)
 
 // Autoriser les requêtes depuis Expo Web
