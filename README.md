@@ -18,7 +18,7 @@ Chaque utilisateur peut créer son profil et celui de son chien, découvrir d'au
 | TypeScript | Langage principal |
 | Expo Router | Navigation |
 | Hono | API backend |
-| Cloudflare Workers | Hébergement du backend |
+| Neon Functions | Hébergement du backend sur la branche Neon |
 | Neon PostgreSQL | Base de données |
 | Drizzle ORM | Schéma et migrations SQL |
 | Better Auth | Authentification |
@@ -27,7 +27,7 @@ Chaque utilisateur peut créer son profil et celui de son chien, découvrir d'au
 
 Avant de commencer, installer :
 
-- Node.js et npm
+- Node.js 24 et npm, pour utiliser la même version de Node.js qu’en déploiement
 - Git
 - Expo Go sur un téléphone, ou un émulateur Android/iOS
 - Un éditeur de code comme VS Code
@@ -59,102 +59,60 @@ npm install
 cd ..
 ```
 
-## Configuration des variables d'environnement
+## Configuration locale
 
-Les fichiers contenant des identifiants et des secrets ne doivent jamais être envoyés sur GitHub.
+1. Copier [`server/.env.example`](server/.env.example) vers `server/.env` si ce fichier n’existe pas. Renseigner la chaîne poolée de la branche Neon `development`. Dans la console, ouvrir le projet Pawpote, cliquer sur **Connect**, choisir la branche, la base et le rôle de développement, puis copier la chaîne avec **Connection pooling** activé. Une chaîne directe de la même branche peut être renseignée dans `DATABASE_URL_UNPOOLED` pour Drizzle Kit.
+2. Renseigner `BETTER_AUTH_SECRET` avec le secret existant de développement. Pour un environnement neuf, générer un secret avec `node -e "console.log(require('node:crypto').randomBytes(32).toString('base64url'))"`. Pour reprendre une configuration Wrangler locale, reporter le secret de `server/.dev.vars` dans `server/.env.local` en conservant le fichier d’origine.
+3. Copier [`.env.example`](.env.example) vers `.env.local` à la racine, ou mettre à jour le fichier existant. `EXPO_PUBLIC_API_URL` doit contenir l’URL de base de l’API, sans `/api/auth`. Cette URL est publique dans le bundle Expo. Après un changement, recharger entièrement l’application.
 
-### 1. Application Expo
+Le backend charge `server/.env` puis `server/.env.local`. Pour les tests Web, ajouter l’origine exacte de l’application, port compris, dans `BETTER_AUTH_WEB_ORIGINS` (liste séparée par des virgules). Utiliser le même nom d’hôte pour Expo Web et l’API locale, par exemple `localhost` des deux côtés, pour que le navigateur accepte les cookies.
 
-Créer `.env.local` à la racine du projet :
-
-```dotenv
-EXPO_PUBLIC_API_URL=http://192.168.1.20:8787
-```
-
-Remplacer `192.168.1.20` par l'adresse IPv4 locale de son ordinateur.
-
-Sur Windows, utiliser `ipconfig` pour retrouver cette adresse.
-
-Le téléphone et l'ordinateur doivent être connectés au même réseau.
-
-### 2. Backend Hono
-
-Créer `server/.dev.vars` :
-
-```dotenv
-DATABASE_URL=postgresql://...
-BETTER_AUTH_URL=http://localhost:8787
-BETTER_AUTH_SECRET=...
-```
-
-- `DATABASE_URL` : chaîne de connexion Neon de développement.
-- `BETTER_AUTH_URL` : URL locale du backend.
-- `BETTER_AUTH_SECRET` : secret utilisé pour l'authentification.
-
-Pour générer un secret :
-
-```bash
-node -e "console.log(require('node:crypto').randomBytes(32).toString('base64url'))"
-```
-
-### 3. Drizzle Kit
-
-Créer également `server/.env` :
-
-```dotenv
-DATABASE_URL=postgresql://...
-```
-
-Cette variable permet à Drizzle Kit de se connecter à Neon pour gérer les migrations.
-
-**Important :** utiliser la branche Neon `development`, jamais `production` pour les tests locaux.
-
-Les identifiants de connexion sont à demander à un membre de l'équipe disposant des accès.
+Expo lit `.env.development.local` en priorité pendant le développement. Ce fichier permet de pointer Expo Go vers la fonction Neon de test tout en gardant l’URL LAN dans `.env.local`.
 
 ## Lancer le projet
 
-Deux terminaux sont nécessaires.
+Dans `server/`, lancer `npm run dev`. Neon CLI charge `neon.ts` et sert l’API sur `http://localhost:8787`. Une requête sur `/` doit renvoyer `{"name":"Pawpote API","status":"ok"}`.
 
-### Terminal 1 — Backend
+Pour tester sur un téléphone sur le même réseau, lancer `npm run dev:lan` à la place. Neon CLI écoute sur la boucle locale. Le script LAN sert le même handler via l’adaptateur Node de Hono. Utiliser `http://ADRESSE_IP_LOCALE:8787` dans `EXPO_PUBLIC_API_URL` et comme `BETTER_AUTH_URL` pour cette session. Sur Windows, `ipconfig` permet de trouver l’adresse IPv4. Si le port est occupé, définir `PAWPOTE_LAN_PORT` et reporter ce port dans les deux URL. On peut aussi utiliser directement l’URL HTTPS de la fonction de développement.
 
-Depuis la racine :
+Dans un second terminal, lancer `npx expo start --lan` à la racine. Scanner le QR code dans Expo Go, ou appuyer sur `w` pour ouvrir Expo Web. `BETTER_AUTH_EXPO_GO=true` autorise le schéma `exp://` en développement. Les builds Pawpote utilisent `pawpote://`.
 
-```bash
-cd server
-npx wrangler dev --ip 0.0.0.0 --port 8787
+Si `.env.development.local` pointe vers Neon et que tu veux tester Expo Web avec l’API locale, lancer le backend local puis démarrer Expo Web avec l’URL locale dans le terminal.
+
+```powershell
+$env:EXPO_PUBLIC_API_URL = 'http://localhost:8787'
+npx expo start --web
 ```
 
-L'API est disponible sur :
+## Déployer sur Neon Functions
 
-- `http://127.0.0.1:8787` depuis l'ordinateur
-- `http://ADRESSE_IP_LOCALE:8787` depuis le téléphone
+Les commandes Neon ci-dessous se lancent depuis `server/` avec la CLI fournie par le projet.
 
-Elle doit retourner :
+Pour garder le profil CLI dans Pawpote sous Windows, définir `$env:NEON_CONFIG_DIR = Join-Path (Split-Path (Get-Location).Path -Parent) '.expo/neon-cli'` dans le terminal avant la connexion. Le dossier `.expo/` est ignoré par Git.
 
-```json
-{
-  "name": "Pawpote API",
-  "status": "ok"
-}
-```
+1. Dans la [console Neon](https://console.neon.tech/), ouvrir le projet Pawpote et vérifier que `development` existe et que la région prend en charge [Neon Functions](https://neon.com/docs/compute/functions/get-started). Dans le terminal, lancer `npx neon login`, se connecter dans le navigateur et autoriser la CLI. Lancer ensuite `npx neon link --branch development --no-env-pull --no-config` et choisir l’organisation puis le projet existant. Le contexte local `.neon` est ignoré par Git.
+2. Créer `server/.env.neon-development` avec `BETTER_AUTH_SECRET` pour cette branche. Ajouter `BETTER_AUTH_WEB_ORIGINS` si un frontend Web doit appeler cette fonction et `BETTER_AUTH_EXPO_GO=true` pour tester depuis Expo Go. Neon injecte `DATABASE_URL` depuis la branche cible. Better Auth utilise l’URL HTTPS de la fonction par défaut. Renseigner `BETTER_AUTH_URL` seulement pour une URL canonique différente, par exemple un domaine personnalisé.
+3. Une fois le déploiement de développement validé par l’équipe, publier la fonction et récupérer son URL.
 
-### Terminal 2 — Application Expo
+   ```bash
+   npm run deploy -- --branch development --env .env.neon-development
+   npx neon functions get pawpote --branch development
+   ```
 
-Depuis la racine :
+   Vérifier que le déploiement est terminé et copier l’URL d’invocation. Dans la console, ouvrir la branche `development` puis **Functions**, sélectionner **Pawpote API** et utiliser **View logs** en cas d’erreur. Tester `/`, puis renseigner `EXPO_PUBLIC_API_URL` pour la build de développement.
+4. Pour la production, préparer un fichier de secrets distinct et cibler explicitement la branche existante `production` après validation du déploiement de développement. Réutiliser le secret de production et vérifier que la base et le rôle injectés accèdent aux tables Better Auth existantes. Laisser `BETTER_AUTH_EXPO_GO` désactivé. Vérifier le changement d’URL avec le parcours d’authentification avant de basculer les builds Expo. Les cookies sont propres au domaine. Les comptes existants pourront se reconnecter avec leur mot de passe si le domaine d’API change.
 
-```bash
-npx expo start --lan
-```
+Pour un frontend Web en production, utiliser des origines HTTPS sur le même site, par exemple des sous-domaines du même domaine. Cela conserve le fonctionnement des cookies dans les navigateurs qui bloquent les cookies tiers. Garder les secrets et les chaînes PostgreSQL dans les fichiers locaux ignorés par Git.
 
-Scanner le QR code affiché dans le terminal avec Expo Go.
+### Garder une branche de développement durable
 
-Pour lancer la version web, utiliser la touche `w` dans le terminal Expo.
+La branche partagée `development` doit rester sans expiration pour conserver ses données et l’URL de sa fonction. Dans la console Neon, ouvrir **Branches**, choisir **Update expiration** sur `development`, décocher **Automatically delete branch after**, puis enregistrer. Réserver les dates d’expiration aux branches temporaires de test et de preview. [Documentation Neon sur l’expiration des branches](https://neon.com/docs/guides/branch-expiration)
 
-En cas de problème de cache :
+### Vérifier l’authentification
 
-```bash
-npx expo start --clear --lan
-```
+Avec une build Expo pointée sur la fonction de développement, ouvrir l’application déconnectée et essayer d’accéder à Profil. Vérifier que la connexion s’affiche. Créer un compte de test, vérifier l’arrivée sur l’onboarding, puis terminer le parcours et ouvrir Profil. Fermer et rouvrir l’application pour vérifier la session. Se déconnecter, vérifier le retour à la connexion, puis se reconnecter avec le même e-mail.
+
+Ressources officielles pour [le développement local](https://neon.com/docs/cli/dev), [le déploiement](https://neon.com/docs/compute/functions/deploy) et [les variables Neon Functions](https://neon.com/docs/compute/functions/environment-variables).
 
 ## Base de données
 
@@ -190,7 +148,7 @@ Pawpote/
 ├── src/
 │   ├── app/              # Écrans et navigation Expo Router
 │   ├── components/       # Composants React Native
-│   ├── constants/        # Constantes et thème
+│   ├── theme/            # Design system
 │   └── lib/              # Configuration et utilitaires
 │
 ├── server/
@@ -199,7 +157,8 @@ Pawpote/
 │   │   ├── auth.ts       # Better Auth
 │   │   └── index.ts      # API Hono
 │   ├── drizzle/          # Migrations SQL
-│   └── drizzle.config.ts
+│   ├── drizzle.config.ts
+│   └── neon.ts           # Déclaration de la fonction Neon
 │
 ├── docs/
 │   └── adr/              # Décisions d'architecture

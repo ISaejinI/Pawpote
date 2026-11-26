@@ -13,11 +13,13 @@ dist/
 
 # deps
 node_modules/
+
+# local tooling
 .wrangler
+.neon
 
 # env
 .env
-.env.production
 .dev.vars
 
 # logs

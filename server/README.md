@@ -1,21 +1,7 @@
-```txt
-npm install
-npm run dev
-```
+# API Pawpote
 
-```txt
-npm run deploy
-```
+`neon.ts` déclare la Neon Function `pawpote`. Hono expose `GET /` et les routes Better Auth sous `/api/auth`.
 
-[For generating/synchronizing types based on your Worker configuration run](https://developers.cloudflare.com/workers/wrangler/commands/#types):
+Pour le développement sur ordinateur, utiliser `npm run dev`. Pour un appareil sur le réseau local, utiliser `npm run dev:lan`.
 
-```txt
-npm run cf-typegen
-```
-
-Pass the `CloudflareBindings` as generics when instantiating `Hono`:
-
-```ts
-// src/index.ts
-const app = new Hono<{ Bindings: CloudflareBindings }>()
-```
+Le [README principal](../README.md) décrit les variables, la sélection de la branche Neon, le déploiement et les vérifications Expo.
