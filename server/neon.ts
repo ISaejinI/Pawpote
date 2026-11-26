@@ -1,6 +1,10 @@
 import { defineConfig } from '@neon/config/v1'
 
 export default defineConfig({
+  // Photos des chiens et des propriétaires, lisibles sans connexion (affichées dans la découverte)
+  buckets: {
+    photos: { access: 'public_read' },
+  },
   functions: {
     pawpote: {
       name: 'Pawpote API',

@@ -1,48 +1,21 @@
 import { eq, inArray } from 'drizzle-orm'
 import { Hono } from 'hono'
-import { cors } from 'hono/cors'
 
 import {
   ACTIVITIES, ONBOARDING_LIMITS, TRAITS,
   type OnboardingDog, type OnboardingOwner, type OnboardingPayload, type OnboardingStatus,
 } from '../../shared/onboarding'
-import { auth, webOrigins } from './auth'
 import { db } from './db'
 import {
-  activities, breeds, characters, dogActivities, dogCharacters, dogs, profiles,
+  activities, breeds, characters, dogActivities, dogCharacters, dogPhotos, dogs, profiles,
 } from './db/schema'
+import { requireSession, sessionCors, type SessionVariables } from './session'
+import { isOwnPhotoKey, photoExists, photoUrl } from './storage'
 
-type Session = { userId: string; userName: string }
+const onboarding = new Hono<{ Variables: SessionVariables }>()
 
-const onboarding = new Hono<{ Variables: Session }>()
-const apiOrigin = typeof auth.options.baseURL === 'string'
-  ? new URL(auth.options.baseURL).origin : undefined
-
-onboarding.use('*', cors({
-  origin: webOrigins,
-  credentials: true,
-  allowHeaders: ['Content-Type'],
-  allowMethods: ['GET', 'POST', 'OPTIONS'],
-}))
-
-onboarding.use('*', async (c, next) => {
-  c.header('Cache-Control', 'private, no-store')
-  if (c.req.method === 'POST') {
-    const origin = c.req.header('Origin')
-    if (origin && origin !== apiOrigin && !webOrigins.includes(origin)) {
-      return c.json({ error: 'Origine non autorisée.' }, 403)
-    }
-    if (c.req.header('Content-Type')?.split(';')[0].trim().toLowerCase() !== 'application/json') {
-      return c.json({ error: 'Un contenu JSON est requis.' }, 415)
-    }
-  }
-
-  const session = await auth.api.getSession({ headers: c.req.raw.headers })
-  if (!session) return c.json({ error: 'Connexion requise.' }, 401)
-  c.set('userId', session.user.id)
-  c.set('userName', session.user.name)
-  await next()
-})
+onboarding.use('*', sessionCors)
+onboarding.use('*', requireSession)
 
 /** L'onboarding est terminé dès que l'utilisateur a au moins un chien. */
 async function hasDog(userId: string) {
@@ -105,7 +78,18 @@ function readChoices(source: Record<string, unknown>, key: string, allowed: read
   return choices
 }
 
-function readOwner(value: unknown): OnboardingOwner {
+/** Liste de clés de photos envoyées par cet utilisateur, sans doublon. */
+function readPhotoKeys(userId: string, value: unknown, min: number, max: number) {
+  if (!Array.isArray(value) || value.length < min || value.length > max) {
+    throw new InvalidPayload('photos invalides.')
+  }
+  if (!value.every((key) => isOwnPhotoKey(userId, key)) || new Set(value).size !== value.length) {
+    throw new InvalidPayload('photos invalides.')
+  }
+  return value as string[]
+}
+
+function readOwner(userId: string, value: unknown): OnboardingOwner {
   if (!isRecord(value)) throw new InvalidPayload('owner invalide.')
   const postalCode = value.postalCode
   if (typeof postalCode !== 'string' || !/^\d{5}$/.test(postalCode)) {
@@ -116,10 +100,12 @@ function readOwner(value: unknown): OnboardingOwner {
     address: readText(value, 'address', ONBOARDING_LIMITS.address)!,
     postalCode,
     city: readText(value, 'city', ONBOARDING_LIMITS.city)!,
+    photo: value.photo === null || value.photo === undefined
+      ? null : readPhotoKeys(userId, [value.photo], 1, 1)[0],
   }
 }
 
-function readDog(value: unknown): OnboardingDog {
+function readDog(userId: string, value: unknown): OnboardingDog {
   if (!isRecord(value)) throw new InvalidPayload('dog invalide.')
   if (value.sex !== 'female' && value.sex !== 'male') throw new InvalidPayload('sex invalide.')
   const breedId = value.breedId
@@ -136,15 +122,19 @@ function readDog(value: unknown): OnboardingDog {
     favoriteToy: readText(value, 'favoriteToy', ONBOARDING_LIMITS.favoriteToy, true),
     activities: readChoices(value, 'activities', ACTIVITIES, 0),
     description: readText(value, 'description', ONBOARDING_LIMITS.description)!,
+    photos: readPhotoKeys(userId, value.photos, 1, ONBOARDING_LIMITS.dogPhotos),
   }
 }
 
-function readPayload(body: unknown): OnboardingPayload {
+function readPayload(userId: string, body: unknown): OnboardingPayload {
   if (!isRecord(body) || !Array.isArray(body.dogs)) throw new InvalidPayload('Corps invalide.')
   if (!body.dogs.length || body.dogs.length > ONBOARDING_LIMITS.dogs) {
     throw new InvalidPayload('Nombre de chiens invalide.')
   }
-  return { owner: readOwner(body.owner), dogs: body.dogs.map(readDog) }
+  return {
+    owner: readOwner(userId, body.owner),
+    dogs: body.dogs.map((dog) => readDog(userId, dog)),
+  }
 }
 
 // ==========================================
@@ -153,16 +143,25 @@ function readPayload(body: unknown): OnboardingPayload {
 
 /** Enregistre le profil du propriétaire et ses chiens en une seule transaction. */
 onboarding.post('/', async (c) => {
+  const userId = c.get('userId')
   let payload: OnboardingPayload
   try {
-    payload = readPayload(await c.req.json())
+    payload = readPayload(userId, await c.req.json())
   } catch (error) {
     const message = error instanceof InvalidPayload ? error.message : 'JSON invalide.'
     return c.json({ error: message }, 400)
   }
 
-  const userId = c.get('userId')
-  const { owner } = payload
+  // Les photos doivent déjà être dans le stockage : on n'enregistre pas de lien cassé
+  const photoKeys = [
+    ...payload.dogs.flatMap((dog) => dog.photos),
+    ...(payload.owner.photo ? [payload.owner.photo] : []),
+  ]
+  const uploaded = await Promise.all(photoKeys.map(photoExists))
+  if (uploaded.includes(false)) return c.json({ error: 'Photo introuvable dans le stockage.' }, 400)
+
+  const { photo: ownerPhoto, ...ownerFields } = payload.owner
+  const owner = { ...ownerFields, avatarKey: ownerPhoto ? photoUrl(ownerPhoto) : null }
 
   const breedIds = [...new Set(payload.dogs.flatMap((dog) => (dog.breedId ? [dog.breedId] : [])))]
   if (breedIds.length) {
@@ -200,9 +199,14 @@ onboarding.post('/', async (c) => {
       : [])
 
     const dogIds: string[] = []
-    for (const { traits, activities: dogActivityNames, ...dog } of payload.dogs) {
+    for (const { traits, activities: dogActivityNames, photos, ...dog } of payload.dogs) {
       const [{ id }] = await tx.insert(dogs).values({ ownerId: userId, ...dog }).returning({ id: dogs.id })
       dogIds.push(id)
+
+      // `storage_key` garde l'URL publique : la découverte l'affiche telle quelle
+      await tx.insert(dogPhotos).values(
+        photos.map((key, position) => ({ dogId: id, storageKey: photoUrl(key), position })),
+      )
 
       await tx.insert(dogCharacters).values(traits.map((name) => ({ dogId: id, characterId: traitIds.get(name)! })))
       if (dogActivityNames.length) {
