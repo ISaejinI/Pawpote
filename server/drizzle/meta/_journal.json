@@ -43,6 +43,13 @@
       "when": 1795704063478,
       "tag": "0005_approximate_home_location",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795705295262,
+      "tag": "0006_match_messaging",
+      "breakpoints": true
     }
   ]
 }

@@ -6,6 +6,8 @@ import { auth, webOrigins } from './auth'
 import { db } from './db'
 import { breeds } from './db/schema'
 import { discovery } from './discovery'
+import { messaging } from './messaging'
+import { messagingLive } from './messaging-live'
 import { onboarding } from './onboarding'
 import { profile } from './profile'
 import { uploads } from './uploads'
@@ -14,6 +16,8 @@ const app = new Hono()
 const frenchOrder = new Intl.Collator('fr')
 
 app.route('/api/discovery', discovery)
+app.get('/api/messaging/live', messagingLive)
+app.route('/api/messaging', messaging)
 app.route('/api/onboarding', onboarding)
 app.route('/api/profile', profile)
 app.route('/api/uploads', uploads)

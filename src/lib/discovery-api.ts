@@ -1,4 +1,4 @@
-import { Alert, Platform } from 'react-native'
+import { Platform } from 'react-native'
 
 import type {
   Coordinates, DiscoveryFeed, DiscoveryFilters, DogDetails, SwipeAction, SwipeResult,
@@ -52,11 +52,4 @@ export function formatDiscoveryDistance(distanceKm?: number | null, approximate?
   if (distanceKm == null) return undefined
   if (approximate && distanceKm < 1) return 'moins de 1 km'
   return `${approximate ? 'environ ' : ''}${distanceFormatter.format(distanceKm)} km`
-}
-
-export function announceMatches({ matches }: SwipeResult) {
-  if (!matches.length) return
-  Alert.alert('C’est un match !', matches.map(({ ownDog, targetDog }) =>
-    `${ownDog} et ${targetDog} se sont trouvés !`,
-  ).join('\n'))
 }

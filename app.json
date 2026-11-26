@@ -46,7 +46,8 @@
           "photosPermission": "PawPote accède à tes photos pour que tu puisses choisir celles de ton chien et la tienne.",
           "cameraPermission": "PawPote utilise l’appareil photo pour que tu puisses photographier ton chien."
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -11,7 +11,7 @@ import {
   PullToClose,
   SwipeActions,
 } from '@/components/ui'
-import { announceMatches, formatDiscoveryDistance, getDogDetails, sendSwipe } from '@/lib/discovery-api'
+import { formatDiscoveryDistance, getDogDetails, sendSwipe } from '@/lib/discovery-api'
 import { setSwipeIntent, type SwipeDirection } from '@/lib/swipe-intent'
 import { useDiscoveryQuery } from '@/lib/use-discovery-query'
 import { borderWidth, colors, spacing, typography } from '@/theme'
@@ -65,6 +65,8 @@ function DogDetail({ id, nearby }: { id: string; nearby: boolean }) {
     )
   }
 
+  const fallbackPhoto = dog.photo
+
   async function decide(direction: SwipeDirection) {
     if (saving.current) return
     saving.current = true
@@ -72,9 +74,10 @@ function DogDetail({ id, nearby }: { id: string; nearby: boolean }) {
     setSaveError(false)
     try {
       const result = await sendSwipe(id, direction === 1 ? 'like' : 'dislike')
-      setSwipeIntent(id, direction)
+      setSwipeIntent(id, direction, result.matches.map((match) => ({
+        ...match, targetDogPhoto: match.targetDogPhoto ?? fallbackPhoto,
+      })))
       closeDetail()
-      announceMatches(result)
     } catch {
       saving.current = false
       setPending(false)

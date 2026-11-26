@@ -10,6 +10,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { KeyboardAvoidingView, KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -19,7 +20,7 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scheduleOnRN } from 'react-native-worklets';
 
-import { borderWidth, colors, typography } from '@/theme';
+import { borderWidth, colors, spacing, typography } from '@/theme';
 
 import { IconButton } from './icon-button';
 
@@ -33,11 +34,13 @@ export type BottomSheetProps = {
   /** Sous-titre manuscrit. */
   subtitle?: string;
   footer?: ReactNode;
+  keyboardAware?: boolean;
   children: ReactNode;
 };
 
 const OPEN_DURATION = 260;
 const CLOSE_DURATION = 200;
+const SHEET_GAP = 18;
 /** Distance ou vitesse de glissement vers le bas qui ferme la modale. */
 const DISMISS_DISTANCE = 100;
 const DISMISS_VELOCITY = 800;
@@ -50,10 +53,14 @@ export function BottomSheet({
   title,
   subtitle,
   footer,
+  keyboardAware = false,
   children,
 }: BottomSheetProps) {
   const insets = useSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
+  const avoidKeyboard = keyboardAware && Platform.OS !== 'web';
+  const [footerHeight, setFooterHeight] = useState(0);
+  const bottomPadding = insets.bottom + 24;
 
   // La modale reste montée le temps de l'animation de fermeture
   const [mounted, setMounted] = useState(visible);
@@ -127,19 +134,32 @@ export function BottomSheet({
       accessibilityLabel={title}
       style={[
         styles.sheet,
-        { paddingBottom: insets.bottom + 24, maxHeight: windowHeight - insets.top - 12 },
+        keyboardAware && styles.shrinkingSheet,
+        { paddingBottom: bottomPadding, maxHeight: windowHeight - insets.top - 12 },
         sheetStyle,
       ]}
     >
       {footer ? (
         <>
           <GestureDetector gesture={pan}>{header}</GestureDetector>
-          <ScrollView style={styles.scrollBody}>{children}</ScrollView>
-          {footer}
+          {avoidKeyboard ? (
+            <KeyboardAwareScrollView
+              style={styles.scrollBody}
+              bottomOffset={footerHeight + bottomPadding + SHEET_GAP + spacing[2]}
+              keyboardShouldPersistTaps="handled"
+            >
+              {children}
+            </KeyboardAwareScrollView>
+          ) : <ScrollView style={styles.scrollBody} keyboardShouldPersistTaps="handled">{children}</ScrollView>}
+          {avoidKeyboard ? (
+            <View onLayout={({ nativeEvent }) => setFooterHeight(nativeEvent.layout.height)}>{footer}</View>
+          ) : footer}
         </>
       ) : <>{header}{children}</>}
     </Animated.View>
   );
+
+  const content = footer ? sheet : <GestureDetector gesture={pan}>{sheet}</GestureDetector>;
 
   return (
     <Modal
@@ -161,7 +181,11 @@ export function BottomSheet({
           />
         </Animated.View>
 
-        {footer ? sheet : <GestureDetector gesture={pan}>{sheet}</GestureDetector>}
+        {avoidKeyboard ? (
+          <KeyboardAvoidingView style={styles.root} behavior="padding" automaticOffset pointerEvents="box-none">
+            {content}
+          </KeyboardAvoidingView>
+        ) : content}
       </GestureHandlerRootView>
     </Modal>
   );
@@ -180,7 +204,7 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 560,
     alignSelf: 'center',
-    gap: 18,
+    gap: SHEET_GAP,
     paddingTop: 10,
     paddingHorizontal: 20,
     backgroundColor: colors.surface,
@@ -201,6 +225,9 @@ const styles = StyleSheet.create({
   },
   headerBlock: {
     gap: 14,
+  },
+  shrinkingSheet: {
+    flexShrink: 1,
   },
   scrollBody: {
     flexGrow: 0,

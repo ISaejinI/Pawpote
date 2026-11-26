@@ -1,18 +1,17 @@
 import { useState } from 'react';
-import { StyleSheet, TextInput, View, type StyleProp, type ViewStyle } from 'react-native';
+import { StyleSheet, Text, TextInput, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { borderWidth, colors, radius, typography } from '@/theme';
+import { MAX_MESSAGE_LENGTH } from '../../../shared/messaging';
 
 import { IconButton } from './icon-button';
 
 export type MessageComposerProps = {
   /** Appelé avec le texte nettoyé ; le champ se vide ensuite. */
-  onSend?: (text: string) => void;
+  onSend: (text: string) => Promise<void>;
   placeholder?: string;
   style?: StyleProp<ViewStyle>;
 };
-
-const MAX_LENGTH = 1000;
 
 /** Barre de saisie d'un message : champ en pilule et bouton Envoyer. */
 export function MessageComposer({
@@ -21,34 +20,48 @@ export function MessageComposer({
   style,
 }: MessageComposerProps) {
   const [text, setText] = useState('');
-  const canSend = text.trim().length > 0;
+  const [sending, setSending] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const canSend = !sending && text.trim().length > 0;
 
-  function send() {
+  async function send() {
     if (!canSend) return;
-    onSend?.(text.trim());
-    setText('');
+    setSending(true);
+    setFailed(false);
+    try {
+      await onSend(text.trim());
+      setText('');
+    } catch {
+      setFailed(true);
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
-    <View style={[styles.root, style]}>
-      <TextInput
-        accessibilityLabel="Message"
-        value={text}
-        onChangeText={setText}
-        placeholder={placeholder}
-        placeholderTextColor={colors.placeholder}
-        cursorColor={colors.text}
-        selectionColor={colors.active}
-        multiline
-        maxLength={MAX_LENGTH}
-        style={styles.input}
-      />
-      <IconButton
-        icon="send"
-        accessibilityLabel="Envoyer"
-        disabled={!canSend}
-        onPress={send}
-      />
+    <View style={style}>
+      {failed && <Text accessibilityRole="alert" style={styles.error}>Message non envoyé. Réessaie.</Text>}
+      <View style={styles.root}>
+        <TextInput
+          accessibilityLabel="Message"
+          value={text}
+          onChangeText={setText}
+          placeholder={placeholder}
+          placeholderTextColor={colors.placeholder}
+          cursorColor={colors.text}
+          selectionColor={colors.active}
+          multiline
+          editable={!sending}
+          maxLength={MAX_MESSAGE_LENGTH}
+          style={styles.input}
+        />
+        <IconButton
+          icon="send"
+          accessibilityLabel="Envoyer"
+          disabled={!canSend}
+          onPress={() => { void send(); }}
+        />
+      </View>
     </View>
   );
 }
@@ -61,6 +74,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     gap: 8,
   },
+  error: { ...typography.small, color: colors.danger, marginBottom: 6 },
   input: {
     flex: 1,
     minWidth: 0,

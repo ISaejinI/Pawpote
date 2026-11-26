@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { borderWidth, colors, radius, shadows, typography } from '@/theme';
+import type { WalkStatus } from '../../../shared/messaging';
 
 import { Button } from './button';
 import { Icon } from './icon';
@@ -14,6 +15,7 @@ export type WalkProposalCardProps = {
   duration: string;
   /** `them` : proposition reçue, avec les boutons de réponse · `me` : proposition envoyée. */
   from: 'me' | 'them';
+  status?: WalkStatus;
   onAccept?: () => void;
   onSuggestOtherDate?: () => void;
   style?: StyleProp<ViewStyle>;
@@ -25,6 +27,7 @@ export function WalkProposalCard({
   place,
   duration,
   from,
+  status = 'pending',
   onAccept,
   onSuggestOtherDate,
   style,
@@ -43,7 +46,11 @@ export function WalkProposalCard({
           <Detail icon="pin-filled" label={place} />
           <Detail icon="clock" label={duration} />
 
-          {from === 'them' && (
+          {status !== 'pending' && (
+            <Text style={styles.detailText}>{status === 'accepted' ? 'Balade confirmée' : 'Autre date proposée'}</Text>
+          )}
+
+          {from === 'them' && status === 'pending' && onAccept && onSuggestOtherDate && (
             <View style={styles.actions}>
               <Button size="xs" onPress={onAccept} style={styles.action}>
                 Accepter

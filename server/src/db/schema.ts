@@ -347,6 +347,8 @@ export const matches = pgTable(
         onDelete: 'cascade',
       }),
 
+    chatRevision: integer('chat_revision').default(0).notNull(),
+
     createdAt: timestamp('created_at', {
       withTimezone: true,
     }).defaultNow().notNull(),
@@ -365,5 +367,29 @@ export const matches = pgTable(
       'matches_ordered_dogs',
       sql`${table.dog1Id} < ${table.dog2Id}`,
     ),
+  ],
+)
+
+export const messages = pgTable(
+  'messages',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    matchId: uuid('match_id').notNull().references(() => matches.id, { onDelete: 'cascade' }),
+    authorId: text('author_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+    body: text('body').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    walkStartsAt: timestamp('walk_starts_at', { withTimezone: true }),
+    walkMinutes: integer('walk_minutes'),
+    walkStatus: text('walk_status', { enum: ['pending', 'accepted', 'superseded'] }),
+  },
+  (table) => [
+    index('messages_history_idx').on(table.matchId, table.createdAt, table.id),
+    check('messages_body_length', sql`char_length(${table.body}) between 1 and 1000`),
+    check('messages_valid_walk', sql`
+      (${table.walkStartsAt} is null and ${table.walkMinutes} is null and ${table.walkStatus} is null)
+      or (${table.walkStartsAt} is not null and ${table.walkMinutes} is not null
+        and ${table.walkMinutes} between 15 and 480 and ${table.walkStatus} is not null
+        and ${table.walkStatus} in ('pending', 'accepted', 'superseded'))
+    `),
   ],
 )

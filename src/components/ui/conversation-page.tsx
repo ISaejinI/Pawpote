@@ -23,6 +23,7 @@ export type ConversationPageProps = {
 export function ConversationPage({ header, composer, children }: ConversationPageProps) {
   const insets = useSafeAreaInsets();
   const scrollRef = useRef<ScrollViewInstance>(null);
+  const nearBottom = useRef(true);
 
   return (
     <View style={styles.root}>
@@ -36,9 +37,13 @@ export function ConversationPage({ header, composer, children }: ConversationPag
             contentContainerStyle={styles.messages}
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="interactive"
-            // Garde les derniers messages visibles à l'ouverture et quand le clavier apparaît
-            onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: false })}
-            onLayout={() => scrollRef.current?.scrollToEnd({ animated: false })}
+            maintainVisibleContentPosition={{ minIndexForVisible: 1 }}
+            onScroll={({ nativeEvent: { contentOffset, layoutMeasurement, contentSize } }) => {
+              nearBottom.current = contentSize.height - layoutMeasurement.height - contentOffset.y < 80;
+            }}
+            scrollEventThrottle={100}
+            onContentSizeChange={() => { if (nearBottom.current) scrollRef.current?.scrollToEnd({ animated: false }); }}
+            onLayout={() => { if (nearBottom.current) scrollRef.current?.scrollToEnd({ animated: false }); }}
           >
             {children}
           </ScrollView>
