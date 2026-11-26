@@ -62,6 +62,7 @@ export { NewMatchItem, type NewMatchItemProps } from './new-match-item';
 export { OnboardingSteps, type OnboardingStepsProps } from './onboarding-steps';
 export { ParkRow, type ParkRowProps } from './park-row';
 export { PasswordInput, type PasswordInputProps } from './password-input';
+export { PawLoader, type PawLoaderProps } from './paw-loader';
 export { ProfileAvatars, type ProfileAvatarsProps } from './profile-avatars';
 export { SearchField, type SearchFieldProps } from './search-field';
 export {
@@ -76,6 +77,7 @@ export { WalkProposalCard, type WalkProposalCardProps } from './walk-proposal-ca
 // Templates
 export { ConversationPage, type ConversationPageProps } from './conversation-page';
 export { EditPage, type EditPageProps, type EditPageScrollRef } from './edit-page';
+export { LoadingPage, type LoadingPageProps } from './loading-page';
 export {
   OnboardingStepPage,
   type OnboardingStepPageProps,

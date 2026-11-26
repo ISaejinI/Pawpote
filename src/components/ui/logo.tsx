@@ -18,12 +18,14 @@ export type LogoProps = {
   layout?: keyof typeof ARTWORK;
   /** Taille du sticker : `md` (connexion) ou `lg` (chargement). */
   size?: 'md' | 'lg';
+  /** Largeur du logo en px, à la place de celle donnée par `size`. */
+  width?: number;
   style?: StyleProp<ViewStyle>;
 };
 
-export function Logo({ variant = 'sticker', layout = 'horizontal', size = 'md', style }: LogoProps) {
+export function Logo({ variant = 'sticker', layout = 'horizontal', size = 'md', width: customWidth, style }: LogoProps) {
   const artwork = ARTWORK[layout];
-  const width = layout === 'horizontal' ? (size === 'lg' ? 184 : 132) : (size === 'lg' ? 116 : 76);
+  const width = customWidth ?? (layout === 'horizontal' ? (size === 'lg' ? 184 : 132) : (size === 'lg' ? 116 : 76));
 
   return (
     <View
