@@ -1,14 +1,15 @@
 import { and, asc, eq, inArray, ne, sql } from 'drizzle-orm'
 import { Hono } from 'hono'
 
-import { ACTIVITIES, ONBOARDING_LIMITS, TRAITS } from '../../shared/onboarding'
+import { ACTIVITIES, ONBOARDING_LIMITS, TRAITS, type OnboardingDog } from '../../shared/onboarding'
 import {
-  dogCompletion, type DogRemoval, type DogSheet, type DogUpdate, type ProfileSummary,
+  dogCompletion, type DogRemoval, type DogSheet, type DogUpdate, type NewDog, type ProfileSummary,
 } from '../../shared/profile'
 import { db } from './db'
 import {
   activities, breeds, characters, dogActivities, dogCharacters, dogPhotos, dogs, profiles,
 } from './db/schema'
+import { checkNewDogs, insertDogs, readNewDog } from './dogs'
 import { requireSession, sessionCors, type SessionVariables } from './session'
 import { isOwnPhotoKey, photoExists, photoUrl } from './storage'
 import {
@@ -95,6 +96,30 @@ profile.get('/', async (c) => {
 // ==========================================
 // FICHE D'UN CHIEN
 // ==========================================
+
+/** Ajoute un chien à mon compte, avec les mêmes informations que l'onboarding (étapes 1 à 4). */
+profile.post('/dogs', async (c) => {
+  const userId = c.get('userId')
+
+  let dog: OnboardingDog
+  try {
+    dog = readNewDog(userId, await c.req.json())
+  } catch (error) {
+    const message = error instanceof InvalidPayload ? error.message : 'JSON invalide.'
+    return c.json({ error: message }, 400)
+  }
+
+  const dogError = await checkNewDogs([dog])
+  if (dogError) return c.json({ error: dogError }, 400)
+
+  // Le profil existe depuis l'onboarding ; sans lui, le chien n'aurait pas de propriétaire
+  const [owner] = await db.select({ userId: profiles.userId }).from(profiles)
+    .where(eq(profiles.userId, userId)).limit(1)
+  if (!owner) return c.json({ error: 'Profil introuvable.' }, 409)
+
+  const [id] = await db.transaction((tx) => insertDogs(tx, userId, [dog]))
+  return c.json({ id } satisfies NewDog, 201)
+})
 
 /** Mon chien, ou `undefined` s'il n'existe pas ou appartient à un autre compte. */
 async function findOwnDog(userId: string, id: string) {

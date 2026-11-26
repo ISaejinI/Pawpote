@@ -40,6 +40,9 @@ export type DogSheet = {
   isLastDog: boolean
 }
 
+/** Réponse de `POST /api/profile/dogs` : le chien tout juste ajouté. */
+export type NewDog = { id: string }
+
 /** Réponse de `POST /api/profile/dogs/:id/delete`. */
 export type DogRemoval = {
   /** Chiens restants : à 0, le compte repasse par l'onboarding. */
