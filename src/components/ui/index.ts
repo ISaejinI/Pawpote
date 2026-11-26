@@ -81,6 +81,7 @@ export { TabPage, type TabPageProps } from './tab-page';
 
 // Organismes
 export { BottomSheet, type BottomSheetProps } from './bottom-sheet';
+export { CompletionCard, type CompletionCardProps } from './completion-card';
 export {
   ConversationHeader,
   type ConversationHeaderProps,
