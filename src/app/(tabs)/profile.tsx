@@ -126,7 +126,12 @@ export default function ProfileScreen() {
           subtitle={session?.user.email}
           onPress={() => router.push('/account/email')}
         />
-        <MenuRow icon="key" iconColor="lime" title="Mot de passe" />
+        <MenuRow
+          icon="key"
+          iconColor="lime"
+          title="Mot de passe"
+          onPress={() => router.push('/account/password')}
+        />
         <MenuRow icon="trash" iconColor="pink" title="Supprimer mon compte" danger />
       </MenuSection>
 
