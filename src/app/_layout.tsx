@@ -1,15 +1,19 @@
 import { useFonts } from 'expo-font'
 import { DefaultTheme, Stack, ThemeProvider, type Theme } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { KeyboardProvider } from 'react-native-keyboard-controller'
 
 import { MatchCelebrationProvider } from '@/components/swipe/match-celebration'
+import { LoadingPage } from '@/components/ui'
 import { authClient } from '@/lib/auth-client'
 import { OnboardingStatusProvider, useOnboardingStatus } from '@/lib/onboarding-status'
 import { colors, fontDefinitions } from '@/theme'
 
 void SplashScreen.preventAutoHideAsync()
+
+/** Durée minimale de l'écran de chargement au lancement, pour qu'on ait le temps de le voir. */
+const MIN_LOADING_MS = 3000
 
 const navigationTheme: Theme = {
   ...DefaultTheme,
@@ -28,15 +32,28 @@ export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts(fontDefinitions)
   const { data: session, isPending } = authClient.useSession()
 
-  // L'écran de démarrage reste affiché tant que les polices et la session ne sont pas prêtes,
-  // puis tant que l'état de l'onboarding n'est pas connu (voir RootStack)
-  const ready = (fontsLoaded || !!fontError) && !isPending
+  // L'écran de démarrage natif reste affiché le temps de charger les polices ; l'écran de
+  // chargement prend ensuite le relais jusqu'à connaître la session et l'onboarding (voir RootStack)
+  const fontsReady = fontsLoaded || !!fontError
 
   useEffect(() => {
     if (fontError) console.error('Font loading error:', fontError)
   }, [fontError])
 
-  if (!ready) return null
+  useEffect(() => {
+    // Même fond lavande des deux côtés : le passage à l'écran de chargement ne se voit pas
+    if (fontsReady) void SplashScreen.hideAsync()
+  }, [fontsReady])
+
+  // Le chargement continue pendant ce délai : l'app s'ouvre dès qu'il est écoulé et tout est prêt
+  const [minDelayDone, setMinDelayDone] = useState(false)
+  useEffect(() => {
+    if (!fontsReady) return
+    const timer = setTimeout(() => setMinDelayDone(true), MIN_LOADING_MS)
+    return () => clearTimeout(timer)
+  }, [fontsReady])
+
+  if (!fontsReady) return null
 
   return (
     <ThemeProvider value={navigationTheme}>
@@ -44,7 +61,7 @@ export default function RootLayout() {
       <KeyboardProvider>
         <OnboardingStatusProvider userId={session?.user.id}>
           <MatchCelebrationProvider>
-            <RootStack signedIn={!!session} />
+            <RootStack signedIn={!!session} loading={isPending || !minDelayDone} />
           </MatchCelebrationProvider>
         </OnboardingStatusProvider>
       </KeyboardProvider>
@@ -52,14 +69,11 @@ export default function RootLayout() {
   )
 }
 
-function RootStack({ signedIn }: { signedIn: boolean }) {
+function RootStack({ signedIn, loading }: { signedIn: boolean; loading: boolean }) {
   const { isLoading, needsOnboarding } = useOnboardingStatus()
 
-  useEffect(() => {
-    if (!isLoading) void SplashScreen.hideAsync()
-  }, [isLoading])
-
-  if (isLoading) return null
+  // Un seul écran de chargement pour toute l'attente : les pattes ne repartent pas de zéro
+  if (loading || isLoading) return <LoadingPage />
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
