@@ -62,6 +62,7 @@ export { NewMatchItem, type NewMatchItemProps } from './new-match-item';
 export { OnboardingSteps, type OnboardingStepsProps } from './onboarding-steps';
 export { ParkRow, type ParkRowProps } from './park-row';
 export { PasswordInput, type PasswordInputProps } from './password-input';
+export { PawLoader, type PawLoaderProps } from './paw-loader';
 export { ProfileAvatars, type ProfileAvatarsProps } from './profile-avatars';
 export { SearchField, type SearchFieldProps } from './search-field';
 export {
