@@ -9,9 +9,9 @@ import {
   ProfileSummaryCard,
   TabPage,
 } from '@/components/ui';
-import { dogDetails, MOCK_PARK_COUNT, MOCK_PROFILE_DOGS } from '@/data/mock-profile';
+import { MOCK_PARK_COUNT } from '@/data/mock-profile';
 import { authClient } from '@/lib/auth-client';
-import { dogDetails as summaryDetails, getProfileSummary } from '@/lib/profile-api';
+import { dogDetails, getProfileSummary } from '@/lib/profile-api';
 import { useDiscoveryQuery } from '@/lib/use-discovery-query';
 import { colors, shadows, typography } from '@/theme';
 
@@ -20,7 +20,7 @@ const DOG_COLORS = [colors.peach300, colors.lime500, colors.pink300, colors.lave
 
 /**
  * Onglet Profil : aperçu, mes chiens, mon profil, paramètres et sécurité.
- * L'aperçu, l'e-mail et la déconnexion sont réels ; la liste des chiens et les parcs sont fictifs.
+ * L'aperçu, mes chiens, l'e-mail et la déconnexion sont réels ; les parcs sont fictifs.
  */
 export default function ProfileScreen() {
   const { data: session } = authClient.useSession();
@@ -29,7 +29,12 @@ export default function ProfileScreen() {
   const [signOutError, setSignOutError] = useState('');
 
   const summary = useDiscoveryQuery(getProfileSummary);
-  const dogs = MOCK_PROFILE_DOGS;
+  // Même couleur de fond pour un chien sans photo, dans l'en-tête et dans la liste
+  const dogs = (summary.data?.dogs ?? []).map((dog, index) => ({
+    ...dog,
+    details: dogDetails(dog),
+    color: DOG_COLORS[index % DOG_COLORS.length],
+  }));
 
   async function handleSignOut() {
     if (loading) return;
@@ -61,12 +66,7 @@ export default function ProfileScreen() {
           photoUri: summary.data?.owner.photo,
           color: colors.lavender200,
         }}
-        dogs={(summary.data?.dogs ?? []).map((dog, index) => ({
-          name: dog.name,
-          details: summaryDetails(dog),
-          photoUri: dog.photo,
-          color: DOG_COLORS[index % DOG_COLORS.length],
-        }))}
+        dogs={dogs.map((dog) => ({ ...dog, photoUri: dog.photo }))}
       />
 
       <MenuSection title="Mes chiens">
@@ -74,8 +74,8 @@ export default function ProfileScreen() {
           <DogRow
             key={dog.id}
             name={dog.name}
-            details={dogDetails(dog)}
-            photoUri={dog.photoUri}
+            details={dog.details}
+            photoUri={dog.photo}
             color={dog.color}
             completion={dog.completion}
           />

@@ -17,4 +17,6 @@ export type ProfileDog = {
   age: number | null
   /** Photo principale (URL publique), ou `null`. */
   photo: string | null
+  /** Part de la fiche remplie, entre 0 et 1. */
+  completion: number
 }

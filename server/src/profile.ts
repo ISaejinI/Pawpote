@@ -3,7 +3,7 @@ import { Hono } from 'hono'
 
 import type { ProfileSummary } from '../../shared/profile'
 import { db } from './db'
-import { breeds, dogPhotos, dogs, profiles } from './db/schema'
+import { breeds, dogActivities, dogCharacters, dogPhotos, dogs, profiles } from './db/schema'
 import { requireSession, sessionCors, type SessionVariables } from './session'
 
 const profile = new Hono<{ Variables: SessionVariables }>()
@@ -16,7 +16,42 @@ function publicUrl(value: string | null) {
   return value?.startsWith('https://') ? value : null
 }
 
-/** En-tête de l'onglet Profil : mon prénom, ma photo et mes chiens. */
+/**
+ * Éléments d'une fiche de chien complète : la barre « Complété à X % » en compte la part remplie.
+ * Le nom n'y figure pas, il est obligatoire.
+ */
+type CompletionFields = {
+  photo: string | null
+  breedId: number | null
+  birthDate: string | null
+  sex: string | null
+  quirk: string | null
+  favoriteToy: string | null
+  description: string | null
+  traitCount: number
+  activityCount: number
+}
+
+function filled(text: string | null) {
+  return !!text?.trim()
+}
+
+function completion(dog: CompletionFields) {
+  const checks = [
+    !!dog.photo,
+    dog.breedId !== null,
+    dog.birthDate !== null,
+    dog.sex !== null,
+    dog.traitCount > 0,
+    filled(dog.quirk),
+    filled(dog.favoriteToy),
+    dog.activityCount > 0,
+    filled(dog.description),
+  ]
+  return checks.filter(Boolean).length / checks.length
+}
+
+/** En-tête et liste « Mes chiens » de l'onglet Profil : mon prénom, ma photo et mes chiens. */
 profile.get('/', async (c) => {
   const userId = c.get('userId')
 
@@ -33,6 +68,18 @@ profile.get('/', async (c) => {
         where ${dogPhotos.dogId} = ${dogs.id} and ${dogPhotos.storageKey} like 'https://%'
         order by ${dogPhotos.position}, ${dogPhotos.id} limit 1
       )`,
+      breedId: dogs.breedId,
+      birthDate: dogs.birthDate,
+      sex: dogs.sex,
+      quirk: dogs.quirk,
+      favoriteToy: dogs.favoriteToy,
+      description: dogs.description,
+      traitCount: sql<number>`(
+        select count(*) from ${dogCharacters} where ${dogCharacters.dogId} = ${dogs.id}
+      )::integer`,
+      activityCount: sql<number>`(
+        select count(*) from ${dogActivities} where ${dogActivities.dogId} = ${dogs.id}
+      )::integer`,
     }).from(dogs)
       .leftJoin(breeds, eq(breeds.id, dogs.breedId))
       .where(eq(dogs.ownerId, userId))
@@ -44,7 +91,14 @@ profile.get('/', async (c) => {
 
   return c.json({
     owner: { firstName, photo: publicUrl(owner?.photo ?? null) },
-    dogs: ownDogs,
+    dogs: ownDogs.map((dog) => ({
+      id: dog.id,
+      name: dog.name,
+      breed: dog.breed,
+      age: dog.age,
+      photo: dog.photo,
+      completion: completion(dog),
+    })),
   } satisfies ProfileSummary)
 })
 
