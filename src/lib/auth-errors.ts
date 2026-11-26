@@ -11,6 +11,7 @@ const MESSAGES: Record<string, string> = {
   PASSWORD_TOO_LONG: 'Le mot de passe est trop long.',
   INVALID_PASSWORD: 'Mot de passe actuel incorrect.',
   CREDENTIAL_ACCOUNT_NOT_FOUND: 'Ce compte n’a pas de mot de passe.',
+  PASSWORD_REQUIRED: 'Renseigne ton mot de passe.',
 };
 
 export function getAuthErrorMessage(error: AuthError, fallback: string) {

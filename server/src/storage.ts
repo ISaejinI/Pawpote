@@ -1,6 +1,12 @@
 import { randomUUID } from 'node:crypto'
 
-import { HeadObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import {
+  DeleteObjectCommand,
+  HeadObjectCommand,
+  ListObjectsV2Command,
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
 /** Bucket déclaré dans `neon.ts`, en lecture publique. */
@@ -93,4 +99,24 @@ export async function photoExists(key: string) {
 export function photoUrl(key: string) {
   storage()
   return `${process.env.AWS_ENDPOINT_URL_S3!.replace(/\/+$/, '')}/${PHOTO_BUCKET}/${key}`
+}
+
+/** Supprime toutes les photos envoyées par un utilisateur (suppression de son compte). */
+export async function deleteUserPhotos(userId: string) {
+  const client = storage()
+  let continuationToken: string | undefined
+
+  do {
+    const page = await client.send(
+      new ListObjectsV2Command({
+        Bucket: PHOTO_BUCKET,
+        Prefix: userPrefix(userId),
+        ContinuationToken: continuationToken,
+      }),
+    )
+    for (const object of page.Contents ?? []) {
+      if (object.Key) await client.send(new DeleteObjectCommand({ Bucket: PHOTO_BUCKET, Key: object.Key }))
+    }
+    continuationToken = page.IsTruncated ? page.NextContinuationToken : undefined
+  } while (continuationToken)
 }

@@ -20,7 +20,7 @@ const DOG_COLORS = [colors.peach300, colors.lime500, colors.pink300, colors.lave
 
 /**
  * Onglet Profil : aperçu, mes chiens, mon profil, paramètres et sécurité.
- * L'aperçu, mes chiens, l'e-mail et la déconnexion sont réels ; les parcs sont fictifs.
+ * Tout est branché sauf les parcs (fictifs) et les paramètres (à venir).
  */
 export default function ProfileScreen() {
   const { data: session } = authClient.useSession();
@@ -132,7 +132,6 @@ export default function ProfileScreen() {
           title="Mot de passe"
           onPress={() => router.push('/account/password')}
         />
-        <MenuRow icon="trash" iconColor="pink" title="Supprimer mon compte" danger />
       </MenuSection>
 
       <Button
@@ -151,6 +150,10 @@ export default function ProfileScreen() {
           {signOutError}
         </Text>
       ) : null}
+
+      <Button variant="danger" icon="trash" onPress={() => router.push('/account/delete')}>
+        Supprimer mon compte
+      </Button>
     </TabPage>
   );
 }
