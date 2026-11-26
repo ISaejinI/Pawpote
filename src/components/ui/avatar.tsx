@@ -13,11 +13,23 @@ export type AvatarProps = {
   raised?: boolean;
   /** Décrit la photo (« Photo de Camille »). */
   accessibilityLabel?: string;
+  /** Sans photo : silhouette (`user`, par défaut) ou patte (`paw`, pour un chien). */
+  fallbackIcon?: 'user' | 'paw';
+  /** Sans photo : couleur de fond (lavande par défaut). */
+  color?: string;
   style?: StyleProp<ViewStyle>;
 };
 
-/** Photo ronde d'un chien ou d'un maître ; sans photo, silhouette sur fond lavande. */
-export function Avatar({ uri, size = 52, raised = false, accessibilityLabel, style }: AvatarProps) {
+/** Photo ronde d'un chien ou d'un maître ; sans photo, une icône sur fond coloré. */
+export function Avatar({
+  uri,
+  size = 52,
+  raised = false,
+  accessibilityLabel,
+  fallbackIcon = 'user',
+  color,
+  style,
+}: AvatarProps) {
   return (
     <View
       accessible={!!accessibilityLabel}
@@ -26,6 +38,7 @@ export function Avatar({ uri, size = 52, raised = false, accessibilityLabel, sty
       style={[
         styles.avatar,
         { width: size, height: size },
+        color && { backgroundColor: color },
         raised && shadows.sm,
         style,
       ]}
@@ -33,7 +46,7 @@ export function Avatar({ uri, size = 52, raised = false, accessibilityLabel, sty
       {uri ? (
         <Image source={{ uri }} style={styles.image} contentFit="cover" />
       ) : (
-        <Icon name="user" size={Math.round(size * 0.42)} />
+        <Icon name={fallbackIcon} size={Math.round(size * (fallbackIcon === 'paw' ? 0.4 : 0.42))} />
       )}
     </View>
   );
