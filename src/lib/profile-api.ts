@@ -1,35 +1,98 @@
+import { useFocusEffect } from 'expo-router'
+import { useCallback, useRef, useState } from 'react'
 import { Platform } from 'react-native'
 
-import type { ProfileDog, ProfileSummary } from '../../shared/profile'
+import type { DogSheet, DogUpdate, ProfileDog, ProfileSummary } from '../../shared/profile'
 import { API_TIMEOUT_MS, apiUrl } from './api-url'
 import { authClient } from './auth-client'
 
-/** Mon prénom, ma photo et mes chiens, pour l'en-tête de l'onglet Profil. */
-export async function getProfileSummary(signal: AbortSignal): Promise<ProfileSummary> {
+/** Réponse en erreur de l'API, avec son code HTTP. */
+export class ProfileApiError extends Error {
+  constructor(readonly status: number) {
+    super(`Profile request failed (${status})`)
+  }
+}
+
+/** Requête authentifiée vers `/api/profile` : GET sans corps, POST JSON sinon. */
+async function profileRequest<T>(path: string, { body, signal }: { body?: object; signal?: AbortSignal } = {}) {
   const headers = new Headers()
   if (Platform.OS !== 'web') {
     const cookie = await authClient.getCookie()
     if (cookie) headers.set('Cookie', cookie)
   }
+  if (body) headers.set('Content-Type', 'application/json')
 
   // Abandonne aussi la requête au-delà du délai maximal de l'API
   const controller = new AbortController()
   const abort = () => controller.abort()
-  signal.addEventListener('abort', abort)
+  signal?.addEventListener('abort', abort)
   const timeout = setTimeout(abort, API_TIMEOUT_MS)
 
   try {
-    const response = await fetch(`${apiUrl}/api/profile`, {
+    const response = await fetch(`${apiUrl}/api/profile${path}`, {
       credentials: Platform.OS === 'web' ? 'include' : 'omit',
+      method: body ? 'POST' : 'GET',
+      body: body ? JSON.stringify(body) : undefined,
       headers,
       signal: controller.signal,
     })
-    if (!response.ok) throw new Error('Profile request failed', { cause: response.status })
-    return await response.json()
+    if (!response.ok) throw new ProfileApiError(response.status)
+    return (await response.json()) as T
   } finally {
     clearTimeout(timeout)
-    signal.removeEventListener('abort', abort)
+    signal?.removeEventListener('abort', abort)
   }
+}
+
+/** Mon prénom, ma photo et mes chiens, pour l'onglet Profil. */
+export const getProfileSummary = (signal?: AbortSignal) =>
+  profileRequest<ProfileSummary>('', { signal })
+
+/** La fiche complète d'un de mes chiens. */
+export const getDogSheet = (id: string, signal?: AbortSignal) =>
+  profileRequest<DogSheet>(`/dogs/${encodeURIComponent(id)}`, { signal })
+
+/** Enregistre la fiche modifiée d'un de mes chiens. */
+export const saveDogSheet = (id: string, update: DogUpdate) =>
+  profileRequest<{ ok: true }>(`/dogs/${encodeURIComponent(id)}`, { body: update })
+
+/** Retire un chien de mon compte (refusé pour le dernier). */
+export const removeDog = (id: string) =>
+  profileRequest<{ ok: true }>(`/dogs/${encodeURIComponent(id)}/delete`, { body: {} })
+
+/**
+ * Charge le profil et le recharge à chaque retour sur l'écran (après une fiche modifiée).
+ * Les données affichées restent en place pendant le rechargement.
+ */
+export function useProfileSummary() {
+  const [data, setData] = useState<ProfileSummary>()
+  const [error, setError] = useState<unknown>()
+  const controllerRef = useRef<AbortController | null>(null)
+
+  const load = useCallback(() => {
+    controllerRef.current?.abort()
+    const controller = new AbortController()
+    controllerRef.current = controller
+    setError(undefined)
+
+    getProfileSummary(controller.signal).then(
+      (result) => {
+        if (!controller.signal.aborted) setData(result)
+      },
+      (cause: unknown) => {
+        if (!controller.signal.aborted) setError(cause)
+      },
+    )
+  }, [])
+
+  useFocusEffect(
+    useCallback(() => {
+      load()
+      return () => controllerRef.current?.abort()
+    }, [load]),
+  )
+
+  return { data, error, retry: load }
 }
 
 /** « Berger australien · 3 ans », sans les informations manquantes. */

@@ -11,8 +11,7 @@ import {
 } from '@/components/ui';
 import { MOCK_PARK_COUNT } from '@/data/mock-profile';
 import { authClient } from '@/lib/auth-client';
-import { dogDetails, getProfileSummary } from '@/lib/profile-api';
-import { useDiscoveryQuery } from '@/lib/use-discovery-query';
+import { dogDetails, useProfileSummary } from '@/lib/profile-api';
 import { colors, shadows, typography } from '@/theme';
 
 /** Fonds des photos manquantes, attribués aux chiens dans l'ordre. */
@@ -28,7 +27,7 @@ export default function ProfileScreen() {
   const [loading, setLoading] = useState(false);
   const [signOutError, setSignOutError] = useState('');
 
-  const summary = useDiscoveryQuery(getProfileSummary);
+  const summary = useProfileSummary();
   // Même couleur de fond pour un chien sans photo, dans l'en-tête et dans la liste
   const dogs = (summary.data?.dogs ?? []).map((dog, index) => ({
     ...dog,
