@@ -13,11 +13,13 @@ const FAVORITE_TOY_MAX_LENGTH = 32
 /** Étape 3 · Son caractère */
 export default function CharacterStep() {
   const { dog, updateDog } = useOnboardingDraft()
-  const [error, setError] = useState('')
+  const [showErrors, setShowErrors] = useState(false)
+  const missingTrait = dog.traits.length === 0
+  const missingQuirk = !dog.quirk.trim()
 
   function handleContinue() {
-    if (dog.traits.length === 0) {
-      setError('Choisis au moins un trait de caractère.')
+    if (missingTrait || missingQuirk) {
+      setShowErrors(true)
       return
     }
     router.push('/onboarding/activities')
@@ -31,7 +33,7 @@ export default function CharacterStep() {
       onBack={router.back}
       onContinue={handleContinue}
     >
-      <FormField label="Ce qui lui ressemble" error={error}>
+      <FormField label="Ce qui lui ressemble" error={showErrors && missingTrait ? 'Choisis au moins un trait de caractère.' : undefined}>
         <View style={styles.chips}>
           {TRAITS.map((trait) => (
             <Chip
@@ -41,14 +43,16 @@ export default function CharacterStep() {
               selected={dog.traits.includes(trait)}
               onPress={() => {
                 updateDog({ traits: toggleValue(dog.traits, trait) })
-                setError('')
               }}
             />
           ))}
         </View>
       </FormField>
 
-      <FormField label="Sa petite particularité" optional>
+      <FormField
+        label="Sa petite particularité"
+        error={showErrors && missingQuirk ? 'Raconte-nous une petite habitude de ton chien.' : undefined}
+      >
         <Input
           placeholder="Ex. Boude si la balade est trop courte"
           value={dog.quirk}

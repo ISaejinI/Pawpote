@@ -5,9 +5,12 @@ import { cors } from 'hono/cors'
 import { auth, webOrigins } from './auth'
 import { db } from './db'
 import { breeds } from './db/schema'
+import { discovery } from './discovery'
 
 const app = new Hono()
 const frenchOrder = new Intl.Collator('fr')
+
+app.route('/api/discovery', discovery)
 
 // Autoriser les requêtes depuis Expo Web
 app.use(

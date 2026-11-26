@@ -9,11 +9,12 @@ export type SwipeActionsProps = {
   onDetails?: () => void;
   /** Prénom du chien, pour les libellés lus par les lecteurs d'écran. */
   dogName?: string;
+  disabled?: boolean;
   style?: StyleProp<ViewStyle>;
 };
 
 /** Boutons Passer et J'aime, avec en option le bouton de détail au centre. */
-export function SwipeActions({ onPass, onLike, onDetails, dogName, style }: SwipeActionsProps) {
+export function SwipeActions({ onPass, onLike, onDetails, dogName, disabled, style }: SwipeActionsProps) {
   const target = dogName ? ` ${dogName}` : ' ce chien';
 
   return (
@@ -25,6 +26,7 @@ export function SwipeActions({ onPass, onLike, onDetails, dogName, style }: Swip
         size="lg"
         accessibilityLabel={`Passer${target}`}
         onPress={onPass}
+        disabled={disabled}
       />
       {onDetails && (
         <IconButton
@@ -33,6 +35,7 @@ export function SwipeActions({ onPass, onLike, onDetails, dogName, style }: Swip
           size="ml"
           accessibilityLabel={dogName ? `Voir tout le profil de ${dogName}` : 'Voir tout son profil'}
           onPress={onDetails}
+          disabled={disabled}
         />
       )}
       <IconButton
@@ -41,6 +44,7 @@ export function SwipeActions({ onPass, onLike, onDetails, dogName, style }: Swip
         size="lg"
         accessibilityLabel={`J’aime${target}`}
         onPress={onLike}
+        disabled={disabled}
       />
     </View>
   );

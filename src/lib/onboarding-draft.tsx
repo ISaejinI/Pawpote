@@ -13,7 +13,6 @@ export type DogDraft = {
   /** Trois emplacements de photos secondaires. */
   extraPhotos: (string | null)[];
   traits: string[];
-  /** Pas encore de colonne en base pour la petite particularité. */
   quirk: string;
   favoriteToy: string;
   activities: string[];

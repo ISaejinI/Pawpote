@@ -40,7 +40,6 @@ export default function PreviewScreen() {
           breed={dog.breed?.name}
           photoUri={dog.mainPhoto}
           favoriteToy={dog.favoriteToy}
-          quirk={dog.quirk}
           style={styles.card}
         />
 

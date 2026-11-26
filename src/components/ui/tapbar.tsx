@@ -89,6 +89,7 @@ export function TapbarTab({
 const styles = StyleSheet.create({
   bar: {
     position: 'absolute',
+    zIndex: 1,
     left: TAPBAR_MARGIN,
     right: TAPBAR_MARGIN,
     height: TAPBAR_HEIGHT,
