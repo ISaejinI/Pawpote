@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
-import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 
-import { borderWidth, colors, radius, shadows } from '@/theme';
+import { borderWidth, colors, radius, shadows, typography } from '@/theme';
 
 import { Icon } from './icon';
 
@@ -13,8 +13,13 @@ export type AvatarProps = {
   raised?: boolean;
   /** Décrit la photo (« Photo de Camille »). */
   accessibilityLabel?: string;
-  /** Sans photo : silhouette (`user`, par défaut) ou patte (`paw`, pour un chien). */
-  fallbackIcon?: 'user' | 'paw';
+  /**
+   * Sans photo : silhouette (`user`, par défaut), patte (`paw`, pour un chien)
+   * ou appareil photo sur contour pointillé (`camera`, photo à ajouter).
+   */
+  fallbackIcon?: 'user' | 'paw' | 'camera';
+  /** Avec `camera` : courte consigne sous l'icône (« Photo du chien »), à partir de 80 px. */
+  fallbackLabel?: string;
   /** Sans photo : couleur de fond (lavande par défaut). */
   color?: string;
   style?: StyleProp<ViewStyle>;
@@ -27,6 +32,7 @@ export function Avatar({
   raised = false,
   accessibilityLabel,
   fallbackIcon = 'user',
+  fallbackLabel,
   color,
   style,
 }: AvatarProps) {
@@ -39,12 +45,18 @@ export function Avatar({
         styles.avatar,
         { width: size, height: size },
         color && { backgroundColor: color },
+        !uri && fallbackIcon === 'camera' && styles.missing,
         raised && shadows.sm,
         style,
       ]}
     >
       {uri ? (
         <Image source={{ uri }} style={styles.image} contentFit="cover" />
+      ) : fallbackIcon === 'camera' ? (
+        <>
+          <Icon name="camera" size={Math.min(24, Math.round(size * 0.36))} strokeWidth={1.8} />
+          {fallbackLabel && size >= 80 && <Text style={styles.label}>{fallbackLabel}</Text>}
+        </>
       ) : (
         <Icon name={fallbackIcon} size={Math.round(size * (fallbackIcon === 'paw' ? 0.4 : 0.42))} />
       )}
@@ -60,6 +72,18 @@ const styles = StyleSheet.create({
     borderWidth: borderWidth.regular,
     borderColor: colors.border,
     borderRadius: radius.pill,
+  },
+  // Photo à ajouter : contour pointillé
+  missing: {
+    gap: 2,
+    borderStyle: 'dashed',
+  },
+  label: {
+    ...typography.caption,
+    fontSize: 10,
+    lineHeight: 12,
+    color: colors.text,
+    textAlign: 'center',
   },
   image: {
     ...StyleSheet.absoluteFill,
