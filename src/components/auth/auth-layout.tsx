@@ -4,7 +4,8 @@ import { StyleSheet, Text, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Logo, SegmentedControl, WaveBackground } from '@/components/ui';
+import { Logo, SegmentedControl, TextLink, WaveBackground } from '@/components/ui';
+import { authClient } from '@/lib/auth-client';
 import { borderWidth, colors, radius, shadows, spacing, typography } from '@/theme';
 
 type AuthMode = 'sign-in' | 'sign-up';
@@ -24,6 +25,8 @@ const MODES = [
 /** Gabarit commun à la connexion et à l'inscription : logo, accroche, carte avec le choix du mode. */
 export function AuthLayout({ mode, tagline, children }: AuthLayoutProps) {
   const insets = useSafeAreaInsets();
+  // La vérification de la session au démarrage a échoué (API injoignable ou trop lente)
+  const { error: sessionError, isRefetching, refetch } = authClient.useSession();
 
   return (
     <View style={styles.root}>
@@ -44,6 +47,15 @@ export function AuthLayout({ mode, tagline, children }: AuthLayoutProps) {
       >
         <Logo />
         <Text style={styles.tagline}>{tagline}</Text>
+
+        {sessionError && !isRefetching ? (
+          <View style={styles.offline} accessibilityRole="alert" accessibilityLiveRegion="polite">
+            <Text style={styles.offlineText}>
+              Le serveur ne répond pas. Vérifie ta connexion, puis réessaie.
+            </Text>
+            <TextLink onPress={() => void refetch()}>Réessayer</TextLink>
+          </View>
+        ) : null}
 
         <View style={styles.card}>
           <SegmentedControl
@@ -75,6 +87,21 @@ const styles = StyleSheet.create({
   tagline: {
     ...typography.handLg,
     color: colors.text,
+    textAlign: 'center',
+  },
+  // Encadré cream : le message reste lisible sur le fond à vagues
+  offline: {
+    gap: spacing[2],
+    paddingVertical: spacing[3],
+    paddingHorizontal: spacing[4],
+    backgroundColor: colors.surface,
+    borderWidth: borderWidth.regular,
+    borderColor: colors.danger,
+    borderRadius: radius.md,
+  },
+  offlineText: {
+    ...typography.small,
+    color: colors.danger,
     textAlign: 'center',
   },
   card: {
