@@ -98,6 +98,10 @@ export {
   PhotoSourceSheet,
   type PhotoSourceSheetProps,
 } from './photo-source-sheet';
+export {
+  ProfileSummaryCard,
+  type ProfileSummaryCardProps,
+} from './profile-summary-card';
 export { PullToClose, type PullToCloseProps } from './pull-to-close';
 export {
   Tapbar,
