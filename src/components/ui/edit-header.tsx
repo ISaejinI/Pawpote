@@ -8,9 +8,9 @@ import { IconButton } from './icon-button';
 export type EditHeaderProps = {
   title: string;
   onBack: () => void;
-  /** Libellé du bouton d'action (« Enregistrer »). */
-  actionLabel: string;
-  onAction: () => void;
+  /** Libellé du bouton d'action (« Enregistrer ») ; sans lui, pas de bouton. */
+  actionLabel?: string;
+  onAction?: () => void;
   /** Enregistrement en cours : bouton en chargement. */
   loading?: boolean;
   /** Libellé lu par les lecteurs d'écran pour le retour. */
@@ -18,7 +18,7 @@ export type EditHeaderProps = {
   style?: StyleProp<ViewStyle>;
 };
 
-/** En-tête d'une page d'édition : retour, titre et bouton Enregistrer. */
+/** En-tête d'une page d'édition : retour, titre et, s'il y a lieu, bouton Enregistrer. */
 export function EditHeader({
   title,
   onBack,
@@ -34,9 +34,11 @@ export function EditHeader({
       <Text style={styles.title} accessibilityRole="header" numberOfLines={1}>
         {title}
       </Text>
-      <Button size="sm" onPress={onAction} loading={loading} style={styles.action}>
-        {actionLabel}
-      </Button>
+      {actionLabel && onAction ? (
+        <Button size="sm" onPress={onAction} loading={loading} style={styles.action}>
+          {actionLabel}
+        </Button>
+      ) : null}
     </View>
   );
 }
