@@ -87,6 +87,11 @@ export {
 } from './conversation-header';
 export { ConversationList, type ConversationListProps } from './conversation-list';
 export {
+  DogPhotosEditor,
+  type DogPhotosEditorProps,
+  type DogPhotoTarget,
+} from './dog-photos-editor';
+export {
   DogProfile,
   type DogProfilePark,
   type DogProfileProps,
