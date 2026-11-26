@@ -31,6 +31,7 @@ export type DiscoveryDog = {
   favoriteToy: string | null
   photo: string | null
   distanceKm?: number | null
+  distanceApproximate?: boolean
 }
 
 export type DogDetails = DiscoveryDog & {

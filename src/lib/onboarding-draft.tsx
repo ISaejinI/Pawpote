@@ -1,4 +1,5 @@
 import { createContext, use, useState, type ReactNode } from 'react';
+import type { Coordinates } from '../../shared/discovery';
 
 export type DogSex = 'female' | 'male';
 
@@ -26,6 +27,7 @@ export type OwnerDraft = {
   address: string;
   postalCode: string;
   city: string;
+  homeLocation?: Coordinates | null;
 };
 
 type OnboardingDraft = {

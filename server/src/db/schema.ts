@@ -89,6 +89,8 @@ export const profiles = pgTable(
     // Localisation géographique
     latitude: doublePrecision('latitude'),
     longitude: doublePrecision('longitude'),
+    homeLatitude: doublePrecision('home_latitude'),
+    homeLongitude: doublePrecision('home_longitude'),
 
     avatarKey: text('avatar_key'),
 
@@ -111,6 +113,12 @@ export const profiles = pgTable(
       'profiles_coordinates_together',
       sql`(${table.latitude} IS NULL AND ${table.longitude} IS NULL)
           OR (${table.latitude} IS NOT NULL AND ${table.longitude} IS NOT NULL)`,
+    ),
+    check(
+      'profiles_valid_home_coordinates',
+      sql`(${table.homeLatitude} IS NULL AND ${table.homeLongitude} IS NULL)
+          OR (${table.homeLatitude} IS NOT NULL AND ${table.homeLongitude} IS NOT NULL
+              AND ${table.homeLatitude} BETWEEN -90 AND 90 AND ${table.homeLongitude} BETWEEN -180 AND 180)`,
     ),
   ],
 )

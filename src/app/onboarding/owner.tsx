@@ -2,6 +2,7 @@ import { router } from 'expo-router'
 import { useRef, useState } from 'react'
 import { StyleSheet, Text, View, type TextInputInstance } from 'react-native'
 
+import { AddressField } from '@/components/onboarding/address-field'
 import { stepProps } from '@/components/onboarding/steps'
 import {
   Callout,
@@ -83,19 +84,13 @@ export default function OwnerStep() {
         <DateInput value={owner.birthDate} onChangeText={(birthDate) => update({ birthDate })} />
       </FormField>
 
-      <FormField label="Adresse" error={errors.address}>
-        <Input
-          placeholder="N° et nom de rue"
-          value={owner.address}
-          onChangeText={(address) => update({ address })}
-          maxLength={ONBOARDING_LIMITS.address}
-          autoComplete="street-address"
-          textContentType="streetAddressLine1"
-          returnKeyType="next"
-          submitBehavior="submit"
-          onSubmitEditing={() => postalCodeRef.current?.focus()}
-        />
-      </FormField>
+      <AddressField
+        value={owner.address}
+        error={errors.address}
+        onChangeText={(address) => update({ address, homeLocation: null })}
+        onSelect={update}
+        onSubmitEditing={() => postalCodeRef.current?.focus()}
+      />
 
       <View style={styles.row}>
         <FormField label="Code postal" error={errors.postalCode} style={styles.postalCode}>
@@ -103,7 +98,7 @@ export default function OwnerStep() {
             ref={postalCodeRef}
             placeholder="75011"
             value={owner.postalCode}
-            onChangeText={(postalCode) => update({ postalCode })}
+            onChangeText={(postalCode) => update({ postalCode, homeLocation: null })}
             keyboardType="number-pad"
             maxLength={5}
             autoComplete="postal-code"
@@ -119,7 +114,7 @@ export default function OwnerStep() {
             ref={cityRef}
             placeholder="Paris"
             value={owner.city}
-            onChangeText={(city) => update({ city })}
+            onChangeText={(city) => update({ city, homeLocation: null })}
             maxLength={ONBOARDING_LIMITS.city}
             autoComplete="postal-address-locality"
             textContentType="addressCity"
@@ -129,7 +124,7 @@ export default function OwnerStep() {
       </View>
 
       <Callout variant="info" icon="lock">
-        Ton adresse n’est jamais affichée. Elle sert seulement à calculer les distances avec les autres chiens.
+        Ton adresse reste privée. Si tu choisis une adresse proposée, sa zone approximative sert aux distances en l’absence de position GPS.
       </Callout>
 
       <PhotoSourceSheet

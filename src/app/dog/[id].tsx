@@ -129,7 +129,7 @@ function DogDetail({ id, nearby }: { id: string; nearby: boolean }) {
             sex={dog.sex ?? undefined}
             age={dog.age ?? undefined}
             breed={dog.breed ?? undefined}
-            distance={formatDiscoveryDistance(dog.distanceKm)}
+            distance={formatDiscoveryDistance(dog.distanceKm, dog.distanceApproximate)}
             activities={dog.activities}
             traits={dog.traits}
             favoriteToy={dog.favoriteToy ?? undefined}

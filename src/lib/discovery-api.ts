@@ -48,9 +48,10 @@ export const restartDiscovery = () => discoveryRequest('/restart', undefined, {}
 
 const distanceFormatter = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 })
 
-export function formatDiscoveryDistance(distanceKm?: number | null) {
+export function formatDiscoveryDistance(distanceKm?: number | null, approximate?: boolean) {
   if (distanceKm == null) return undefined
-  return `${distanceFormatter.format(distanceKm)} km`
+  if (approximate && distanceKm < 1) return 'moins de 1 km'
+  return `${approximate ? 'environ ' : ''}${distanceFormatter.format(distanceKm)} km`
 }
 
 export function announceMatches({ matches }: SwipeResult) {
