@@ -76,6 +76,10 @@ export { TabPage, type TabPageProps } from './tab-page';
 // Organismes
 export { BottomSheet, type BottomSheetProps } from './bottom-sheet';
 export {
+  ConversationHeader,
+  type ConversationHeaderProps,
+} from './conversation-header';
+export {
   DogProfile,
   type DogProfilePark,
   type DogProfileProps,
