@@ -1,10 +1,11 @@
 import { useFocusEffect } from 'expo-router'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Platform } from 'react-native'
 
 import type { OnboardingDog } from '../../shared/onboarding'
 import type {
-  DogRemoval, DogSheet, DogUpdate, NewDog, ProfileDog, ProfileSummary,
+  DogRemoval, DogSheet, DogUpdate, NewDog, OwnerAddressUpdate, OwnerIdentityUpdate, OwnerInfo,
+  ProfileDog, ProfileSummary,
 } from '../../shared/profile'
 import { API_TIMEOUT_MS, apiUrl } from './api-url'
 import { authClient } from './auth-client'
@@ -65,6 +66,44 @@ export const addDog = (dog: OnboardingDog) => profileRequest<NewDog>('/dogs', { 
 /** Retire un chien de mon compte et indique combien il en reste. */
 export const removeDog = (id: string) =>
   profileRequest<DogRemoval>(`/dogs/${encodeURIComponent(id)}/delete`, { body: {} })
+
+/** Mes informations personnelles et mon adresse. */
+export const getOwnerInfo = (signal?: AbortSignal) => profileRequest<OwnerInfo>('/owner', { signal })
+
+/** Enregistre mon prénom, mon nom, ma date de naissance et ma photo. */
+export const saveOwnerIdentity = (identity: OwnerIdentityUpdate) =>
+  profileRequest<{ ok: true }>('/owner/identity', { body: identity })
+
+/** Enregistre mon adresse. */
+export const saveOwnerAddress = (address: OwnerAddressUpdate) =>
+  profileRequest<{ ok: true }>('/owner/address', { body: address })
+
+/** Charge mes informations une fois, avec de quoi réessayer en cas d'échec. */
+export function useOwnerInfo() {
+  const [data, setData] = useState<OwnerInfo>()
+  const [error, setError] = useState(false)
+  const [attempt, setAttempt] = useState(0)
+
+  useEffect(() => {
+    const controller = new AbortController()
+    getOwnerInfo(controller.signal).then(
+      (result) => {
+        if (!controller.signal.aborted) setData(result)
+      },
+      () => {
+        if (!controller.signal.aborted) setError(true)
+      },
+    )
+    return () => controller.abort()
+  }, [attempt])
+
+  const retry = useCallback(() => {
+    setError(false)
+    setAttempt((current) => current + 1)
+  }, [])
+
+  return { data, error, retry }
+}
 
 /**
  * Charge le profil et le recharge à chaque retour sur l'écran (après une fiche modifiée).

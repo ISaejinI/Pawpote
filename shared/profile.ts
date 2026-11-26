@@ -115,3 +115,40 @@ export function dogCompletion(input: CompletionInput) {
   const missing = checks.filter(([, done]) => !done).map(([item]) => item)
   return { value: (checks.length - missing.length) / checks.length, missing }
 }
+
+/** Réponse de `GET /api/profile/owner` : mes informations personnelles et mon adresse. */
+export type OwnerInfo = {
+  firstName: string
+  lastName: string | null
+  /** AAAA-MM-JJ, ou `null`. */
+  birthDate: string | null
+  /** URL publique de ma photo, ou `null`. */
+  photo: string | null
+  address: string | null
+  postalCode: string | null
+  city: string | null
+  /** Zone approximative du domicile (à ~500 m près), ou `null`. */
+  homeLocation: { latitude: number; longitude: number } | null
+}
+
+/** Corps de `POST /api/profile/owner/identity`. */
+export type OwnerIdentityUpdate = {
+  firstName: string
+  lastName: string
+  /** AAAA-MM-JJ */
+  birthDate: string
+  /** URL de ma photo actuelle, clé d'une photo tout juste envoyée, ou `null` pour la retirer. */
+  photo: string | null
+}
+
+/** Corps de `POST /api/profile/owner/address`. */
+export type OwnerAddressUpdate = {
+  address: string
+  postalCode: string
+  city: string
+  /** Position de l'adresse choisie parmi les suggestions, sinon `null`. */
+  homeLocation: { latitude: number; longitude: number } | null
+}
+
+/** Longueur maximale d'un prénom ou d'un nom (comme à l'inscription). */
+export const NAME_MAX_LENGTH = 50
