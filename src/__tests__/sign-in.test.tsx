@@ -1,6 +1,6 @@
 import { render, screen, userEvent } from '@testing-library/react-native'
 
-import SignInScreen from '../sign-in'
+import SignInScreen from '@/app/sign-in'
 
 // Seul le client d'authentification est remplacé : le formulaire, lui, est le vrai
 const mockSignInEmail = jest.fn()

@@ -98,7 +98,7 @@ Tout se lance depuis la racine. Les tests n’utilisent que des données créée
 
 ### Tests unitaires et de composants
 
-Ils sont placés à côté du code testé, dans des dossiers `__tests__` (`shared/`, `src/lib/`, `src/components/ui/`, `src/app/`) :
+Ils sont placés à côté du code testé, dans des dossiers `__tests__` (`shared/`, `src/lib/`, `src/components/ui/`). Les tests d’écrans vont dans `src/__tests__/` : tout fichier placé dans `src/app/` deviendrait une route d’Expo Router.
 
 - **Logique métier** : complétion de la fiche d’un chien, dates de naissance, coordonnées et arrondi de l’adresse, client de l’API de découverte (dont les erreurs HTTP).
 - **Composants** : boutons, boutons J’aime / Passer, champ mot de passe, formulaire de connexion (champs invalides, erreur de l’API, serveur injoignable). Seul le client d’authentification est simulé ; on teste ce que l’utilisateur voit et fait, sans snapshots.
