@@ -81,7 +81,12 @@ export default function ProfileScreen() {
             onPress={() => router.push({ pathname: '/my-dog/[id]', params: { id: dog.id } })}
           />
         ))}
-        <MenuRow icon="plus" iconColor="lime" title="Ajouter un chien" />
+        <MenuRow
+          icon="plus"
+          iconColor="lime"
+          title="Ajouter un chien"
+          onPress={() => router.push('/add-dog/dog')}
+        />
       </MenuSection>
 
       <MenuSection title="Mon profil">
