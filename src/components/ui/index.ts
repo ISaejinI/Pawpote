@@ -85,6 +85,7 @@ export {
   type DogProfileProps,
 } from './dog-profile';
 export { MatchCard, type MatchCardProps } from './match-card';
+export { NewMatchesStrip, type NewMatchesStripProps } from './new-matches-strip';
 export { PhotoCarousel, type PhotoCarouselProps } from './photo-carousel';
 export {
   PhotoSourceSheet,
