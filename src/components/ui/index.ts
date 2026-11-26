@@ -91,6 +91,7 @@ export {
   type DogProfilePark,
   type DogProfileProps,
 } from './dog-profile';
+export { EditHeader, type EditHeaderProps } from './edit-header';
 export { MatchCard, type MatchCardProps } from './match-card';
 export { MenuSection, type MenuSectionProps } from './menu-section';
 export { NewMatchesStrip, type NewMatchesStripProps } from './new-matches-strip';
