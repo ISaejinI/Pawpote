@@ -52,6 +52,7 @@ export { DateInput, type DateInputProps } from './date-input';
 export { DogRow, type DogRowProps } from './dog-row';
 export { DuoAvatar, type DuoAvatarProps } from './duo-avatar';
 export { FormField, useFormField, type FormFieldProps } from './form-field';
+export { FormSection, type FormSectionProps } from './form-section';
 export { MatchBanner, type MatchBannerProps } from './match-banner';
 export { MenuRow, type MenuRowProps } from './menu-row';
 export { MessageComposer, type MessageComposerProps } from './message-composer';
