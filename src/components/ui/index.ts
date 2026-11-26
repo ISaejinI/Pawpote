@@ -67,6 +67,7 @@ export { SwipeActions, type SwipeActionsProps } from './swipe-actions';
 export { WalkProposalCard, type WalkProposalCardProps } from './walk-proposal-card';
 
 // Templates
+export { ConversationPage, type ConversationPageProps } from './conversation-page';
 export {
   OnboardingStepPage,
   type OnboardingStepPageProps,
