@@ -10,6 +10,8 @@ Le [README principal](../README.md) décrit les variables, la sélection de la b
 
 `/api/discovery` requiert une session Better Auth. La route renvoie les chiens des autres comptes par lots de 24. Un chien déjà liké ou passé sort de la liste. Les deux chiens ciblés par des likes réciproques entre deux comptes sont enregistrés dans `matches`. Recommencer en fin de liste ouvre un nouveau passage et conserve les matchs déjà créés.
 
+La route accepte des filtres de gabarit, d’âge, de sexe et de rayon. `POST /api/discovery/location` enregistre la latitude et la longitude du profil connecté. Les profils du jeu de démo n’ont pas de coordonnées par défaut. Pour tester le rayon, enregistre la position de deux comptes de test sur la branche dédiée. Le fonctionnement est décrit dans l’[ADR 008](../docs/adr/008-discovery-location-and-filters.md).
+
 Appliquer les migrations Drizzle sur la base de développement prévue pour la démo. Dans `server/.env`, vérifier `DATABASE_URL` et renseigner `PAWPOTE_DEMO_DB_HOST` avec le nom d’hôte de cette base. Depuis `server/`, lancer `npm run seed:discovery`. Le script est relançable et ajoute 24 chiens et 22 propriétaires fictifs. Les photos et leurs crédits Wikimedia sont définis dans `server/data/demo-photos.json`.
 
 ## Catalogue des races

@@ -3,6 +3,7 @@ import {
   Modal,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -31,6 +32,7 @@ export type BottomSheetProps = {
   title: string;
   /** Sous-titre manuscrit. */
   subtitle?: string;
+  footer?: ReactNode;
   children: ReactNode;
 };
 
@@ -47,6 +49,7 @@ export function BottomSheet({
   onClosed,
   title,
   subtitle,
+  footer,
   children,
 }: BottomSheetProps) {
   const insets = useSafeAreaInsets();
@@ -103,6 +106,41 @@ export function BottomSheet({
     transform: [{ translateY: (1 - progress.value) * windowHeight + dragY.value }],
   }));
 
+  const header = (
+    <View style={styles.headerBlock}>
+      <View style={styles.handle} />
+      <View style={styles.header}>
+        <View style={styles.headings}>
+          <Text style={styles.title} accessibilityRole="header">{title}</Text>
+          {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+        </View>
+        <IconButton icon="close" variant="white" size="sm" accessibilityLabel="Fermer" onPress={onClose} />
+      </View>
+    </View>
+  );
+
+  const sheet = (
+    <Animated.View
+      role="dialog"
+      aria-modal
+      accessibilityViewIsModal
+      accessibilityLabel={title}
+      style={[
+        styles.sheet,
+        { paddingBottom: insets.bottom + 24, maxHeight: windowHeight - insets.top - 12 },
+        sheetStyle,
+      ]}
+    >
+      {footer ? (
+        <>
+          <GestureDetector gesture={pan}>{header}</GestureDetector>
+          <ScrollView style={styles.scrollBody}>{children}</ScrollView>
+          {footer}
+        </>
+      ) : <>{header}{children}</>}
+    </Animated.View>
+  );
+
   return (
     <Modal
       transparent
@@ -123,35 +161,7 @@ export function BottomSheet({
           />
         </Animated.View>
 
-        <GestureDetector gesture={pan}>
-          <Animated.View
-            role="dialog"
-            aria-modal
-            accessibilityViewIsModal
-            accessibilityLabel={title}
-            style={[styles.sheet, { paddingBottom: insets.bottom + 24 }, sheetStyle]}
-          >
-            <View style={styles.handle} />
-
-            <View style={styles.header}>
-              <View style={styles.headings}>
-                <Text style={styles.title} accessibilityRole="header">
-                  {title}
-                </Text>
-                {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
-              </View>
-              <IconButton
-                icon="close"
-                variant="white"
-                size="sm"
-                accessibilityLabel="Fermer"
-                onPress={onClose}
-              />
-            </View>
-
-            {children}
-          </Animated.View>
-        </GestureDetector>
+        {footer ? sheet : <GestureDetector gesture={pan}>{sheet}</GestureDetector>}
       </GestureHandlerRootView>
     </Modal>
   );
@@ -188,6 +198,13 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: colors.text,
     opacity: 0.3,
+  },
+  headerBlock: {
+    gap: 14,
+  },
+  scrollBody: {
+    flexGrow: 0,
+    flexShrink: 1,
   },
   header: {
     flexDirection: 'row',

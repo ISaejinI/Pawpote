@@ -16,7 +16,7 @@ export type TabPageProps = {
 } & (
   | { scroll?: true; children: ReactNode }
   // Le contenu occupe tout l'écran et reçoit les marges à conserver au repos.
-  | { scroll: false; children: (insets: TabPageInsets) => ReactNode }
+  | { scroll: false; header?: ReactNode; children: (insets: TabPageInsets) => ReactNode }
 );
 
 /** Espace entre les blocs d'une page à onglet. */
@@ -49,17 +49,15 @@ export function TabPage(props: TabPageProps) {
         </ScrollView>
       ) : (
         <View style={[styles.root, contentStyle]}>
-          <View pointerEvents="none" style={[styles.fixedHeader, { top: padding.paddingTop }]}>
-            <Text
-              style={styles.title}
-              accessibilityRole="header"
-              onLayout={({ nativeEvent }) => setTitleHeight(nativeEvent.layout.height)}
-            >
-              {title}
-            </Text>
+          <View
+            pointerEvents={props.header ? 'box-none' : 'none'}
+            style={[styles.fixedHeader, { top: padding.paddingTop }]}
+            onLayout={({ nativeEvent }) => setTitleHeight(nativeEvent.layout.height)}
+          >
+            {props.header ?? <Text style={styles.title} accessibilityRole="header">{title}</Text>}
           </View>
           {titleHeight !== undefined && props.children({
-            top: padding.paddingTop + titleHeight + BLOCK_GAP,
+            top: padding.paddingTop + titleHeight + (props.header ? spacing[3] : BLOCK_GAP),
             bottom: tapbarInset,
           })}
         </View>
