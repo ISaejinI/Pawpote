@@ -68,6 +68,7 @@ function RootStack({ signedIn }: { signedIn: boolean }) {
       <Stack.Protected guard={signedIn && !needsOnboarding}>
         <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
         <Stack.Screen name="conversation/[id]" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="my-dog/[id]" options={{ animation: 'slide_from_right' }} />
         <Stack.Screen
           name="dog/[id]"
           // Transparente : la carte reste visible derrière quand on tire le profil vers le bas

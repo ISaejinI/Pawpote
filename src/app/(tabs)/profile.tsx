@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text } from 'react-native';
 
@@ -77,6 +78,7 @@ export default function ProfileScreen() {
             photoUri={dog.photo}
             color={dog.color}
             completion={dog.completion}
+            onPress={() => router.push({ pathname: '/my-dog/[id]', params: { id: dog.id } })}
           />
         ))}
         <MenuRow icon="plus" iconColor="lime" title="Ajouter un chien" />
