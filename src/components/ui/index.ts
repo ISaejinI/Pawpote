@@ -52,6 +52,7 @@ export { DateInput, type DateInputProps } from './date-input';
 export { DogRow, type DogRowProps } from './dog-row';
 export { DuoAvatar, type DuoAvatarProps } from './duo-avatar';
 export { FormField, useFormField, type FormFieldProps } from './form-field';
+export { FormSection, type FormSectionProps } from './form-section';
 export { MatchBanner, type MatchBannerProps } from './match-banner';
 export { MenuRow, type MenuRowProps } from './menu-row';
 export { MessageComposer, type MessageComposerProps } from './message-composer';
@@ -72,6 +73,7 @@ export { WalkProposalCard, type WalkProposalCardProps } from './walk-proposal-ca
 
 // Templates
 export { ConversationPage, type ConversationPageProps } from './conversation-page';
+export { EditPage, type EditPageProps, type EditPageScrollRef } from './edit-page';
 export {
   OnboardingStepPage,
   type OnboardingStepPageProps,
@@ -80,16 +82,23 @@ export { TabPage, type TabPageProps } from './tab-page';
 
 // Organismes
 export { BottomSheet, type BottomSheetProps } from './bottom-sheet';
+export { CompletionCard, type CompletionCardProps } from './completion-card';
 export {
   ConversationHeader,
   type ConversationHeaderProps,
 } from './conversation-header';
 export { ConversationList, type ConversationListProps } from './conversation-list';
 export {
+  DogPhotosEditor,
+  type DogPhotosEditorProps,
+  type DogPhotoTarget,
+} from './dog-photos-editor';
+export {
   DogProfile,
   type DogProfilePark,
   type DogProfileProps,
 } from './dog-profile';
+export { EditHeader, type EditHeaderProps } from './edit-header';
 export { MatchCard, type MatchCardProps } from './match-card';
 export { MenuSection, type MenuSectionProps } from './menu-section';
 export { NewMatchesStrip, type NewMatchesStripProps } from './new-matches-strip';

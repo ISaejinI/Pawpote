@@ -19,3 +19,14 @@ export function stepProps(step: number) {
     stepLabel: ONBOARDING_STEP_LABELS[step - 1],
   }
 }
+
+/** Ajout d'un chien depuis le profil : les étapes 1 à 4 de l'onboarding, seules. */
+export const ADD_DOG_TOTAL_STEPS = 4
+
+export function addDogStepProps(step: number) {
+  return {
+    step,
+    total: ADD_DOG_TOTAL_STEPS,
+    stepLabel: ONBOARDING_STEP_LABELS[step - 1],
+  }
+}

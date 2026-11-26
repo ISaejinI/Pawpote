@@ -1,10 +1,10 @@
 import { File } from 'expo-file-system'
 import { Platform } from 'react-native'
 
-import type { OnboardingPayload, OnboardingStatus, PhotoUpload } from '../../shared/onboarding'
+import type { OnboardingDog, OnboardingPayload, OnboardingStatus, PhotoUpload } from '../../shared/onboarding'
 import { API_TIMEOUT_MS, apiUrl } from './api-url'
 import { authClient } from './auth-client'
-import { parseDateInput } from './dates'
+import { dateInputToIso } from './dates'
 import type { DogDraft, OwnerDraft } from './onboarding-draft'
 
 /** Réponse en erreur de l'API, avec son code HTTP. */
@@ -86,15 +86,53 @@ export async function uploadPhoto(uri: string) {
 
 /** « JJ / MM / AAAA » → « AAAA-MM-JJ » (format des colonnes `date`). */
 function toIsoDate(text: string) {
-  const date = parseDateInput(text)
-  if (!date) throw new Error(`Invalid date: ${text}`)
-  const pad = (value: number) => String(value).padStart(2, '0')
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+  const iso = dateInputToIso(text)
+  if (!iso) throw new Error(`Invalid date: ${text}`)
+  return iso
 }
 
 /** Photos d'un chien à envoyer, la principale en premier. */
 export function dogPhotoUris(dog: DogDraft) {
   return [dog.mainPhoto, ...dog.extraPhotos].filter((uri): uri is string => !!uri)
+}
+
+/** Clé de stockage d'une photo déjà envoyée. */
+function photoKey(photoKeys: Map<string, string>, uri: string) {
+  const key = photoKeys.get(uri)
+  if (!key) throw new Error('Photo not uploaded')
+  return key
+}
+
+/**
+ * Prépare un chien du brouillon pour l'API. Les étapes 1 à 4 ont déjà validé chaque champ.
+ * `photoKeys` associe l'URI locale de chaque photo à sa clé dans le stockage.
+ */
+export function toOnboardingDog(dog: DogDraft, photoKeys: Map<string, string>): OnboardingDog {
+  if (!dog.sex) throw new Error('Missing dog sex')
+  return {
+    name: dog.name.trim(),
+    sex: dog.sex,
+    birthDate: toIsoDate(dog.birthDate),
+    breedId: dog.breed?.id ?? null,
+    traits: dog.traits,
+    quirk: dog.quirk.trim(),
+    favoriteToy: dog.favoriteToy.trim() || null,
+    activities: dog.activities,
+    description: dog.description.trim(),
+    photos: dogPhotoUris(dog).map((uri) => photoKey(photoKeys, uri)),
+  }
+}
+
+/**
+ * Envoie au stockage les photos qui n'y sont pas encore et complète `photoKeys`
+ * (URI locale → clé). Un nouvel essai ne renvoie pas les photos déjà parties.
+ */
+export async function uploadMissingPhotos(uris: string[], photoKeys: Map<string, string>) {
+  await Promise.all(
+    uris
+      .filter((uri) => !photoKeys.has(uri))
+      .map(async (uri) => photoKeys.set(uri, await uploadPhoto(uri))),
+  )
 }
 
 /**
@@ -106,12 +144,6 @@ export function toOnboardingPayload(
   owner: OwnerDraft,
   photoKeys: Map<string, string>,
 ): OnboardingPayload {
-  const keyOf = (uri: string) => {
-    const key = photoKeys.get(uri)
-    if (!key) throw new Error('Photo not uploaded')
-    return key
-  }
-
   return {
     owner: {
       birthDate: toIsoDate(owner.birthDate),
@@ -119,22 +151,8 @@ export function toOnboardingPayload(
       postalCode: owner.postalCode.trim(),
       city: owner.city.trim(),
       homeLocation: owner.homeLocation ?? null,
-      photo: owner.photo ? keyOf(owner.photo) : null,
+      photo: owner.photo ? photoKey(photoKeys, owner.photo) : null,
     },
-    dogs: dogs.map((dog) => {
-      if (!dog.sex) throw new Error('Missing dog sex')
-      return {
-        name: dog.name.trim(),
-        sex: dog.sex,
-        birthDate: toIsoDate(dog.birthDate),
-        breedId: dog.breed?.id ?? null,
-        traits: dog.traits,
-        quirk: dog.quirk.trim(),
-        favoriteToy: dog.favoriteToy.trim() || null,
-        activities: dog.activities,
-        description: dog.description.trim(),
-        photos: dogPhotoUris(dog).map(keyOf),
-      }
-    }),
+    dogs: dogs.map((dog) => toOnboardingDog(dog, photoKeys)),
   }
 }

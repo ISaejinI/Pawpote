@@ -10,7 +10,7 @@ import {
   dogPhotoUris,
   saveOnboarding,
   toOnboardingPayload,
-  uploadPhoto,
+  uploadMissingPhotos,
 } from '@/lib/onboarding-api'
 import { useOnboardingDraft } from '@/lib/onboarding-draft'
 import { useOnboardingStatus } from '@/lib/onboarding-status'
@@ -35,11 +35,7 @@ export default function PreviewScreen() {
 
     try {
       const uris = [...dogs.flatMap(dogPhotoUris), ...(owner.photo ? [owner.photo] : [])]
-      await Promise.all(
-        uris
-          .filter((uri) => !uploadedPhotos.current.has(uri))
-          .map(async (uri) => uploadedPhotos.current.set(uri, await uploadPhoto(uri))),
-      )
+      await uploadMissingPhotos(uris, uploadedPhotos.current)
 
       await saveOnboarding(toOnboardingPayload(dogs, owner, uploadedPhotos.current))
       // La garde du layout racine bascule alors vers les onglets
