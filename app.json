@@ -35,6 +35,12 @@
       ],
       "expo-secure-store",
       [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "PawPote utilise ta position pour calculer la distance des chiens autour de toi."
+        }
+      ],
+      [
         "expo-image-picker",
         {
           "photosPermission": "PawPote accède à tes photos pour que tu puisses choisir celles de ton chien et la tienne.",

@@ -11,7 +11,7 @@ import {
   PullToClose,
   SwipeActions,
 } from '@/components/ui'
-import { announceMatches, getDogDetails, sendSwipe } from '@/lib/discovery-api'
+import { announceMatches, formatDiscoveryDistance, getDogDetails, sendSwipe } from '@/lib/discovery-api'
 import { setSwipeIntent, type SwipeDirection } from '@/lib/swipe-intent'
 import { useDiscoveryQuery } from '@/lib/use-discovery-query'
 import { borderWidth, colors, spacing, typography } from '@/theme'
@@ -27,8 +27,8 @@ const ACTION_BUTTON_SIZE = 64
 
 /** Détail d'un chien ouvert depuis l'écran de match : photos pleine largeur et tout son profil. */
 export default function DogDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>()
-  return <DogDetail key={id} id={id} />
+  const { id, nearby } = useLocalSearchParams<{ id: string; nearby?: string }>()
+  return <DogDetail key={id} id={id} nearby={nearby === '1'} />
 }
 
 function closeDetail() {
@@ -36,9 +36,9 @@ function closeDetail() {
   else router.replace('/')
 }
 
-function DogDetail({ id }: { id: string }) {
+function DogDetail({ id, nearby }: { id: string; nearby: boolean }) {
   const insets = useSafeAreaInsets()
-  const load = useCallback((signal: AbortSignal) => getDogDetails(id, signal), [id])
+  const load = useCallback((signal: AbortSignal) => getDogDetails(id, signal, nearby), [id, nearby])
   const { data: dog, error, retry } = useDiscoveryQuery(load)
   const saving = useRef(false)
   const [pending, setPending] = useState(false)
@@ -129,6 +129,7 @@ function DogDetail({ id }: { id: string }) {
             sex={dog.sex ?? undefined}
             age={dog.age ?? undefined}
             breed={dog.breed ?? undefined}
+            distance={formatDiscoveryDistance(dog.distanceKm)}
             activities={dog.activities}
             traits={dog.traits}
             favoriteToy={dog.favoriteToy ?? undefined}

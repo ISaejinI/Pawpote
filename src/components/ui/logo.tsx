@@ -1,29 +1,29 @@
-import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Image } from 'expo-image';
+import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
-import { borderWidth, colors, palette, typography } from '@/theme';
+import { borderWidth, colors, palette } from '@/theme';
 
-import { Icon } from './icon';
+const ARTWORK = {
+  mark: { source: require('@/assets/branding/pawpote-mark.webp'), aspectRatio: 1 },
+  horizontal: { source: require('@/assets/branding/pawpote-horizontal.webp'), aspectRatio: 1920 / 819 },
+  stacked: { source: require('@/assets/branding/pawpote-stacked.webp'), aspectRatio: 1 },
+} as const;
 
 export type LogoProps = {
   /**
    * - `sticker` : boîte cream inclinée (chargement, connexion).
-   * - `inline` : patte + mot, sans boîte (en-têtes).
+   * - `inline` : logo sans boîte (en-têtes).
    */
   variant?: 'sticker' | 'inline';
+  layout?: keyof typeof ARTWORK;
   /** Taille du sticker : `md` (connexion) ou `lg` (chargement). */
   size?: 'md' | 'lg';
   style?: StyleProp<ViewStyle>;
 };
 
-const SIZES = {
-  inline: { paw: 28, text: 26 },
-  md: { paw: 32, text: 36 },
-  lg: { paw: 44, text: 52 },
-} as const;
-
-/** La patte mandarin suivie de « PawPote ». Tracé provisoire, en attendant le logo définitif. */
-export function Logo({ variant = 'sticker', size = 'md', style }: LogoProps) {
-  const { paw, text } = SIZES[variant === 'inline' ? 'inline' : size];
+export function Logo({ variant = 'sticker', layout = 'horizontal', size = 'md', style }: LogoProps) {
+  const artwork = ARTWORK[layout];
+  const width = layout === 'horizontal' ? (size === 'lg' ? 184 : 132) : (size === 'lg' ? 116 : 76);
 
   return (
     <View
@@ -32,18 +32,14 @@ export function Logo({ variant = 'sticker', size = 'md', style }: LogoProps) {
       accessibilityLabel="PawPote"
       style={[styles.row, variant === 'sticker' && styles.sticker, style]}
     >
-      <Icon name="logo-paw" size={paw} />
-      <Text style={[styles.word, { fontSize: text, lineHeight: text }]}>PawPote</Text>
+      <Image source={artwork.source} contentFit="contain" style={{ width, aspectRatio: artwork.aspectRatio }} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
     alignSelf: 'center',
-    gap: 8,
   },
   sticker: {
     paddingTop: 6,
@@ -57,9 +53,5 @@ const styles = StyleSheet.create({
     // Contour ink autour du contour blanc + ombre décalée
     boxShadow: `0 0 0 2.5px ${palette.ink}, 5px 5px 0 2.5px ${palette.ink}`,
     transform: [{ rotate: '-4deg' }],
-  },
-  word: {
-    fontFamily: typography.logo.fontFamily,
-    color: colors.text,
   },
 });

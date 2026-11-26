@@ -1,6 +1,6 @@
 import { SwipeActions } from '@/components/ui'
 import { MATCH_CARD_RADIUS, MatchCard } from '@/components/ui/match-card'
-import { announceMatches, sendSwipe } from '@/lib/discovery-api'
+import { announceMatches, formatDiscoveryDistance, sendSwipe } from '@/lib/discovery-api'
 import { consumeSwipeIntent, type SwipeDirection } from '@/lib/swipe-intent'
 import { colors, spacing } from '@/theme'
 import type { DiscoveryDog } from '../../../shared/discovery'
@@ -60,6 +60,7 @@ function SwipeCardRound({
   onComplete,
 }: SwipeCardRoundProps) {
   const dogId = dog.id
+  const distance = formatDiscoveryDistance(dog.distanceKm)
   const blurTargetRef = useRef<ComponentRef<typeof View>>(null)
   const translateX = useSharedValue(0)
   const translateY = useSharedValue(0)
@@ -212,6 +213,7 @@ function SwipeCardRound({
               photoUri={dog.photo}
               age={dog.age ?? undefined}
               breed={dog.breed ?? undefined}
+              distance={distance === undefined ? undefined : `à ${distance}`}
               favoriteToy={dog.favoriteToy ?? undefined}
               style={styles.matchCard}
             />
@@ -236,7 +238,10 @@ function SwipeCardRound({
         dogName={dog.name}
         onPass={() => { void saveSwipe(-1) }}
         onLike={() => { void saveSwipe(1) }}
-        onDetails={() => router.push({ pathname: '/dog/[id]', params: { id: dog.id } })}
+        onDetails={() => router.push({
+          pathname: '/dog/[id]',
+          params: { id: dog.id, nearby: distance === undefined ? undefined : '1' },
+        })}
         disabled={!active || pending}
         style={[styles.actions, !active && styles.hidden]}
       />
