@@ -97,7 +97,13 @@ export default function ProfileScreen() {
           subtitle="Nom, prénom, date de naissance, photo"
           onPress={() => router.push('/account/identity')}
         />
-        <MenuRow icon="pin" iconColor="pink" title="Adresse" subtitle="Pour calculer les distances" />
+        <MenuRow
+          icon="pin"
+          iconColor="pink"
+          title="Adresse"
+          subtitle="Pour calculer les distances"
+          onPress={() => router.push('/account/address')}
+        />
         <MenuRow
           icon="park"
           iconColor="lime"
