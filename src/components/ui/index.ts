@@ -49,6 +49,7 @@ export {
 } from './choice-group';
 export { ConversationRow, type ConversationRowProps } from './conversation-row';
 export { DateInput, type DateInputProps } from './date-input';
+export { DogRow, type DogRowProps } from './dog-row';
 export { DuoAvatar, type DuoAvatarProps } from './duo-avatar';
 export { FormField, useFormField, type FormFieldProps } from './form-field';
 export { MatchBanner, type MatchBannerProps } from './match-banner';
