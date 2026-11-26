@@ -23,6 +23,7 @@ export {
   type IconButtonVariant,
 } from './icon-button';
 export { icons, type IconName } from './icons';
+export { IconTile, type IconTileColor, type IconTileProps } from './icon-tile';
 export { Input, type InputProps } from './input';
 export { Logo, type LogoProps } from './logo';
 export { MessageBubble, type MessageBubbleProps } from './message-bubble';
