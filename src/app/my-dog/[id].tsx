@@ -1,4 +1,4 @@
-import { router, useLocalSearchParams, usePreventRemove } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
 import { useEffect, useRef, useState } from 'react'
 import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native'
 
@@ -31,6 +31,7 @@ import { useOnboardingStatus } from '@/lib/onboarding-status'
 import { toggleValue } from '@/lib/onboarding-draft'
 import { pickImage, type ImageSource } from '@/lib/pick-image'
 import { getDogSheet, removeDog, saveDogSheet } from '@/lib/profile-api'
+import { useLeaveConfirmation } from '@/lib/use-leave-confirmation'
 import { colors, spacing, typography } from '@/theme'
 import {
   COMPLETION_LABELS, dogCompletion, type CompletionItem, type DogSheet,
@@ -114,8 +115,6 @@ export default function MyDogScreen() {
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
   const [removing, setRemoving] = useState(false)
-  // Départ confirmé : le retour n'est plus bloqué
-  const [leaving, setLeaving] = useState(false)
 
   // La cible reste en mémoire pendant l'animation de fermeture de la modale
   const [photoSheetOpen, setPhotoSheetOpen] = useState(false)
@@ -148,19 +147,7 @@ export default function MyDogScreen() {
   const dirty = !!form && JSON.stringify(form) !== JSON.stringify(initialForm)
 
   // Retour (bouton, geste ou retour Android) avec des modifications non enregistrées : on demande
-  const allowLeave = usePreventRemove(dirty && !leaving, ({ repeat }) => {
-    Alert.alert('Quitter sans enregistrer ?', 'Tes modifications seront perdues.', [
-      { text: 'Rester', style: 'cancel' },
-      {
-        text: 'Quitter',
-        style: 'destructive',
-        onPress: () => {
-          setLeaving(true)
-          repeat()
-        },
-      },
-    ])
-  })
+  const allowLeave = useLeaveConfirmation(dirty)
 
   if (!form || !sheet) {
     return (
