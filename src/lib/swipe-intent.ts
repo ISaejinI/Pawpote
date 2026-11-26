@@ -1,7 +1,7 @@
 /**
  * Choix Passer / J'aime fait depuis la page de détail d'un chien.
- * La page le dépose ici puis revient en arrière ; la pile de swipe le récupère
- * à son retour au premier plan et joue l'animation de la carte.
+ * Après confirmation par l'API, la fiche revient à la pile, qui joue
+ * l'animation sans envoyer le choix une seconde fois.
  */
 export type SwipeDirection = -1 | 1
 

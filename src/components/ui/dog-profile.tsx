@@ -126,7 +126,7 @@ export function DogProfile({
             </Sticker>
           )}
           {trait && (
-            <Sticker variant="bubble" tone="pink" label="Particularité :" rotate={2} style={styles.bubble}>
+            <Sticker variant="bubble" tone="pink" label="Sa petite particularité :" rotate={2} style={styles.bubble}>
               {trait}
             </Sticker>
           )}

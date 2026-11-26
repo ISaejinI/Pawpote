@@ -1,11 +1,13 @@
-import { MatchCard, SwipeActions } from '@/components/ui'
-import type { MockDog } from '@/data/mock-dogs'
+import { SwipeActions } from '@/components/ui'
+import { MATCH_CARD_RADIUS, MatchCard } from '@/components/ui/match-card'
+import { announceMatches, sendSwipe } from '@/lib/discovery-api'
 import { consumeSwipeIntent, type SwipeDirection } from '@/lib/swipe-intent'
+import { colors, spacing } from '@/theme'
+import type { DiscoveryDog } from '../../../shared/discovery'
 import { BlurTargetView, BlurView } from 'expo-blur'
 import { router, useFocusEffect } from 'expo-router'
 import { useCallback, useRef, useState, type ComponentRef } from 'react'
 import {
-    Pressable,
     StyleSheet,
     Text,
     View,
@@ -19,154 +21,77 @@ import {
 import Animated, {
     Extrapolation,
     interpolate,
+    useAnimatedReaction,
     useAnimatedStyle,
     useSharedValue,
     withSpring,
     withTiming,
     type SharedValue,
 } from 'react-native-reanimated'
-import { scheduleOnRN } from 'react-native-worklets'
-// Réglages actuels
+import { scheduleOnRN, scheduleOnUI } from 'react-native-worklets'
 const SWIPE_THRESHOLD = 120
 const EXIT_DURATION = 220
 const REVEAL_DURATION = 160
 const BLUR_INTENSITY = 10
+const MAX_CARD_WIDTH = 400
+const CARD_SHADOW_OFFSET = 6
 
 type SwipeDeckProps = {
-  dogs: MockDog[]
+  dogs: DiscoveryDog[]
+  onComplete: () => void
 }
-
-type NextDogCardProps = {
-  dog: MockDog
-  blurOpacity: SharedValue<number>
-  scale: SharedValue<number>
-}
-
-// ==========================================
-// CARTE D'UN CHIEN
-// ==========================================
-
-function DogMatchCard({ dog }: { dog: MockDog }) {
-  return (
-    <MatchCard
-      name={dog.name}
-      photoUri={dog.image}
-      age={dog.age}
-      breed={dog.breed}
-      distance={dog.distance}
-      favoriteToy={dog.favoriteToy}
-      quirk={dog.quirk}
-      style={styles.card}
-    />
-  )
-}
-
-// ==========================================
-// CARTE ARRIÈRE
-// ==========================================
-
-function NextDogCard({
-  dog,
-  blurOpacity,
-  scale,
-}: NextDogCardProps) {
-  const blurTargetRef = useRef<ComponentRef<typeof View>>(null)
-
-  const animatedScaleStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }))
-
-  const animatedBlurStyle = useAnimatedStyle(() => ({
-    opacity: blurOpacity.value,
-  }))
-
-  return (
-    <Animated.View
-      style={[
-        styles.cardLayer,
-        styles.backCard,
-        animatedScaleStyle,
-      ]}
-      pointerEvents="none"
-    >
-      <BlurTargetView
-        ref={blurTargetRef}
-        style={styles.blurTarget}
-      >
-        <DogMatchCard dog={dog} />
-      </BlurTargetView>
-
-      <Animated.View
-        style={[
-          styles.blurOverlay,
-          animatedBlurStyle,
-        ]}
-        pointerEvents="none"
-      >
-        <BlurView
-          blurTarget={blurTargetRef}
-          blurMethod="dimezisBlurView"
-          blurReductionFactor={2}
-          intensity={BLUR_INTENSITY}
-          tint="default"
-          style={styles.blurFill}
-        />
-      </Animated.View>
-    </Animated.View>
-  )
-}
-
-// ==========================================
-// UNE SESSION DE SWIPE
-// ==========================================
 
 type SwipeCardRoundProps = {
-  dog: MockDog
-  nextDog?: MockDog
+  dog: DiscoveryDog
+  active: boolean
+  nextDogId?: string
+  revealedDogId: SharedValue<string | undefined>
   width: number
   onComplete: () => void
 }
 
 function SwipeCardRound({
   dog,
-  nextDog,
+  active,
+  nextDogId,
+  revealedDogId,
   width,
   onComplete,
 }: SwipeCardRoundProps) {
-  // Ces valeurs appartiennent uniquement
-  // au chien actuel
+  const dogId = dog.id
+  const blurTargetRef = useRef<ComponentRef<typeof View>>(null)
   const translateX = useSharedValue(0)
   const translateY = useSharedValue(0)
-
   const isSwiping = useSharedValue(false)
-  const blurOpacity = useSharedValue(1)
-  const backScale = useSharedValue(0.95)
+  const blurOpacity = useSharedValue(active ? 0 : 1)
+  const scale = useSharedValue(active ? 1 : 0.95)
+  const saving = useSharedValue(false)
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState(false)
 
-  // Animation commune aux boutons et aux gestes
-  function triggerSwipe(
+  useAnimatedReaction(
+    () => active || revealedDogId.get() === dogId,
+    (revealed, previous) => {
+      if (revealed && !previous) {
+        blurOpacity.set(withTiming(0, { duration: REVEAL_DURATION }))
+        scale.set(withTiming(1, { duration: EXIT_DURATION }))
+      }
+    },
+  )
+
+  const triggerSwipe = useCallback((
     direction: SwipeDirection,
     targetY = 0,
-  ) {
+  ) => {
     'worklet'
 
-    if (isSwiping.value) return
+    if (isSwiping.get()) return
 
-    isSwiping.value = true
+    isSwiping.set(true)
+    revealedDogId.set(nextDogId)
+    const exitX = direction * (width + MAX_CARD_WIDTH)
 
-    // La prochaine carte se défloute
-    blurOpacity.value = withTiming(0, {
-      duration: REVEAL_DURATION,
-    })
-
-    // Elle reprend sa taille normale
-    backScale.value = withTiming(1, {
-      duration: EXIT_DURATION,
-    })
-
-    // La carte actuelle sort de l'écran
-    const exitX = direction * (width + 400)
-
-    translateX.value = withTiming(
+    translateX.set(withTiming(
       exitX,
       { duration: EXIT_DURATION },
       (finished) => {
@@ -174,46 +99,66 @@ function SwipeCardRound({
           scheduleOnRN(onComplete)
         }
       },
-    )
+    ))
 
-    translateY.value = withTiming(
+    translateY.set(withTiming(
       targetY,
       { duration: EXIT_DURATION },
-    )
+    ))
+  }, [isSwiping, nextDogId, onComplete, revealedDogId, translateX, translateY, width])
+
+  async function saveSwipe(direction: SwipeDirection, targetY = 0) {
+    if (saving.get()) return
+    saving.set(true)
+    setPending(true)
+    setError(false)
+    try {
+      const result = await sendSwipe(dogId, direction === 1 ? 'like' : 'dislike')
+      scheduleOnUI(triggerSwipe, direction, targetY)
+      announceMatches(result)
+    } catch {
+      saving.set(false)
+      setPending(false)
+      setError(true)
+      translateX.set(withSpring(0))
+      translateY.set(withSpring(0))
+    }
   }
 
   // Geste tactile
   const panGesture = Gesture.Pan()
+    .enabled(active)
     .onUpdate((event) => {
-      if (isSwiping.value) return
+      if (isSwiping.get() || pending) return
 
-      translateX.value = event.translationX
-      translateY.value = event.translationY
+      translateX.set(event.translationX)
+      translateY.set(event.translationY)
     })
     .onEnd((event) => {
-      if (isSwiping.value) return
+      if (isSwiping.get() || pending) return
 
       if (event.translationX > SWIPE_THRESHOLD) {
-        triggerSwipe(1, event.translationY)
+        scheduleOnRN(saveSwipe, 1, event.translationY)
       } else if (event.translationX < -SWIPE_THRESHOLD) {
-        triggerSwipe(-1, event.translationY)
+        scheduleOnRN(saveSwipe, -1, event.translationY)
       } else {
-        translateX.value = withSpring(0, {
+        translateX.set(withSpring(0, {
           damping: 128,
           stiffness: 128,
-        })
+        }))
 
-        translateY.value = withSpring(0, {
+        translateY.set(withSpring(0, {
           damping: 128,
           stiffness: 128,
-        })
+        }))
       }
     })
 
   // Style animé de la carte principale
   const animatedCardStyle = useAnimatedStyle(() => {
+    const x = translateX.get()
     const rotation = interpolate(
-      translateX.value,
+      x,
       [-200, 0, 200],
       [-12, 0, 12],
       Extrapolation.CLAMP,
@@ -221,44 +166,64 @@ function SwipeCardRound({
 
     return {
       transform: [
-        { translateX: translateX.value },
-        { translateY: translateY.value },
+        { translateX: x },
+        { translateY: translateY.get() },
         { rotate: `${rotation}deg` },
+        { scale: scale.get() },
       ],
     }
   })
 
+  const animatedBlurStyle = useAnimatedStyle(() => ({
+    opacity: blurOpacity.get(),
+  }))
+
   // Choix fait depuis la page de détail : on l'anime au retour sur l'écran de match
   useFocusEffect(
     useCallback(() => {
-      const direction = consumeSwipeIntent(dog.id)
-      if (direction) triggerSwipe(direction)
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [dog.id]),
+      if (!active) return
+      const direction = consumeSwipeIntent(dogId)
+      if (direction) {
+        saving.set(true)
+        setPending(true)
+        scheduleOnUI(triggerSwipe, direction)
+      }
+    }, [active, dogId, saving, setPending, triggerSwipe]),
   )
 
   return (
-    <View style={styles.round}>
+    <View
+      style={[styles.round, active && styles.frontCard]}
+      pointerEvents={active ? 'box-none' : 'none'}
+      accessibilityElementsHidden={!active}
+      importantForAccessibility={active ? 'auto' : 'no-hide-descendants'}
+    >
       <View style={styles.cardContainer}>
-        {/* Prochain chien, flouté */}
-        {nextDog && (
-          <NextDogCard
-            dog={nextDog}
-            blurOpacity={blurOpacity}
-            scale={backScale}
-          />
-        )}
-
-        {/* Chien actuel */}
         <GestureDetector gesture={panGesture}>
-          <Animated.View
-            style={[
-              styles.cardLayer,
-              styles.frontCard,
-              animatedCardStyle,
-            ]}
-          >
-            <DogMatchCard dog={dog} />
+          <Animated.View style={[styles.cardLayer, animatedCardStyle]}>
+            <View pointerEvents="none" style={styles.cardShadow} />
+            <BlurTargetView ref={blurTargetRef} style={styles.cardFace}>
+              <MatchCard
+                name={dog.name}
+                photoUri={dog.photo}
+                age={dog.age ?? undefined}
+                breed={dog.breed ?? undefined}
+                favoriteToy={dog.favoriteToy ?? undefined}
+                style={styles.matchCard}
+              />
+            </BlurTargetView>
+            {!active && (
+              <Animated.View style={[styles.blurOverlay, animatedBlurStyle]} pointerEvents="none">
+                <BlurView
+                  blurTarget={blurTargetRef}
+                  blurMethod="dimezisBlurView"
+                  blurReductionFactor={2}
+                  intensity={BLUR_INTENSITY}
+                  tint="default"
+                  style={StyleSheet.absoluteFill}
+                />
+              </Animated.View>
+            )}
           </Animated.View>
         </GestureDetector>
       </View>
@@ -266,160 +231,104 @@ function SwipeCardRound({
       {/* Boutons : Passer, Voir tout son profil, J'aime */}
       <SwipeActions
         dogName={dog.name}
-        onPass={() => triggerSwipe(-1)}
-        onLike={() => triggerSwipe(1)}
+        onPass={() => { void saveSwipe(-1) }}
+        onLike={() => { void saveSwipe(1) }}
         onDetails={() => router.push({ pathname: '/dog/[id]', params: { id: dog.id } })}
-        style={styles.actions}
+        disabled={!active || pending}
+        style={[styles.actions, !active && styles.hidden]}
       />
+      {error && <Text accessibilityRole="alert">Choix non enregistré. Réessaie.</Text>}
     </View>
   )
 }
 
-// ==========================================
-// COMPOSANT RÉUTILISABLE
-// ==========================================
-
-export function SwipeDeck({ dogs }: SwipeDeckProps) {
+export function SwipeDeck({ dogs, onComplete }: SwipeDeckProps) {
   const { width } = useWindowDimensions()
-
-  const [currentIndex, setCurrentIndex] = useState(0)
-
-  const currentDog = dogs[currentIndex]
-  const nextDog = dogs[currentIndex + 1]
-
-  function showNextDog() {
-    setCurrentIndex((index) => index + 1)
-  }
-
-  function restart() {
-    setCurrentIndex(0)
-  }
+  const revealedDogId = useSharedValue<string | undefined>(undefined)
 
   return (
     <GestureHandlerRootView style={styles.root}>
-      <View style={styles.content}>
-        {currentDog ? (
-          <SwipeCardRound
-            key={currentDog.id}
-            dog={currentDog}
-            nextDog={nextDog}
-            width={width}
-            onComplete={showNextDog}
-          />
-        ) : (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyTitle}>
-              Plus de chiens à découvrir ! 🐾
-            </Text>
-
-            <Pressable
-              onPress={restart}
-              accessibilityRole="button"
-              accessibilityLabel="Recommencer les swipes"
-            >
-              <Text style={styles.resetButton}>
-                Recommencer
-              </Text>
-            </Pressable>
-          </View>
-        )}
-      </View>
+      {/* La clé conserve la vue native et sa photo quand la carte passe devant. */}
+      {dogs.slice(0, 2).map((dog, index) => (
+        <SwipeCardRound
+          key={dog.id}
+          dog={dog}
+          active={index === 0}
+          nextDogId={index === 0 ? dogs[1]?.id : undefined}
+          revealedDogId={revealedDogId}
+          width={width}
+          onComplete={onComplete}
+        />
+      ))}
     </GestureHandlerRootView>
   )
 }
 
-// ==========================================
-// STYLES
-// ==========================================
-
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    width: '100%',
-  },
-
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    marginHorizontal: -spacing[4],
+    overflow: 'visible',
   },
 
   round: {
-    flex: 1,
-    width: '100%',
+    ...StyleSheet.absoluteFill,
     alignItems: 'center',
     gap: 20,
-    // Laisse la place à l'ombre décalée des boutons, sinon elle est rognée
     paddingBottom: 8,
+    overflow: 'visible',
   },
 
-  // La carte occupe toute la hauteur disponible (CarteMatch)
   cardContainer: {
     flex: 1,
-    width: '100%',
-    maxWidth: 400,
-    position: 'relative',
+    alignSelf: 'stretch',
+    paddingHorizontal: spacing[4],
+    alignItems: 'center',
+    overflow: 'visible',
   },
 
-  card: {
+  cardFace: {
     flex: 1,
+  },
+
+  matchCard: {
+    flex: 1,
+    boxShadow: 'none',
   },
 
   cardLayer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
+    flex: 1,
     width: '100%',
-    height: '100%',
+    maxWidth: MAX_CARD_WIDTH,
+    paddingRight: CARD_SHADOW_OFFSET,
+    paddingBottom: CARD_SHADOW_OFFSET,
+    overflow: 'visible',
   },
 
-  backCard: {
-    zIndex: 0,
+  cardShadow: {
+    ...StyleSheet.absoluteFill,
+    left: CARD_SHADOW_OFFSET,
+    top: CARD_SHADOW_OFFSET,
+    backgroundColor: colors.border,
+    borderRadius: MATCH_CARD_RADIUS,
   },
 
   frontCard: {
     zIndex: 1,
   },
 
-  blurTarget: {
-    width: '100%',
-    height: '100%',
-  },
-
   blurOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    borderRadius: 32,
+    ...StyleSheet.absoluteFill,
+    right: CARD_SHADOW_OFFSET,
+    bottom: CARD_SHADOW_OFFSET,
+    borderRadius: MATCH_CARD_RADIUS,
     overflow: 'hidden',
-  },
-
-  blurFill: {
-    width: '100%',
-    height: '100%',
   },
 
   actions: {
     marginTop: 8,
   },
-
-  emptyState: {
-    alignItems: 'center',
-    gap: 20,
-  },
-
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#202020',
-    textAlign: 'center',
-  },
-
-  resetButton: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#208AEF',
+  hidden: {
+    opacity: 0,
   },
 })

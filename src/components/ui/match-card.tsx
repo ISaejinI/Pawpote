@@ -17,14 +17,12 @@ export type MatchCardProps = {
   distance?: string;
   /** Facultatif : la bulle disparaît si vide. */
   favoriteToy?: string;
-  /** « Son petit caractère », facultatif : le bandeau disparaît si vide. */
-  quirk?: string;
   /** `md` : écran de match · `sm` : aperçu réduit. */
   size?: StickerSize;
   style?: StyleProp<ViewStyle>;
 };
 
-const RADIUS = 32;
+export const MATCH_CARD_RADIUS = 32;
 
 /** Chiffre et unité du macaron d'âge (« 3 » + « ans »), ou « Bébé » avant 1 an. */
 function ageSticker(age: number) {
@@ -43,12 +41,10 @@ export function MatchCard({
   breed,
   distance,
   favoriteToy,
-  quirk,
   size = 'md',
   style,
 }: MatchCardProps) {
   const toy = favoriteToy?.trim();
-  const trait = quirk?.trim();
 
   // Résumé lu par les lecteurs d'écran à la place des stickers
   const summary = [
@@ -57,7 +53,6 @@ export function MatchCard({
     breed,
     distance,
     toy && `jouet préféré : ${toy}`,
-    trait && `son petit caractère : ${trait}`,
   ]
     .filter(Boolean)
     .join(', ');
@@ -67,7 +62,7 @@ export function MatchCard({
       {/* La photo est découpée à part pour ne pas rogner l'ombre de la carte */}
       <View style={styles.photo}>
         {photoUri ? (
-          <Image source={{ uri: photoUri }} style={StyleSheet.absoluteFill} contentFit="cover" />
+          <Image source={photoUri} style={StyleSheet.absoluteFill} contentFit="cover" />
         ) : (
           <View style={styles.placeholder}>
             <Icon name="camera" size={34} strokeWidth={1.8} />
@@ -88,13 +83,6 @@ export function MatchCard({
         </Sticker>
       )}
 
-      {toy && (
-        <Sticker variant="bubble" label="Jouet préféré :" size={size} style={styles.toy}>
-          {toy}
-        </Sticker>
-      )}
-
-      {/* Les stickers du bas s'empilent : le nom remonte si le bandeau caractère est absent */}
       <View style={styles.bottom}>
         {breed && (
           <Sticker variant="breed" size={size} style={styles.breed}>
@@ -104,15 +92,15 @@ export function MatchCard({
         <Sticker variant="name" size={size} style={styles.name}>
           {name}
         </Sticker>
-        {trait && (
+        {toy && (
           <Sticker
             variant="bubble"
-            label="Son petit caractère :"
+            label="Jouet préféré :"
             size={size}
             rotate={1.5}
-            style={styles.trait}
+            style={styles.toy}
           >
-            {trait}
+            {toy}
           </Sticker>
         )}
       </View>
@@ -125,13 +113,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.peach300,
     borderWidth: borderWidth.regular,
     borderColor: colors.border,
-    borderRadius: RADIUS,
+    borderRadius: MATCH_CARD_RADIUS,
     ...shadows.lg,
   },
   photo: {
     ...StyleSheet.absoluteFill,
     overflow: 'hidden',
-    borderRadius: RADIUS - borderWidth.regular,
+    borderRadius: MATCH_CARD_RADIUS - borderWidth.regular,
   },
   placeholder: {
     flex: 1,
@@ -155,12 +143,6 @@ const styles = StyleSheet.create({
     top: 10,
     right: 10,
   },
-  toy: {
-    position: 'absolute',
-    top: 96,
-    left: 12,
-    maxWidth: '70%',
-  },
   bottom: {
     position: 'absolute',
     left: 12,
@@ -174,7 +156,7 @@ const styles = StyleSheet.create({
   name: {
     maxWidth: '100%',
   },
-  trait: {
+  toy: {
     alignSelf: 'stretch',
     paddingHorizontal: 14,
     paddingBottom: 10,
