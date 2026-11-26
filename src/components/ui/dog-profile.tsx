@@ -54,6 +54,7 @@ export function DogProfile({
 }: DogProfileProps) {
   const toy = favoriteToy?.trim();
   const trait = quirk?.trim();
+  const owner = ownerName?.trim();
   const hasInfos = !!sex || age !== undefined || !!breed || activities.length > 0;
 
   return (
@@ -71,16 +72,18 @@ export function DogProfile({
           )}
         </View>
 
-        {ownerName && (
+        {owner && (
           <View style={styles.owner}>
             <Avatar
               uri={ownerPhoto}
               size={62}
               raised
-              accessibilityLabel={`Photo de ${ownerName}`}
+              accessibilityLabel={`Photo de ${owner}`}
+              style={styles.ownerAvatar}
             />
-            <View style={styles.ownerSticker}>
-              <Text style={styles.ownerText}>avec {ownerName}</Text>
+            <View style={styles.ownerSticker} accessible accessibilityLabel={`avec ${owner}`}>
+              <Text style={styles.ownerText}>avec</Text>
+              <Text style={[styles.ownerText, styles.ownerName]}>{owner}</Text>
             </View>
           </View>
         )}
@@ -126,7 +129,7 @@ export function DogProfile({
             </Sticker>
           )}
           {trait && (
-            <Sticker variant="bubble" tone="pink" label="Particularité :" rotate={2} style={styles.bubble}>
+            <Sticker variant="bubble" tone="pink" label="Sa petite particularité :" rotate={2} style={styles.bubble}>
               {trait}
             </Sticker>
           )}
@@ -197,9 +200,16 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   owner: {
-    alignItems: 'center',
+    maxWidth: '55%',
+  },
+  ownerAvatar: {
+    alignSelf: 'center',
   },
   ownerSticker: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'center',
+    gap: 4,
     marginTop: -10,
     paddingVertical: 2,
     paddingHorizontal: 10,
@@ -213,8 +223,11 @@ const styles = StyleSheet.create({
   ownerText: {
     fontFamily: typography.hand.fontFamily,
     fontSize: 16,
-    lineHeight: 19,
     color: colors.text,
+    textAlign: 'center',
+  },
+  ownerName: {
+    flexShrink: 1,
   },
   infos: {
     gap: 10,

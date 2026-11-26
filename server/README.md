@@ -6,6 +6,12 @@ Pour le développement sur ordinateur, utiliser `npm run dev`. Pour un appareil 
 
 Le [README principal](../README.md) décrit les variables, la sélection de la branche Neon, le déploiement et les vérifications Expo.
 
+## Découverte et jeu de démonstration
+
+`/api/discovery` requiert une session Better Auth. La route renvoie les chiens des autres comptes par lots de 24. Un chien déjà liké ou passé sort de la liste. Les deux chiens ciblés par des likes réciproques entre deux comptes sont enregistrés dans `matches`. Recommencer en fin de liste ouvre un nouveau passage et conserve les matchs déjà créés.
+
+Appliquer les migrations Drizzle sur la base de développement prévue pour la démo. Dans `server/.env`, vérifier `DATABASE_URL` et renseigner `PAWPOTE_DEMO_DB_HOST` avec le nom d’hôte de cette base. Depuis `server/`, lancer `npm run seed:discovery`. Le script est relançable et ajoute 24 chiens et 22 propriétaires fictifs. Les photos et leurs crédits Wikimedia sont définis dans `server/data/demo-photos.json`.
+
 ## Catalogue des races
 
 [`data/breeds.json`](data/breeds.json) réunit les races reconnues à titre définitif ou provisoire dans la [nomenclature FCI](https://www.fci.be/fr/nomenclature/Default.aspx), avec quelques variétés courantes. Le champ `fci` identifie le standard de référence. Les noms reprennent la nomenclature française ou un nom courant qui facilite la recherche.

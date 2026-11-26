@@ -22,6 +22,20 @@
       "when": 1795532878517,
       "tag": "0002_add_owner_last_name_and_favorite_toy",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795684098425,
+      "tag": "0003_discovery_swipes",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1795685899855,
+      "tag": "0004_dog_quirk",
+      "breakpoints": true
     }
   ]
 }

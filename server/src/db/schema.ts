@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm'
 import {
+    boolean,
     check,
     date,
     doublePrecision,
@@ -140,6 +141,7 @@ export const dogs = pgTable(
     }),
 
     description: text('description'),
+    quirk: text('quirk'),
 
     // Jouet préféré du chien (32 caractères maximum)
     favoriteToy: text('favorite_toy'),
@@ -262,17 +264,21 @@ export const dogCharacters = pgTable(
 // RENCONTRES
 // ==========================================
 
-// Likes et dislikes entre les chiens
+// Choix d'un compte sur un chien
 export const swipes = pgTable(
   'swipes',
   {
     id: uuid('id').defaultRandom().primaryKey(),
 
+    // Origine des anciens swipes, conservée pour l'historique.
     swiperDogId: uuid('swiper_dog_id')
-      .notNull()
       .references(() => dogs.id, {
         onDelete: 'cascade',
       }),
+
+    swiperUserId: text('swiper_user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
 
     targetDogId: uuid('target_dog_id')
       .notNull()
@@ -284,6 +290,8 @@ export const swipes = pgTable(
       enum: ['like', 'dislike'],
     }).notNull(),
 
+    reviewed: boolean('reviewed').default(true).notNull(),
+
     createdAt: timestamp('created_at', {
       withTimezone: true,
     }).defaultNow().notNull(),
@@ -293,6 +301,9 @@ export const swipes = pgTable(
       table.swiperDogId,
       table.targetDogId,
     ),
+    uniqueIndex('swipes_user_target_reviewed_idx')
+      .on(table.swiperUserId, table.targetDogId)
+      .where(sql`${table.reviewed}`),
 
     index('swipes_target_dog_id_idx').on(
       table.targetDogId,
