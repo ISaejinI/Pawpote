@@ -43,3 +43,17 @@ export function validateBirthDate(text: string, { maxAge }: { maxAge: number }) 
 
   return undefined;
 }
+
+/** « AAAA-MM-JJ » (colonne `date`) → « JJ / MM / AAAA » (champ de saisie). */
+export function isoToDateInput(iso: string | null) {
+  const match = iso ? /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso) : null;
+  return match ? `${match[3]} / ${match[2]} / ${match[1]}` : '';
+}
+
+/** « JJ / MM / AAAA » → « AAAA-MM-JJ ». Renvoie `null` si la date n'existe pas. */
+export function dateInputToIso(text: string) {
+  const date = parseDateInput(text);
+  if (!date) return null;
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}

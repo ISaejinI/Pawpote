@@ -4,7 +4,7 @@ import { Platform } from 'react-native'
 import type { OnboardingPayload, OnboardingStatus, PhotoUpload } from '../../shared/onboarding'
 import { API_TIMEOUT_MS, apiUrl } from './api-url'
 import { authClient } from './auth-client'
-import { parseDateInput } from './dates'
+import { dateInputToIso } from './dates'
 import type { DogDraft, OwnerDraft } from './onboarding-draft'
 
 /** Réponse en erreur de l'API, avec son code HTTP. */
@@ -86,10 +86,9 @@ export async function uploadPhoto(uri: string) {
 
 /** « JJ / MM / AAAA » → « AAAA-MM-JJ » (format des colonnes `date`). */
 function toIsoDate(text: string) {
-  const date = parseDateInput(text)
-  if (!date) throw new Error(`Invalid date: ${text}`)
-  const pad = (value: number) => String(value).padStart(2, '0')
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+  const iso = dateInputToIso(text)
+  if (!iso) throw new Error(`Invalid date: ${text}`)
+  return iso
 }
 
 /** Photos d'un chien à envoyer, la principale en premier. */
