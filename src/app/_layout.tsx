@@ -4,6 +4,7 @@ import * as SplashScreen from 'expo-splash-screen'
 import { useEffect } from 'react'
 import { KeyboardProvider } from 'react-native-keyboard-controller'
 
+import { MatchCelebrationProvider } from '@/components/swipe/match-celebration'
 import { authClient } from '@/lib/auth-client'
 import { OnboardingStatusProvider, useOnboardingStatus } from '@/lib/onboarding-status'
 import { colors, fontDefinitions } from '@/theme'
@@ -42,7 +43,9 @@ export default function RootLayout() {
       {/* Suit le clavier pour que les formulaires gardent le champ actif visible */}
       <KeyboardProvider>
         <OnboardingStatusProvider userId={session?.user.id}>
-          <RootStack signedIn={!!session} />
+          <MatchCelebrationProvider>
+            <RootStack signedIn={!!session} />
+          </MatchCelebrationProvider>
         </OnboardingStatusProvider>
       </KeyboardProvider>
     </ThemeProvider>

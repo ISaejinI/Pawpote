@@ -47,4 +47,12 @@ export type DogDetails = DiscoveryDog & {
 
 export type DiscoveryFeed = { dogs: DiscoveryDog[]; canRestart: boolean }
 export type SwipeAction = 'like' | 'dislike'
-export type SwipeResult = { matches: { id: string; ownDog: string; targetDog: string }[] }
+export type NewDogMatch = {
+  id: string
+  ownDog: string
+  targetDog: string
+  ownDogPhoto?: string | null
+  targetDogPhoto?: string | null
+}
+
+export type SwipeResult = { matches: NewDogMatch[] }

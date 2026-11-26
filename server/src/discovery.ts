@@ -152,7 +152,7 @@ discovery.post('/swipes', async (c) => {
       .onConflictDoNothing().returning({ id: swipes.id })
     if (!inserted || action === 'dislike') return { matches: [] }
 
-    const reciprocals = await tx.select({ id: dogs.id, name: dogs.name }).from(swipes)
+    const reciprocals = await tx.select({ id: dogs.id, name: dogs.name, photo: card.photo }).from(swipes)
       .innerJoin(dogs, eq(dogs.id, swipes.targetDogId))
       .where(and(eq(swipes.swiperUserId, target.ownerId), eq(dogs.ownerId, userId),
         eq(swipes.reviewed, true), eq(swipes.action, 'like')))
@@ -162,12 +162,22 @@ discovery.post('/swipes', async (c) => {
       const [dog1Id, dog2Id] = [id, dogId.toLowerCase()].sort()
       return { dog1Id, dog2Id }
     })).onConflictDoNothing().returning()
-    const names = new Map(reciprocals.map((dog) => [dog.id, dog.name]))
-    return { matches: created.map((match) => ({
-      id: match.id,
-      ownDog: names.get(match.dog1Id) ?? names.get(match.dog2Id)!,
-      targetDog: target.name,
-    })) }
+    if (!created.length) return { matches: [] }
+
+    const [targetPhoto] = await tx.select({ uri: dogPhotos.storageKey }).from(dogPhotos)
+      .where(and(eq(dogPhotos.dogId, dogId), sql`${dogPhotos.storageKey} like 'https://%'`))
+      .orderBy(asc(dogPhotos.position), asc(dogPhotos.id)).limit(1)
+    const ownDogs = new Map(reciprocals.map((dog) => [dog.id, dog]))
+    return { matches: created.map((match) => {
+      const ownDog = ownDogs.get(match.dog1Id) ?? ownDogs.get(match.dog2Id)!
+      return {
+        id: match.id,
+        ownDog: ownDog.name,
+        targetDog: target.name,
+        ownDogPhoto: ownDog.photo,
+        targetDogPhoto: targetPhoto?.uri ?? null,
+      }
+    }) }
   })
 
   return result ? c.json(result) : c.json({ error: 'Chien indisponible.' }, 404)

@@ -1,9 +1,9 @@
 import { SwipeActions } from '@/components/ui'
 import { MATCH_CARD_RADIUS, MatchCard } from '@/components/ui/match-card'
-import { announceMatches, formatDiscoveryDistance, sendSwipe } from '@/lib/discovery-api'
+import { formatDiscoveryDistance, sendSwipe } from '@/lib/discovery-api'
 import { consumeSwipeIntent, type SwipeDirection } from '@/lib/swipe-intent'
 import { colors, spacing } from '@/theme'
-import type { DiscoveryDog } from '../../../shared/discovery'
+import type { DiscoveryDog, NewDogMatch } from '../../../shared/discovery'
 import { BlurTargetView, BlurView } from 'expo-blur'
 import { router, useFocusEffect } from 'expo-router'
 import { useCallback, useRef, useState, type ComponentRef } from 'react'
@@ -29,6 +29,7 @@ import Animated, {
     type SharedValue,
 } from 'react-native-reanimated'
 import { scheduleOnRN, scheduleOnUI } from 'react-native-worklets'
+import { useMatchCelebration } from './match-celebration'
 const SWIPE_THRESHOLD = 120
 const EXIT_DURATION = 220
 const REVEAL_DURATION = 160
@@ -60,6 +61,7 @@ function SwipeCardRound({
   onComplete,
 }: SwipeCardRoundProps) {
   const dogId = dog.id
+  const celebrate = useMatchCelebration()
   const distance = formatDiscoveryDistance(dog.distanceKm, dog.distanceApproximate)
   const blurTargetRef = useRef<ComponentRef<typeof View>>(null)
   const translateX = useSharedValue(0)
@@ -84,6 +86,7 @@ function SwipeCardRound({
   const triggerSwipe = useCallback((
     direction: SwipeDirection,
     targetY = 0,
+    newMatches: NewDogMatch[] = [],
   ) => {
     'worklet'
 
@@ -99,6 +102,7 @@ function SwipeCardRound({
       (finished) => {
         if (finished) {
           scheduleOnRN(onComplete)
+          if (newMatches.length) scheduleOnRN(celebrate, newMatches)
         }
       },
     ))
@@ -107,7 +111,7 @@ function SwipeCardRound({
       targetY,
       { duration: EXIT_DURATION },
     ))
-  }, [isSwiping, nextDogId, onComplete, revealedDogId, translateX, translateY, width])
+  }, [celebrate, isSwiping, nextDogId, onComplete, revealedDogId, translateX, translateY, width])
 
   async function saveSwipe(direction: SwipeDirection, targetY = 0) {
     if (saving.get()) return
@@ -116,8 +120,8 @@ function SwipeCardRound({
     setError(false)
     try {
       const result = await sendSwipe(dogId, direction === 1 ? 'like' : 'dislike')
-      scheduleOnUI(triggerSwipe, direction, targetY)
-      announceMatches(result)
+      const newMatches = result.matches.map((match) => ({ ...match, targetDogPhoto: match.targetDogPhoto ?? dog.photo }))
+      scheduleOnUI(triggerSwipe, direction, targetY, newMatches)
     } catch {
       saving.set(false)
       setPending(false)
@@ -184,11 +188,11 @@ function SwipeCardRound({
   useFocusEffect(
     useCallback(() => {
       if (!active) return
-      const direction = consumeSwipeIntent(dogId)
-      if (direction) {
+      const intent = consumeSwipeIntent(dogId)
+      if (intent) {
         saving.set(true)
         setPending(true)
-        scheduleOnUI(triggerSwipe, direction)
+        scheduleOnUI(triggerSwipe, intent.direction, 0, intent.matches)
       }
     }, [active, dogId, saving, setPending, triggerSwipe]),
   )

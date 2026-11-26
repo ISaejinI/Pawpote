@@ -14,6 +14,17 @@ La route accepte des filtres de gabarit, d’âge, de sexe et de rayon. `POST /a
 
 Appliquer les migrations Drizzle sur la base de développement prévue pour la démo. Dans `server/.env`, vérifier `DATABASE_URL` et renseigner `PAWPOTE_DEMO_DB_HOST` avec le nom d’hôte de cette base. Depuis `server/`, lancer `npm run seed:discovery`. Le script est relançable et ajoute 24 chiens et 22 propriétaires fictifs. Les photos et leurs crédits Wikimedia sont définis dans `server/data/demo-photos.json`.
 
+## Environnement Neon de la messagerie
+
+La messagerie peut être testée sur `preview-messaging` pendant que l’équipe utilise `development`. Garder un fichier local ignoré par Git pour chaque environnement.
+
+- `.env.neon-development` pour le déploiement partagé.
+- `.env.neon-messaging` pour la branche dédiée, avec ses chaînes `DATABASE_URL` et `DATABASE_URL_UNPOOLED`, son `BETTER_AUTH_SECRET` et `BETTER_AUTH_EXPO_GO=true` si tu testes avec Expo Go.
+
+Depuis `server/`, appliquer les migrations en attente sur la branche de test avec sa connexion directe, puis cibler cette même branche pour déployer. À la racine, créer `.env.messaging.local` avec `EXPO_PUBLIC_API_URL` réglée sur l’URL HTTPS de la fonction Pawpote de cette branche. Lancer `npm run start:messaging` pour la messagerie ou `npm start` pour l’environnement de développement habituel.
+
+Voir l’[ADR 009](../docs/adr/009-match-messaging-and-walks.md) pour les droits d’accès et la livraison des mises à jour.
+
 ## Catalogue des races
 
 [`data/breeds.json`](data/breeds.json) réunit les races reconnues à titre définitif ou provisoire dans la [nomenclature FCI](https://www.fci.be/fr/nomenclature/Default.aspx), avec quelques variétés courantes. Le champ `fci` identifie le standard de référence. Les noms reprennent la nomenclature française ou un nom courant qui facilite la recherche.
