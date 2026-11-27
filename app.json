@@ -8,14 +8,14 @@
     "scheme": "pawpote",
     "userInterfaceStyle": "light",
     "ios": {
-      "icon": "./assets/images/icon.png"
+      "icon": "./assets/expo.icon"
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#D6CCFF",
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundImage": "./assets/images/adaptive-icon-background.png",
-        "monochromeImage": "./assets/images/monochrome-icon.png"
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundImage": "./assets/images/android-icon-background.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false
     },
@@ -30,8 +30,7 @@
         {
           "backgroundColor": "#D6CCFF",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain"
+          "imageWidth": 150
         }
       ],
       "expo-secure-store",
