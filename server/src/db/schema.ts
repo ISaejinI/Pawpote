@@ -393,3 +393,14 @@ export const messages = pgTable(
     `),
   ],
 )
+
+// ==========================================
+// SÉCURITÉ
+// ==========================================
+
+// Tentatives de connexion par adresse e-mail, quelle que soit l'adresse IP (voir `auth.ts`)
+export const signInAttempts = pgTable('sign_in_attempts', {
+  email: text('email').primaryKey(),
+  count: integer('count').notNull(),
+  windowStart: timestamp('window_start', { withTimezone: true }).notNull(),
+})

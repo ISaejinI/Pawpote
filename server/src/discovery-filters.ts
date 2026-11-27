@@ -53,9 +53,8 @@ export function distanceFrom(origin: Coordinates | null) {
 
 export function distanceForDisplay(distance: SQL<number | null>, hasOrigin: boolean) {
   return {
-    distanceKm: sql<number | null>`
-      round((${distance})::numeric, case when ${homeFallback} then 0 else 1 end)::double precision
-    `,
+    // Au kilomètre près, et jamais moins de 1 km : la distance ne situe personne précisément
+    distanceKm: sql<number | null>`greatest(1, round((${distance})::numeric))::double precision`,
     distanceApproximate: hasOrigin ? homeFallback : sql<boolean>`false`,
   }
 }

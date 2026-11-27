@@ -7,6 +7,7 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { db } from './db'
 import * as authSchema from './db/auth-schema'
 import { profiles } from './db/schema'
+import { clearSignInAttempts, hasClientIp, recordSignInAttempt } from './sign-in-limit'
 import { deleteUserPhotos } from './storage'
 
 const secret = process.env.BETTER_AUTH_SECRET
@@ -30,6 +31,13 @@ export const webOrigins = (process.env.BETTER_AUTH_WEB_ORIGINS ?? '')
     return url.origin
   })
 
+/** Adresse e-mail d'une tentative de connexion, normalisée comme le fait Better Auth. */
+function signInEmail(ctx: { path?: string; body?: unknown }) {
+  if (ctx.path !== '/sign-in/email') return null
+  const email = (ctx.body as { email?: unknown } | undefined)?.email
+  return typeof email === 'string' && email.trim() ? email.trim().toLowerCase() : null
+}
+
 /** Longueur maximale acceptée pour un prénom ou un nom. */
 const MAX_NAME_LENGTH = 50
 
@@ -52,6 +60,16 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+  },
+  // Limite le nombre de requêtes par adresse IP, avec des compteurs partagés en base : en mémoire,
+  // chaque instance de la fonction aurait les siens. Plus strict sur la connexion et l'inscription
+  // (3 essais toutes les 10 s). Voir aussi la limite par compte dans `hooks`.
+  rateLimit: {
+    enabled: true,
+    storage: 'database',
+    customRules: {
+      '/**': (request, rule) => (hasClientIp(request) ? rule : false),
+    },
   },
   user: {
     // Changement d'adresse depuis le profil. L'app n'envoie pas encore d'e-mail de confirmation :
@@ -78,11 +96,25 @@ export const auth = betterAuth({
     // Sans mot de passe, Better Auth accepte la suppression depuis une session récente :
     // on l'exige toujours, un téléphone déverrouillé ne doit pas suffire à supprimer le compte.
     before: createAuthMiddleware(async (ctx) => {
-      if (ctx.path !== '/delete-user') return
-      const password = (ctx.body as { password?: unknown } | undefined)?.password
-      if (typeof password !== 'string' || !password) {
-        throw new APIError('BAD_REQUEST', { message: 'Password is required', code: 'PASSWORD_REQUIRED' })
+      if (ctx.path === '/delete-user') {
+        const password = (ctx.body as { password?: unknown } | undefined)?.password
+        if (typeof password !== 'string' || !password) {
+          throw new APIError('BAD_REQUEST', { message: 'Password is required', code: 'PASSWORD_REQUIRED' })
+        }
       }
+
+      // Limite par compte : bloque les essais de mots de passe en série, même depuis plusieurs IP
+      const email = signInEmail(ctx)
+      if (email && !(await recordSignInAttempt(email))) {
+        throw new APIError('TOO_MANY_REQUESTS', {
+          message: 'Too many sign-in attempts',
+          code: 'TOO_MANY_SIGN_IN_ATTEMPTS',
+        })
+      }
+    }),
+    after: createAuthMiddleware(async (ctx) => {
+      const email = signInEmail(ctx)
+      if (email && ctx.context.newSession) await clearSignInAttempts(email)
     }),
   },
   databaseHooks: {

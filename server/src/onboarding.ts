@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm'
 import { Hono } from 'hono'
 
-import { approximateHomeLocation, readCoordinates } from '../../shared/location'
+import { approximateLocation, readCoordinates } from '../../shared/location'
 import {
   ONBOARDING_LIMITS, type OnboardingOwner, type OnboardingPayload, type OnboardingStatus,
 } from '../../shared/onboarding'
@@ -44,7 +44,7 @@ function readOwner(userId: string, value: unknown): OnboardingOwner {
     address: readText(value, 'address', ONBOARDING_LIMITS.address)!,
     postalCode,
     city: readText(value, 'city', ONBOARDING_LIMITS.city)!,
-    homeLocation: homeLocation ? approximateHomeLocation(homeLocation) : null,
+    homeLocation: homeLocation ? approximateLocation(homeLocation) : null,
     photo: value.photo === null || value.photo === undefined
       ? null : readPhotoKeys(userId, [value.photo], 1, 1)[0],
   }

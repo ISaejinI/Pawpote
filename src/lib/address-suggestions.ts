@@ -1,6 +1,6 @@
 import { ONBOARDING_LIMITS } from '@/data/onboarding-options'
 import type { Coordinates } from '../../shared/discovery'
-import { approximateHomeLocation, readCoordinates } from '../../shared/location'
+import { approximateLocation, readCoordinates } from '../../shared/location'
 
 export type AddressSuggestion = {
   address: string
@@ -51,7 +51,7 @@ export async function searchAddresses(query: string, signal: AbortSignal): Promi
       address,
       postalCode: postcode,
       city,
-      homeLocation: coordinates ? approximateHomeLocation(coordinates) : null,
+      homeLocation: coordinates ? approximateLocation(coordinates) : null,
     }
     const key = addressSuggestionKey(entry)
     if (!suggestions.get(key)?.homeLocation) suggestions.set(key, entry)
