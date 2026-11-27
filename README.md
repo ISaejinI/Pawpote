@@ -59,6 +59,10 @@ npm install
 cd ..
 ```
 
+## Tester avec l’API déployée
+
+Copier [`.env.example`](.env.example) vers `.env.local` à la racine. L’URL publique de l’API Pawpote sur Neon `development` est déjà renseignée. Lancer `npx expo start --lan` et scanner le QR code avec Expo Go. Si `.env.development.local` existe, Expo utilise sa valeur en priorité.
+
 ## Configuration locale
 
 1. Copier [`server/.env.example`](server/.env.example) vers `server/.env` si ce fichier n’existe pas. Renseigner la chaîne poolée de la branche Neon `development`. Dans la console, ouvrir le projet Pawpote, cliquer sur **Connect**, choisir la branche, la base et le rôle de développement, puis copier la chaîne avec **Connection pooling** activé. Une chaîne directe de la même branche peut être renseignée dans `DATABASE_URL_UNPOOLED` pour Drizzle Kit.
