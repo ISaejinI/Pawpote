@@ -1,6 +1,6 @@
 import { Platform } from 'react-native'
 
-import { CHAT_PROTOCOL, type ChatMatch, type ChatMessage, type ChatThread, type WalkDraft } from '../../shared/messaging'
+import { CHAT_PROTOCOL, type ChatMatch, type ChatMessage, type ChatThread, type WalkDraft } from '@shared/messaging'
 import { API_TIMEOUT_MS, apiUrl } from './api-url'
 import { authClient } from './auth-client'
 

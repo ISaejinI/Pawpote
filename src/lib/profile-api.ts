@@ -2,11 +2,11 @@ import { useFocusEffect } from 'expo-router'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Platform } from 'react-native'
 
-import type { OnboardingDog } from '../../shared/onboarding'
+import type { OnboardingDog } from '@shared/onboarding'
 import type {
   DogRemoval, DogSheet, DogUpdate, NewDog, OwnerAddressUpdate, OwnerIdentityUpdate, OwnerInfo,
   ProfileDog, ProfileSummary,
-} from '../../shared/profile'
+} from '@shared/profile'
 import { API_TIMEOUT_MS, apiUrl } from './api-url'
 import { authClient } from './auth-client'
 

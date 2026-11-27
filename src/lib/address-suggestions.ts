@@ -1,6 +1,6 @@
 import { ONBOARDING_LIMITS } from '@/data/onboarding-options'
-import type { Coordinates } from '../../shared/discovery'
-import { approximateLocation, readCoordinates } from '../../shared/location'
+import type { Coordinates } from '@shared/discovery'
+import { approximateLocation, readCoordinates } from '@shared/location'
 
 export type AddressSuggestion = {
   address: string

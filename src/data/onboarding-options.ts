@@ -1,5 +1,5 @@
 /** Listes de choix de l'onboarding. Traits et activités sont partagés avec l'API. */
-export { ACTIVITIES, ONBOARDING_LIMITS, TRAITS } from '../../shared/onboarding';
+export { ACTIVITIES, ONBOARDING_LIMITS, TRAITS } from '@shared/onboarding';
 
 /** Parcs fictifs en attendant la recherche géolocalisée. */
 export const MOCK_PARKS = [

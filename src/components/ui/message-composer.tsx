@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { borderWidth, colors, radius, typography } from '@/theme';
-import { MAX_MESSAGE_LENGTH } from '../../../shared/messaging';
+import { MAX_MESSAGE_LENGTH } from '@shared/messaging';
 
 import { IconButton } from './icon-button';
 

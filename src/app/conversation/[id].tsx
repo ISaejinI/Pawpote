@@ -12,7 +12,7 @@ import { getChatThread, respondToWalk, sendChatMessage } from '@/lib/messaging-a
 import { formatChatDate, readChatTimestamp } from '@/lib/message-dates'
 import { useChatQuery } from '@/lib/use-chat-query'
 import { colors, spacing, typography } from '@/theme'
-import type { ChatMessage, ChatThread, WalkDraft } from '../../../shared/messaging'
+import type { ChatMessage, ChatThread, WalkDraft } from '@shared/messaging'
 
 const dayFormat = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'full' })
 const timeFormat = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' })

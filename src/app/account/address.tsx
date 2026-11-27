@@ -16,7 +16,7 @@ import { ONBOARDING_LIMITS } from '@/data/onboarding-options'
 import { saveOwnerAddress, useOwnerInfo } from '@/lib/profile-api'
 import { useLeaveConfirmation } from '@/lib/use-leave-confirmation'
 import { colors, typography } from '@/theme'
-import type { OwnerAddressUpdate, OwnerInfo } from '../../../shared/profile'
+import type { OwnerAddressUpdate, OwnerInfo } from '@shared/profile'
 
 type Field = 'address' | 'postalCode' | 'city'
 

@@ -1,7 +1,7 @@
 import { File } from 'expo-file-system'
 import { Platform } from 'react-native'
 
-import type { OnboardingDog, OnboardingPayload, OnboardingStatus, PhotoUpload } from '../../shared/onboarding'
+import type { OnboardingDog, OnboardingPayload, OnboardingStatus, PhotoUpload } from '@shared/onboarding'
 import { API_TIMEOUT_MS, apiUrl } from './api-url'
 import { authClient } from './auth-client'
 import { dateInputToIso } from './dates'

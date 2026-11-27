@@ -35,7 +35,7 @@ import { useLeaveConfirmation } from '@/lib/use-leave-confirmation'
 import { colors, spacing, typography } from '@/theme'
 import {
   COMPLETION_LABELS, dogCompletion, type CompletionItem, type DogSheet,
-} from '../../../shared/profile'
+} from '@shared/profile'
 
 type Sex = 'female' | 'male'
 

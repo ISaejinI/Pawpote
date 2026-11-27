@@ -1,4 +1,4 @@
-import type { NewDogMatch } from '../../shared/discovery'
+import type { NewDogMatch } from '@shared/discovery'
 
 /**
  * Choix Passer / J'aime fait depuis la page de détail d'un chien.

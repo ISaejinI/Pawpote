@@ -9,7 +9,7 @@ import RightPaw from '@/assets/icons/match-paw-right.svg'
 import Spark from '@/assets/icons/match-spark.svg'
 import { Avatar, Icon } from '@/components/ui'
 import { borderWidth, colors, radius, shadows, spacing, typography } from '@/theme'
-import type { NewDogMatch } from '../../../shared/discovery'
+import type { NewDogMatch } from '@shared/discovery'
 
 const DISPLAY_MS = 3_000
 const ART_SIZE = 68

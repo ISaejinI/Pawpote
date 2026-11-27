@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import {
   DEFAULT_DISCOVERY_FILTERS, DOG_AGES, DOG_SEXES, DOG_SIZES,
   MAX_DISCOVERY_RADIUS_KM, MIN_DISCOVERY_RADIUS_KM, type DiscoveryFilters,
-} from '../../shared/discovery'
+} from '@shared/discovery'
 
 function preferencesKey(userId: string) {
   return `pawpote.match-preferences.v1.${userId}`

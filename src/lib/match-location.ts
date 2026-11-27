@@ -1,6 +1,6 @@
 import * as Location from 'expo-location'
 
-import type { Coordinates } from '../../shared/discovery'
+import type { Coordinates } from '@shared/discovery'
 
 export async function getMatchPosition(): Promise<Coordinates> {
   const current = await Location.getForegroundPermissionsAsync()

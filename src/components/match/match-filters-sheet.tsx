@@ -9,7 +9,7 @@ import {
   DEFAULT_DISCOVERY_FILTERS, DOG_AGES, DOG_SIZES,
   MAX_DISCOVERY_RADIUS_KM, MIN_DISCOVERY_RADIUS_KM,
   type Coordinates, type DiscoveryFilters, type DogAge, type DogSize,
-} from '../../../shared/discovery'
+} from '@shared/discovery'
 
 const DEFAULT_RADIUS_KM = 5
 const SIZE_LABELS: Record<DogSize, string> = { small: 'Petit', medium: 'Moyen', large: 'Grand' }

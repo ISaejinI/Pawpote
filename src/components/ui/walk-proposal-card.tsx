@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { borderWidth, colors, radius, shadows, typography } from '@/theme';
-import type { WalkStatus } from '../../../shared/messaging';
+import type { WalkStatus } from '@shared/messaging';
 
 import { Button } from './button';
 import { Icon } from './icon';

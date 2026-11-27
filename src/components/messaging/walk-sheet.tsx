@@ -3,7 +3,7 @@ import { Keyboard, Platform, StyleSheet, Text, View } from 'react-native'
 
 import { BottomSheet, Button, FormField, Input } from '@/components/ui'
 import { colors, spacing, typography } from '@/theme'
-import { MAX_WALK_PLACE_LENGTH, type WalkDraft } from '../../../shared/messaging'
+import { MAX_WALK_PLACE_LENGTH, type WalkDraft } from '@shared/messaging'
 import { WalkDateTimePicker } from './walk-date-time-picker'
 
 type Props = {

@@ -19,7 +19,7 @@ import { pickImage, type ImageSource } from '@/lib/pick-image'
 import { saveOwnerIdentity, useOwnerInfo } from '@/lib/profile-api'
 import { useLeaveConfirmation } from '@/lib/use-leave-confirmation'
 import { colors, typography } from '@/theme'
-import { NAME_MAX_LENGTH, type OwnerInfo } from '../../../shared/profile'
+import { NAME_MAX_LENGTH, type OwnerInfo } from '@shared/profile'
 
 type IdentityForm = {
   firstName: string

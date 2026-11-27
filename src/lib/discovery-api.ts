@@ -2,7 +2,7 @@ import { Platform } from 'react-native'
 
 import type {
   Coordinates, DiscoveryFeed, DiscoveryFilters, DogDetails, SwipeAction, SwipeResult,
-} from '../../shared/discovery'
+} from '@shared/discovery'
 import { apiUrl } from './api-url'
 import { authClient } from './auth-client'
 

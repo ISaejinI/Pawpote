@@ -1,4 +1,4 @@
-import type { WalkDraft } from '../../shared/messaging'
+import type { WalkDraft } from '@shared/messaging'
 import { readChatTimestamp } from './message-dates'
 
 export type WalkCalendarEvent = WalkDraft & { id: string; ownDog: string; otherDog: string }

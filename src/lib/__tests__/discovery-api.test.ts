@@ -1,4 +1,4 @@
-import { DEFAULT_DISCOVERY_FILTERS } from '../../../shared/discovery'
+import { DEFAULT_DISCOVERY_FILTERS } from '@shared/discovery'
 import { formatDiscoveryDistance, getDiscoveryFeed, sendSwipe } from '../discovery-api'
 
 jest.mock('../auth-client', () => ({

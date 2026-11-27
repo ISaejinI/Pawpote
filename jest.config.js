@@ -12,5 +12,7 @@ module.exports = {
     // Même alias que dans tsconfig.json : `@/assets` vise le dossier racine, pas `src/`
     '^@/assets/(.*)$': '<rootDir>/assets/$1',
     '^@/(.*)$': '<rootDir>/src/$1',
+    // Types et règles partagés avec le serveur
+    '^@shared/(.*)$': '<rootDir>/shared/$1',
   },
 };

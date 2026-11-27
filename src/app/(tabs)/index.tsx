@@ -13,7 +13,7 @@ import { useDiscoveryQuery } from '@/lib/use-discovery-query'
 import { colors, radius, spacing, typography } from '@/theme'
 import {
   DEFAULT_DISCOVERY_FILTERS, type Coordinates, type DiscoveryFilters,
-} from '../../../shared/discovery'
+} from '@shared/discovery'
 
 const RESTART_SHADOW_OFFSET = 4
 
