@@ -101,6 +101,11 @@ export function photoUrl(key: string) {
   return `${process.env.AWS_ENDPOINT_URL_S3!.replace(/\/+$/, '')}/${PHOTO_BUCKET}/${key}`
 }
 
+/** Garde seulement les URL publiques (les anciennes clés de stockage ne s'affichent pas). */
+export function publicPhotoUrl(value: string | null) {
+  return value?.startsWith('https://') ? value : null
+}
+
 /** Supprime toutes les photos envoyées par un utilisateur (suppression de son compte). */
 export async function deleteUserPhotos(userId: string) {
   const client = storage()
