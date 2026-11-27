@@ -52,6 +52,15 @@ describe('Connexion', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('E-mail ou mot de passe incorrect.')
   })
 
+  it('explique quand trop de tentatives bloquent la connexion', async () => {
+    mockSignInEmail.mockResolvedValue({ data: null, error: { code: 'TOO_MANY_SIGN_IN_ATTEMPTS', status: 429 } })
+    await render(<SignInScreen />)
+
+    await fillAndSubmit('rex@exemple.fr', 'motdepasse123')
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Trop de tentatives de connexion. Réessaie dans 15 minutes.')
+  })
+
   it('prévient quand le serveur est injoignable', async () => {
     jest.spyOn(console, 'error').mockImplementation(() => {})
     mockSignInEmail.mockRejectedValue(new TypeError('Network request failed'))

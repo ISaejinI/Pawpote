@@ -1,4 +1,4 @@
-type AuthError = { code?: string; message?: string } | null | undefined;
+type AuthError = { code?: string; message?: string; status?: number } | null | undefined;
 
 /** Messages en français pour les codes d'erreur Better Auth les plus courants. */
 const MESSAGES: Record<string, string> = {
@@ -12,10 +12,13 @@ const MESSAGES: Record<string, string> = {
   INVALID_PASSWORD: 'Mot de passe actuel incorrect.',
   CREDENTIAL_ACCOUNT_NOT_FOUND: 'Ce compte n’a pas de mot de passe.',
   PASSWORD_REQUIRED: 'Renseigne ton mot de passe.',
+  TOO_MANY_SIGN_IN_ATTEMPTS: 'Trop de tentatives de connexion. Réessaie dans 15 minutes.',
 };
 
 export function getAuthErrorMessage(error: AuthError, fallback: string) {
   if (error?.code && MESSAGES[error.code]) return MESSAGES[error.code];
+  // Limite de requêtes par adresse IP (Better Auth), sans code d'erreur
+  if (error?.status === 429) return 'Trop de tentatives. Patiente quelques secondes, puis réessaie.';
   return fallback;
 }
 

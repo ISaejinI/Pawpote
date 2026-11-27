@@ -1,7 +1,7 @@
 import { and, asc, eq, inArray, ne, sql } from 'drizzle-orm'
 import { Hono } from 'hono'
 
-import { approximateHomeLocation, readCoordinates } from '../../shared/location'
+import { approximateLocation, readCoordinates } from '../../shared/location'
 import { ACTIVITIES, ONBOARDING_LIMITS, TRAITS, type OnboardingDog } from '../../shared/onboarding'
 import {
   dogCompletion, NAME_MAX_LENGTH, type DogRemoval, type DogSheet, type DogUpdate, type NewDog,
@@ -385,7 +385,7 @@ function readAddress(body: unknown): OwnerAddressUpdate {
     postalCode,
     city: readText(body, 'city', ONBOARDING_LIMITS.city)!,
     // Seule une zone approximative est gardée, comme à l'onboarding
-    homeLocation: homeLocation ? approximateHomeLocation(homeLocation) : null,
+    homeLocation: homeLocation ? approximateLocation(homeLocation) : null,
   }
 }
 

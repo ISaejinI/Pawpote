@@ -1,4 +1,4 @@
-import { approximateHomeLocation, readCoordinates } from '../location'
+import { approximateLocation, readCoordinates } from '../location'
 
 describe('readCoordinates', () => {
   it('accepte des coordonnées valides', () => {
@@ -15,13 +15,13 @@ describe('readCoordinates', () => {
   })
 })
 
-describe('approximateHomeLocation', () => {
-  it('arrondit l’adresse à une grille d’environ 500 m pour ne pas révéler le domicile', () => {
+describe('approximateLocation', () => {
+  it('arrondit une position à une grille d’environ 500 m pour ne pas révéler le domicile', () => {
     const home = { latitude: 48.85661, longitude: 2.35222 }
-    const approximate = approximateHomeLocation(home)
+    const approximate = approximateLocation(home)
 
     expect(approximate).toEqual({ latitude: 48.855, longitude: 2.35 })
     // Deux voisins de la même rue tombent dans la même cellule
-    expect(approximateHomeLocation({ latitude: 48.8562, longitude: 2.3518 })).toEqual(approximate)
+    expect(approximateLocation({ latitude: 48.8562, longitude: 2.3518 })).toEqual(approximate)
   })
 })

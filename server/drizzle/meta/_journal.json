@@ -50,6 +50,13 @@
       "when": 1795705295262,
       "tag": "0006_match_messaging",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1795770581230,
+      "tag": "0007_security_hardening",
+      "breakpoints": true
     }
   ]
 }

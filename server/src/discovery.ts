@@ -2,7 +2,7 @@ import { and, asc, eq, inArray, ne, notExists, or, sql } from 'drizzle-orm'
 import { Hono } from 'hono'
 
 import type { Coordinates, DiscoveryFeed, DogDetails, SwipeResult } from '../../shared/discovery'
-import { readCoordinates } from '../../shared/location'
+import { approximateLocation, readCoordinates } from '../../shared/location'
 import demoPhotos from '../data/demo-photos.json'
 import { db } from './db'
 import { user } from './db/auth-schema'
@@ -82,8 +82,11 @@ discovery.get('/', async (c) => {
 })
 
 discovery.post('/location', async (c) => {
-  const position = readCoordinates(await c.req.json().catch(() => null))
-  if (!position) return c.json({ error: 'Coordonnées invalides.' }, 400)
+  const exact = readCoordinates(await c.req.json().catch(() => null))
+  if (!exact) return c.json({ error: 'Coordonnées invalides.' }, 400)
+  // Jamais de position exacte en base : en se déclarant à plusieurs endroits, quelqu'un pourrait
+  // sinon retrouver où se trouve un autre maître à partir des distances affichées
+  const position = approximateLocation(exact)
 
   const userId = c.get('userId')
   const firstName = c.get('userName').trim().split(/\s+/, 1)[0] || 'Membre'
