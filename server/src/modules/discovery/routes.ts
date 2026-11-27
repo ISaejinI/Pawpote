@@ -1,19 +1,19 @@
 import { and, asc, eq, inArray, ne, notExists, or, sql } from 'drizzle-orm'
 import { Hono } from 'hono'
 
-import type { Coordinates, DiscoveryFeed, DogDetails, SwipeResult } from '../../shared/discovery'
-import { approximateLocation, readCoordinates } from '../../shared/location'
-import demoPhotos from '../data/demo-photos.json'
-import { db } from './db'
-import { user } from './db/auth-schema'
+import type { Coordinates, DiscoveryFeed, DogDetails, SwipeResult } from '../../../../shared/discovery'
+import { approximateLocation, readCoordinates } from '../../../../shared/location'
+import demoPhotos from '../../../data/demo-photos.json'
+import { db } from '../../db'
+import { user } from '../../db/auth-schema'
 import {
   activities, breeds, characters, dogActivities, dogCharacters, dogPhotos, dogs, matches,
   profiles, swipes,
-} from './db/schema'
+} from '../../db/schema'
 import {
   distanceForDisplay, distanceFrom, matchesAge, readDiscoveryFilters,
-} from './discovery-filters'
-import { requireSession, sessionCors, type SessionVariables } from './session'
+} from './filters'
+import { requireSession, sessionCors, type SessionVariables } from '../auth/session'
 
 const uuid = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i
 const discovery = new Hono<{ Variables: SessionVariables }>()

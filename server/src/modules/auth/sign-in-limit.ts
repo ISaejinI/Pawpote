@@ -2,8 +2,8 @@ import { isIP } from 'node:net'
 
 import { eq, sql } from 'drizzle-orm'
 
-import { db } from './db'
-import { signInAttempts } from './db/schema'
+import { db } from '../../db'
+import { signInAttempts } from '../../db/schema'
 
 /**
  * Protections de la connexion contre les essais de mots de passe en série.

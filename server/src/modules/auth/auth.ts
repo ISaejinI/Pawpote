@@ -4,11 +4,11 @@ import { betterAuth } from 'better-auth'
 import { APIError, createAuthMiddleware } from 'better-auth/api'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 
-import { db } from './db'
-import * as authSchema from './db/auth-schema'
-import { profiles } from './db/schema'
+import { db } from '../../db'
+import * as authSchema from '../../db/auth-schema'
+import { profiles } from '../../db/schema'
 import { clearSignInAttempts, hasClientIp, recordSignInAttempt } from './sign-in-limit'
-import { deleteUserPhotos } from './storage'
+import { deleteUserPhotos } from '../../lib/storage'
 
 const secret = process.env.BETTER_AUTH_SECRET
 

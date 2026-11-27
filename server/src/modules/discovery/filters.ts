@@ -3,8 +3,8 @@ import { sql, type SQL } from 'drizzle-orm'
 import {
   DOG_AGES, DOG_SEXES, DOG_SIZES, MAX_DISCOVERY_RADIUS_KM, MIN_DISCOVERY_RADIUS_KM,
   type Coordinates, type DiscoveryFilters, type DogAge,
-} from '../../shared/discovery'
-import { profiles } from './db/schema'
+} from '../../../../shared/discovery'
+import { profiles } from '../../db/schema'
 
 function readChoices<T extends string>(value: string | undefined, allowed: readonly T[]): T[] | null {
   if (value === undefined) return []

@@ -187,8 +187,10 @@ Pawpote/
 ├── server/
 │   ├── src/
 │   │   ├── db/           # Schémas Drizzle
-│   │   ├── auth.ts       # Better Auth
-│   │   └── index.ts      # API Hono
+│   │   ├── lib/          # Outils transverses (stockage des photos, validation)
+│   │   ├── modules/      # Un dossier par domaine : routes Hono et logique associée
+│   │   │   └── auth/     # Better Auth, session, limitation des connexions
+│   │   └── index.ts      # Assemble l'API Hono
 │   ├── drizzle/          # Migrations SQL
 │   ├── drizzle.config.ts
 │   └── neon.ts           # Déclaration de la fonction Neon

@@ -1,16 +1,16 @@
 import { eq } from 'drizzle-orm'
 import { Hono } from 'hono'
 
-import { approximateLocation, readCoordinates } from '../../shared/location'
+import { approximateLocation, readCoordinates } from '../../../../shared/location'
 import {
   ONBOARDING_LIMITS, type OnboardingOwner, type OnboardingPayload, type OnboardingStatus,
-} from '../../shared/onboarding'
-import { db } from './db'
-import { dogs, profiles } from './db/schema'
-import { checkNewDogs, insertDogs, readNewDog } from './dogs'
-import { requireSession, sessionCors, type SessionVariables } from './session'
-import { photoExists, photoUrl } from './storage'
-import { InvalidPayload, isRecord, readBirthDate, readPhotoKeys, readText } from './validation'
+} from '../../../../shared/onboarding'
+import { db } from '../../db'
+import { dogs, profiles } from '../../db/schema'
+import { checkNewDogs, insertDogs, readNewDog } from '../dogs/dogs'
+import { requireSession, sessionCors, type SessionVariables } from '../auth/session'
+import { photoExists, photoUrl } from '../../lib/storage'
+import { InvalidPayload, isRecord, readBirthDate, readPhotoKeys, readText } from '../../lib/validation'
 
 const onboarding = new Hono<{ Variables: SessionVariables }>()
 

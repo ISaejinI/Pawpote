@@ -2,19 +2,18 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 
-import { auth, webOrigins } from './auth'
-import { db } from './db'
-import { breeds } from './db/schema'
-import { discovery } from './discovery'
-import { messaging } from './messaging'
-import { messagingLive } from './messaging-live'
-import { onboarding } from './onboarding'
-import { profile } from './profile'
-import { uploads } from './uploads'
+import { auth, webOrigins } from './modules/auth/auth'
+import { breeds } from './modules/breeds/routes'
+import { discovery } from './modules/discovery/routes'
+import { messagingLive } from './modules/messaging/live'
+import { messaging } from './modules/messaging/routes'
+import { onboarding } from './modules/onboarding/routes'
+import { profile } from './modules/profile/routes'
+import { uploads } from './modules/uploads/routes'
 
 const app = new Hono()
-const frenchOrder = new Intl.Collator('fr')
 
+app.route('/api/breeds', breeds)
 app.route('/api/discovery', discovery)
 app.get('/api/messaging/live', messagingLive)
 app.route('/api/messaging', messaging)
@@ -39,16 +38,6 @@ app.get('/', (c) => {
     name: 'Pawpote API',
     status: 'ok',
   })
-})
-
-app.use('/api/breeds', cors({ origin: webOrigins, allowMethods: ['GET', 'OPTIONS'] }))
-
-app.get('/api/breeds', async (c) => {
-  const catalog = await db.select().from(breeds)
-  catalog.sort((a, b) => frenchOrder.compare(a.name, b.name))
-
-  c.header('Cache-Control', 'public, max-age=300')
-  return c.json({ breeds: catalog })
 })
 
 // Routes Better Auth

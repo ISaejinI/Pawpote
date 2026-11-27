@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 
-import { requireSession, sessionCors, type SessionVariables } from './session'
-import { createPhotoUpload, isPhotoContentType, PHOTO_MAX_BYTES } from './storage'
+import { requireSession, sessionCors, type SessionVariables } from '../auth/session'
+import { createPhotoUpload, isPhotoContentType, PHOTO_MAX_BYTES } from '../../lib/storage'
 
 const uploads = new Hono<{ Variables: SessionVariables }>()
 

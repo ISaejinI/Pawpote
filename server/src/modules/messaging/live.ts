@@ -4,8 +4,8 @@ import { upgradeWebSocket } from '@neon/functions'
 import { sql } from 'drizzle-orm'
 import type { Context } from 'hono'
 
-import { CHAT_PROTOCOL } from '../../shared/messaging'
-import { db } from './db'
+import { CHAT_PROTOCOL } from '../../../../shared/messaging'
+import { db } from '../../db'
 
 const TICKET_TTL_MS = 60_000
 const CONNECTION_TTL_MS = 5 * 60_000

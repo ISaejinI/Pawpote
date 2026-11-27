@@ -4,11 +4,11 @@ import { Hono } from 'hono'
 import {
   MAX_MESSAGE_LENGTH, MAX_WALK_PLACE_LENGTH,
   type ChatMatch, type ChatMessage, type ChatThread,
-} from '../../shared/messaging'
-import { db } from './db'
-import { matches, messages } from './db/schema'
-import { issueMessagingTicket } from './messaging-live'
-import { requireSession, sessionCors, type SessionVariables } from './session'
+} from '../../../../shared/messaging'
+import { db } from '../../db'
+import { matches, messages } from '../../db/schema'
+import { issueMessagingTicket } from './live'
+import { requireSession, sessionCors, type SessionVariables } from '../auth/session'
 
 const messaging = new Hono<{ Variables: SessionVariables }>()
 const uuid = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i

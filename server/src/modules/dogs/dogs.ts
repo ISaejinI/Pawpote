@@ -1,14 +1,14 @@
 import { inArray } from 'drizzle-orm'
 
-import { ACTIVITIES, ONBOARDING_LIMITS, TRAITS, type OnboardingDog } from '../../shared/onboarding'
-import { db } from './db'
+import { ACTIVITIES, ONBOARDING_LIMITS, TRAITS, type OnboardingDog } from '../../../../shared/onboarding'
+import { db } from '../../db'
 import {
   activities, breeds, characters, dogActivities, dogCharacters, dogPhotos, dogs,
-} from './db/schema'
-import { photoExists, photoUrl } from './storage'
+} from '../../db/schema'
+import { photoExists, photoUrl } from '../../lib/storage'
 import {
   InvalidPayload, isRecord, readBirthDate, readChoices, readPhotoKeys, readText,
-} from './validation'
+} from '../../lib/validation'
 
 /**
  * Création de chiens, commune à l'onboarding et à l'ajout d'un chien depuis le profil :

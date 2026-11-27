@@ -1,23 +1,23 @@
 import { and, asc, eq, inArray, ne, sql } from 'drizzle-orm'
 import { Hono } from 'hono'
 
-import { approximateLocation, readCoordinates } from '../../shared/location'
-import { ACTIVITIES, ONBOARDING_LIMITS, TRAITS, type OnboardingDog } from '../../shared/onboarding'
+import { approximateLocation, readCoordinates } from '../../../../shared/location'
+import { ACTIVITIES, ONBOARDING_LIMITS, TRAITS, type OnboardingDog } from '../../../../shared/onboarding'
 import {
   dogCompletion, NAME_MAX_LENGTH, type DogRemoval, type DogSheet, type DogUpdate, type NewDog,
   type OwnerAddressUpdate, type OwnerIdentityUpdate, type OwnerInfo, type ProfileSummary,
-} from '../../shared/profile'
-import { db } from './db'
-import { user } from './db/auth-schema'
+} from '../../../../shared/profile'
+import { db } from '../../db'
+import { user } from '../../db/auth-schema'
 import {
   activities, breeds, characters, dogActivities, dogCharacters, dogPhotos, dogs, profiles,
-} from './db/schema'
-import { checkNewDogs, insertDogs, readNewDog } from './dogs'
-import { requireSession, sessionCors, type SessionVariables } from './session'
-import { isOwnPhotoKey, photoExists, photoUrl } from './storage'
+} from '../../db/schema'
+import { checkNewDogs, insertDogs, readNewDog } from '../dogs/dogs'
+import { requireSession, sessionCors, type SessionVariables } from '../auth/session'
+import { isOwnPhotoKey, photoExists, photoUrl } from '../../lib/storage'
 import {
   InvalidPayload, isRecord, readBirthDate, readChoices, readText,
-} from './validation'
+} from '../../lib/validation'
 
 const profile = new Hono<{ Variables: SessionVariables }>()
 
