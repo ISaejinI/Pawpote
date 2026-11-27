@@ -1,9 +1,10 @@
 import 'dotenv/config'
 
 import { readFile } from 'node:fs/promises'
+import { pathToFileURL } from 'node:url'
 
 import { and, eq, inArray, isNull, sql } from 'drizzle-orm'
-import { drizzle } from 'drizzle-orm/node-postgres'
+import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 
 import { user } from '../src/db/auth-schema'
@@ -66,13 +67,7 @@ const quirks: Record<typeof dogsToSeed[number][0], string> = {
 
 type DemoPhoto = { breed: string; url: string }
 
-async function seedDiscovery() {
-  const connectionString = process.env.DATABASE_URL
-  const expectedHost = process.env.PAWPOTE_DEMO_DB_HOST
-  if (!connectionString || !expectedHost || new URL(connectionString).hostname !== expectedHost) {
-    throw new Error('Vérifie DATABASE_URL et PAWPOTE_DEMO_DB_HOST. Utilise uniquement la base de démonstration.')
-  }
-
+export async function seedDiscovery(db: Pick<NodePgDatabase, 'transaction'>) {
   const photos: DemoPhoto[] = JSON.parse(await readFile(new URL('../data/demo-photos.json', import.meta.url), 'utf8'))
   const catalog: (Pick<typeof breeds.$inferInsert, 'name' | 'size'>)[] =
     JSON.parse(await readFile(new URL('../data/breeds.json', import.meta.url), 'utf8'))
@@ -81,61 +76,67 @@ async function seedDiscovery() {
     throw new Error('Une photo de démo ne correspond pas à une race du catalogue.')
   }
 
-  const pool = new Pool({ connectionString, max: 1, connectionTimeoutMillis: 15_000 })
-  const db = drizzle(pool)
   const owners = [...new Set(dogsToSeed.map((dog) => dog[1]))]
   const ownerId = (name: typeof owners[number]) => `pawpote-demo-owner-${owners.indexOf(name) + 1}`
 
+  await db.transaction(async (tx) => {
+    await tx.insert(user).values(owners.map((name) => ({
+      id: ownerId(name), name, email: `${ownerId(name)}@example.invalid`,
+    }))).onConflictDoNothing()
+    await tx.insert(profiles).values(owners.map((firstName) => ({
+      userId: ownerId(firstName), firstName,
+    }))).onConflictDoNothing()
+
+    const traits = [...new Set(dogsToSeed.map((dog) => dog[5]))]
+    const hobbies = [...new Set(dogsToSeed.map((dog) => dog[6]))]
+    await tx.insert(breeds).values(selected.filter((breed) => breed !== undefined)).onConflictDoNothing()
+    await tx.insert(characters).values(traits.map((name) => ({ name }))).onConflictDoNothing()
+    await tx.insert(activities).values(hobbies.map((name) => ({ name }))).onConflictDoNothing()
+    const breedRows = await tx.select().from(breeds)
+      .where(inArray(breeds.name, photos.map(({ breed }) => breed)))
+    const traitRows = await tx.select().from(characters).where(inArray(characters.name, traits))
+    const hobbyRows = await tx.select().from(activities).where(inArray(activities.name, hobbies))
+
+    for (const [i, [name, owner, sex, birthDate, favoriteToy, trait, hobby, description]] of dogsToSeed.entries()) {
+      const { breed, url } = photos[i]
+      const suffix = String(i + 1).padStart(12, '0')
+      const id = `6ca71b00-7e1d-4000-a000-${suffix}`
+      const ownerKey = ownerId(owner)
+      await tx.insert(dogs).values({
+        id, ownerId: ownerKey, name, sex, birthDate, favoriteToy, description, quirk: quirks[name],
+        breedId: breedRows.find((row) => row.name === breed)!.id,
+      }).onConflictDoUpdate({
+        target: dogs.id,
+        set: { quirk: sql`excluded.quirk` },
+        setWhere: and(eq(dogs.ownerId, ownerKey), isNull(dogs.quirk)),
+      })
+      await tx.insert(dogPhotos).values({
+        id: `6ca71b00-7e1d-4000-b000-${suffix}`, dogId: id, storageKey: url,
+      }).onConflictDoNothing()
+      await tx.insert(dogCharacters).values({
+        dogId: id, characterId: traitRows.find((row) => row.name === trait)!.id,
+      }).onConflictDoNothing()
+      await tx.insert(dogActivities).values({
+        dogId: id, activityId: hobbyRows.find((row) => row.name === hobby)!.id,
+      }).onConflictDoNothing()
+    }
+  })
+  console.log(`${dogsToSeed.length} chiens et ${owners.length} propriétaires de démo disponibles.`)
+}
+
+if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) {
+  const connectionString = process.env.DATABASE_URL
+  const expectedHost = process.env.PAWPOTE_DEMO_DB_HOST
+  if (!connectionString || !expectedHost || new URL(connectionString).hostname !== expectedHost) {
+    throw new Error('Vérifie DATABASE_URL et PAWPOTE_DEMO_DB_HOST. Utilise uniquement la base de démonstration.')
+  }
+  const pool = new Pool({ connectionString, max: 1, connectionTimeoutMillis: 15_000 })
   try {
-    await db.transaction(async (tx) => {
-      await tx.insert(user).values(owners.map((name) => ({
-        id: ownerId(name), name, email: `${ownerId(name)}@example.invalid`,
-      }))).onConflictDoNothing()
-      await tx.insert(profiles).values(owners.map((firstName) => ({
-        userId: ownerId(firstName), firstName,
-      }))).onConflictDoNothing()
-
-      const traits = [...new Set(dogsToSeed.map((dog) => dog[5]))]
-      const hobbies = [...new Set(dogsToSeed.map((dog) => dog[6]))]
-      await tx.insert(breeds).values(selected.filter((breed) => breed !== undefined)).onConflictDoNothing()
-      await tx.insert(characters).values(traits.map((name) => ({ name }))).onConflictDoNothing()
-      await tx.insert(activities).values(hobbies.map((name) => ({ name }))).onConflictDoNothing()
-      const breedRows = await tx.select().from(breeds)
-        .where(inArray(breeds.name, photos.map(({ breed }) => breed)))
-      const traitRows = await tx.select().from(characters).where(inArray(characters.name, traits))
-      const hobbyRows = await tx.select().from(activities).where(inArray(activities.name, hobbies))
-
-      for (const [i, [name, owner, sex, birthDate, favoriteToy, trait, hobby, description]] of dogsToSeed.entries()) {
-        const { breed, url } = photos[i]
-        const suffix = String(i + 1).padStart(12, '0')
-        const id = `6ca71b00-7e1d-4000-a000-${suffix}`
-        const ownerKey = ownerId(owner)
-        await tx.insert(dogs).values({
-          id, ownerId: ownerKey, name, sex, birthDate, favoriteToy, description, quirk: quirks[name],
-          breedId: breedRows.find((row) => row.name === breed)!.id,
-        }).onConflictDoUpdate({
-          target: dogs.id,
-          set: { quirk: sql`excluded.quirk` },
-          setWhere: and(eq(dogs.ownerId, ownerKey), isNull(dogs.quirk)),
-        })
-        await tx.insert(dogPhotos).values({
-          id: `6ca71b00-7e1d-4000-b000-${suffix}`, dogId: id, storageKey: url,
-        }).onConflictDoNothing()
-        await tx.insert(dogCharacters).values({
-          dogId: id, characterId: traitRows.find((row) => row.name === trait)!.id,
-        }).onConflictDoNothing()
-        await tx.insert(dogActivities).values({
-          dogId: id, activityId: hobbyRows.find((row) => row.name === hobby)!.id,
-        }).onConflictDoNothing()
-      }
-    })
-    console.log(`${dogsToSeed.length} chiens et ${owners.length} propriétaires de démo disponibles.`)
+    await seedDiscovery(drizzle(pool))
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : 'Échec de l’import du jeu de données.')
+    process.exitCode = 1
   } finally {
     await pool.end()
   }
 }
-
-await seedDiscovery().catch((error: unknown) => {
-  console.error(error instanceof Error ? error.message : 'Échec de l’import du jeu de données.')
-  process.exitCode = 1
-})

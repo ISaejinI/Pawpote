@@ -14,6 +14,16 @@ La route accepte des filtres de gabarit, d’âge, de sexe et de rayon. `POST /a
 
 Appliquer les migrations Drizzle sur la base de développement prévue pour la démo. Dans `server/.env`, vérifier `DATABASE_URL` et renseigner `PAWPOTE_DEMO_DB_HOST` avec le nom d’hôte de cette base. Depuis `server/`, lancer `npm run seed:discovery`. Le script est relançable et ajoute 24 chiens et 22 propriétaires fictifs. Les photos et leurs crédits Wikimedia sont définis dans `server/data/demo-photos.json`.
 
+### Réinitialiser la démonstration
+
+Depuis `server/`, après avoir sauvegardé les données de `development` et appliqué les migrations, renseigner `PAWPOTE_RESEED_DATABASE_URL` avec la connexion directe de cette branche, `PAWPOTE_DEMO_DB_HOST` avec son nom d’hôte vérifié dans Neon et `PAWPOTE_DEMO_PASSWORD` avec un mot de passe de test.
+
+```bash
+npx tsx scripts/reseed-development.ts --reset-development
+```
+
+Le script remplace les données de l’application dans une seule transaction. Il recharge le catalogue et la découverte, puis crée les comptes `alice@example.test` et `nora@example.test`, un match, des messages et deux propositions de balade. Réserver cette commande à `development`.
+
 ## Environnement Neon de la messagerie
 
 La messagerie peut être testée sur `preview-messaging` pendant que l’équipe utilise `development`. Garder un fichier local ignoré par Git pour chaque environnement.
