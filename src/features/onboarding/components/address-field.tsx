@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react'
 import { Keyboard, Pressable, StyleSheet, Text, View } from 'react-native'
 
 import { FormField, Icon, Input } from '@/components/ui'
-import { ONBOARDING_LIMITS } from '@/data/onboarding-options'
-import { addressSuggestionKey, searchAddresses, type AddressSuggestion } from '@/lib/address-suggestions'
+import { ONBOARDING_LIMITS } from '@/features/onboarding/options'
+import { addressSuggestionKey, searchAddresses, type AddressSuggestion } from '@/features/onboarding/address-suggestions'
 import { borderWidth, colors, radius, spacing, typography } from '@/theme'
 
 const MIN_QUERY_LENGTH = 3

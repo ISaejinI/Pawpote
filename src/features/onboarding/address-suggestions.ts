@@ -1,4 +1,4 @@
-import { ONBOARDING_LIMITS } from '@/data/onboarding-options'
+import { ONBOARDING_LIMITS } from '@/features/onboarding/options'
 import type { Coordinates } from '@shared/discovery'
 import { approximateLocation, readCoordinates } from '@shared/location'
 

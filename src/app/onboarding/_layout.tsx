@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router'
 
-import { OnboardingDraftProvider } from '@/lib/onboarding-draft'
+import { OnboardingDraftProvider } from '@/features/onboarding/onboarding-draft'
 
 export default function OnboardingLayout() {
   return (

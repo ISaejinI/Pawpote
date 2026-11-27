@@ -1,10 +1,10 @@
 import { useRef, useState } from 'react'
 import { StyleSheet, Text, View, type TextInputInstance } from 'react-native'
 
-import { AuthLayout } from '@/components/auth/auth-layout'
+import { AuthLayout } from '@/features/auth/components/auth-layout'
 import { Button, FormField, Input, PasswordInput } from '@/components/ui'
 import { authClient } from '@/lib/auth-client'
-import { getAuthErrorMessage, isValidEmail } from '@/lib/auth-errors'
+import { getAuthErrorMessage, isValidEmail } from '@/features/auth/auth-errors'
 import { colors, typography } from '@/theme'
 
 const MIN_PASSWORD_LENGTH = 8

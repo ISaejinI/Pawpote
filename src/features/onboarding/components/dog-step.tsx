@@ -9,10 +9,10 @@ import {
   Select,
   TextLink,
 } from '@/components/ui'
-import { ONBOARDING_LIMITS } from '@/data/onboarding-options'
-import { useBreedCatalog } from '@/lib/breed-catalog'
+import { ONBOARDING_LIMITS } from '@/features/onboarding/options'
+import { useBreedCatalog } from '@/features/onboarding/breed-catalog'
 import { validateBirthDate } from '@/lib/dates'
-import { useOnboardingDraft, type DogDraft, type DogSex } from '@/lib/onboarding-draft'
+import { useOnboardingDraft, type DogDraft, type DogSex } from '@/features/onboarding/onboarding-draft'
 
 import type { DogStepProps } from './dog-step-props'
 

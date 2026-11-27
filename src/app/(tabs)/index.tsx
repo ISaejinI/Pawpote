@@ -1,15 +1,15 @@
 import { useCallback, useEffect, useState } from 'react'
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native'
 
-import { MatchFiltersSheet } from '@/components/match/match-filters-sheet'
-import { MatchHeader } from '@/components/match/match-header'
-import { SwipeDeck } from '@/components/swipe/swipe-deck'
+import { MatchFiltersSheet } from '@/features/discovery/components/match-filters-sheet'
+import { MatchHeader } from '@/features/discovery/components/match-header'
+import { SwipeDeck } from '@/features/discovery/components/swipe-deck'
 import { Button, TabPage } from '@/components/ui'
 import { authClient } from '@/lib/auth-client'
-import { getDiscoveryFeed, restartDiscovery, saveDiscoveryLocation } from '@/lib/discovery-api'
-import { getMatchPosition } from '@/lib/match-location'
-import { readMatchPreferences, saveMatchPreferences } from '@/lib/match-preferences'
-import { useDiscoveryQuery } from '@/lib/use-discovery-query'
+import { getDiscoveryFeed, restartDiscovery, saveDiscoveryLocation } from '@/features/discovery/api'
+import { getMatchPosition } from '@/features/discovery/match-location'
+import { readMatchPreferences, saveMatchPreferences } from '@/features/discovery/match-preferences'
+import { useDiscoveryQuery } from '@/features/discovery/use-discovery-query'
 import { colors, radius, spacing, typography } from '@/theme'
 import {
   DEFAULT_DISCOVERY_FILTERS, type Coordinates, type DiscoveryFilters,

@@ -1,7 +1,7 @@
 import { DEFAULT_DISCOVERY_FILTERS } from '@shared/discovery'
-import { formatDiscoveryDistance, getDiscoveryFeed, sendSwipe } from '../discovery-api'
+import { formatDiscoveryDistance, getDiscoveryFeed, sendSwipe } from '../api'
 
-jest.mock('../auth-client', () => ({
+jest.mock('@/lib/auth-client', () => ({
   authClient: { getCookie: () => 'better-auth.session_token=test' },
 }))
 

@@ -3,9 +3,9 @@ import { useState } from 'react'
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native'
 
 import { Button, ConversationList, NewMatchesStrip, SearchField, TabPage } from '@/components/ui'
-import { formatChatDate } from '@/lib/message-dates'
-import { getChatMatches } from '@/lib/messaging-api'
-import { useChatQuery } from '@/lib/use-chat-query'
+import { formatChatDate } from '@/features/messaging/message-dates'
+import { getChatMatches } from '@/features/messaging/api'
+import { useChatQuery } from '@/features/messaging/use-chat-query'
 import { colors, spacing, typography } from '@/theme'
 
 const messageTime = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' })

@@ -10,9 +10,9 @@ import {
   ProfileSummaryCard,
   TabPage,
 } from '@/components/ui';
-import { MOCK_PARK_COUNT } from '@/data/mock-profile';
+import { MOCK_PARK_COUNT } from '@/features/profile/mock-profile';
 import { authClient } from '@/lib/auth-client';
-import { dogDetails, useProfileSummary } from '@/lib/profile-api';
+import { dogDetails, useProfileSummary } from '@/features/profile/api';
 import { colors, shadows, typography } from '@/theme';
 
 /** Fonds des photos manquantes, attribués aux chiens dans l'ordre. */

@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { Platform, StyleSheet, Text, View } from 'react-native'
 
 import { Button } from '@/components/ui/button'
-import { createWalkCalendarFile, googleCalendarUrl, type WalkCalendarEvent } from '@/lib/walk-calendar'
+import { createWalkCalendarFile, googleCalendarUrl, type WalkCalendarEvent } from '@/features/messaging/walk-calendar'
 import { colors, spacing, typography } from '@/theme'
 
 const filename = 'balade-pawpote.ics'

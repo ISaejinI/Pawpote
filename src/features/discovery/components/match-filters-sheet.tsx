@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
 import { BottomSheet, Button, Chip, Icon, SegmentedControl } from '@/components/ui'
-import { getMatchPosition } from '@/lib/match-location'
+import { getMatchPosition } from '@/features/discovery/match-location'
 import { borderWidth, colors, radius, spacing, typography } from '@/theme'
 import {
   DEFAULT_DISCOVERY_FILTERS, DOG_AGES, DOG_SIZES,

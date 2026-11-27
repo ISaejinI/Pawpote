@@ -3,8 +3,8 @@ import { Platform } from 'react-native'
 import type {
   Coordinates, DiscoveryFeed, DiscoveryFilters, DogDetails, SwipeAction, SwipeResult,
 } from '@shared/discovery'
-import { apiUrl } from './api-url'
-import { authClient } from './auth-client'
+import { apiUrl } from '@/lib/api-url'
+import { authClient } from '@/lib/auth-client'
 
 async function discoveryRequest<T>(path: string, signal?: AbortSignal, body?: object): Promise<T> {
   const headers = new Headers()

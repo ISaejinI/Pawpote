@@ -1,8 +1,8 @@
 import { Platform } from 'react-native'
 
 import { CHAT_PROTOCOL, type ChatMatch, type ChatMessage, type ChatThread, type WalkDraft } from '@shared/messaging'
-import { API_TIMEOUT_MS, apiUrl } from './api-url'
-import { authClient } from './auth-client'
+import { API_TIMEOUT_MS, apiUrl } from '@/lib/api-url'
+import { authClient } from '@/lib/auth-client'
 
 async function request<T>(path = '', body?: object, signal?: AbortSignal): Promise<T> {
   const headers = new Headers()

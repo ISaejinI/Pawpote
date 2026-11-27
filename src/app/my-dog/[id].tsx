@@ -23,14 +23,14 @@ import {
   type DogPhotoTarget,
   type EditPageScrollRef,
 } from '@/components/ui'
-import { ACTIVITIES, ONBOARDING_LIMITS, TRAITS } from '@/data/onboarding-options'
-import { useBreedCatalog } from '@/lib/breed-catalog'
+import { ACTIVITIES, ONBOARDING_LIMITS, TRAITS } from '@/features/onboarding/options'
+import { useBreedCatalog } from '@/features/onboarding/breed-catalog'
 import { ageInYears, dateInputToIso, isoToDateInput, parseDateInput, validateBirthDate } from '@/lib/dates'
-import { uploadPhoto } from '@/lib/onboarding-api'
-import { useOnboardingStatus } from '@/lib/onboarding-status'
-import { toggleValue } from '@/lib/onboarding-draft'
+import { uploadPhoto } from '@/features/onboarding/api'
+import { useOnboardingStatus } from '@/features/onboarding/onboarding-status'
+import { toggleValue } from '@/features/onboarding/onboarding-draft'
 import { pickImage, type ImageSource } from '@/lib/pick-image'
-import { getDogSheet, removeDog, saveDogSheet } from '@/lib/profile-api'
+import { getDogSheet, removeDog, saveDogSheet } from '@/features/profile/api'
 import { useLeaveConfirmation } from '@/lib/use-leave-confirmation'
 import { colors, spacing, typography } from '@/theme'
 import {

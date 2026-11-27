@@ -4,7 +4,7 @@ import { Alert, StyleSheet, Text, type TextInputInstance } from 'react-native'
 
 import { Callout, EditHeader, EditPage, FormField, FormSection, PasswordInput } from '@/components/ui'
 import { authClient } from '@/lib/auth-client'
-import { getAuthErrorMessage } from '@/lib/auth-errors'
+import { getAuthErrorMessage } from '@/features/auth/auth-errors'
 import { useLeaveConfirmation } from '@/lib/use-leave-confirmation'
 import { colors, typography } from '@/theme'
 

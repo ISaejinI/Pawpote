@@ -2,7 +2,7 @@ import { router } from 'expo-router'
 import { useRef, useState } from 'react'
 import { StyleSheet, Text, View, type TextInputInstance } from 'react-native'
 
-import { AddressField } from '@/components/onboarding/address-field'
+import { AddressField } from '@/features/onboarding/components/address-field'
 import {
   Callout,
   EditHeader,
@@ -12,8 +12,8 @@ import {
   Input,
   LoadStatus,
 } from '@/components/ui'
-import { ONBOARDING_LIMITS } from '@/data/onboarding-options'
-import { saveOwnerAddress, useOwnerInfo } from '@/lib/profile-api'
+import { ONBOARDING_LIMITS } from '@/features/onboarding/options'
+import { saveOwnerAddress, useOwnerInfo } from '@/features/profile/api'
 import { useLeaveConfirmation } from '@/lib/use-leave-confirmation'
 import { colors, typography } from '@/theme'
 import type { OwnerAddressUpdate, OwnerInfo } from '@shared/profile'

@@ -11,9 +11,9 @@ import {
   saveOnboarding,
   toOnboardingPayload,
   uploadMissingPhotos,
-} from '@/lib/onboarding-api'
-import { useOnboardingDraft } from '@/lib/onboarding-draft'
-import { useOnboardingStatus } from '@/lib/onboarding-status'
+} from '@/features/onboarding/api'
+import { useOnboardingDraft } from '@/features/onboarding/onboarding-draft'
+import { useOnboardingStatus } from '@/features/onboarding/onboarding-status'
 import { colors, spacing, typography } from '@/theme'
 
 /** Fin de l'onboarding : aperçu de la carte du chien. */

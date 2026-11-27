@@ -1,7 +1,7 @@
 import { router } from 'expo-router'
 
-import { DogStep } from '@/components/onboarding/dog-step'
-import { stepProps } from '@/components/onboarding/steps'
+import { DogStep } from '@/features/onboarding/components/dog-step'
+import { stepProps } from '@/features/onboarding/steps'
 
 /** Onboarding · étape 1 sur 6. */
 export default function OnboardingDogStep() {

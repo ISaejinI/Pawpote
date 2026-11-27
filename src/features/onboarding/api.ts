@@ -2,9 +2,9 @@ import { File } from 'expo-file-system'
 import { Platform } from 'react-native'
 
 import type { OnboardingDog, OnboardingPayload, OnboardingStatus, PhotoUpload } from '@shared/onboarding'
-import { API_TIMEOUT_MS, apiUrl } from './api-url'
-import { authClient } from './auth-client'
-import { dateInputToIso } from './dates'
+import { API_TIMEOUT_MS, apiUrl } from '@/lib/api-url'
+import { authClient } from '@/lib/auth-client'
+import { dateInputToIso } from '@/lib/dates'
 import type { DogDraft, OwnerDraft } from './onboarding-draft'
 
 /** Réponse en erreur de l'API, avec son code HTTP. */

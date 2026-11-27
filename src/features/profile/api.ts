@@ -7,8 +7,8 @@ import type {
   DogRemoval, DogSheet, DogUpdate, NewDog, OwnerAddressUpdate, OwnerIdentityUpdate, OwnerInfo,
   ProfileDog, ProfileSummary,
 } from '@shared/profile'
-import { API_TIMEOUT_MS, apiUrl } from './api-url'
-import { authClient } from './auth-client'
+import { API_TIMEOUT_MS, apiUrl } from '@/lib/api-url'
+import { authClient } from '@/lib/auth-client'
 
 /** Réponse en erreur de l'API, avec son code HTTP. */
 export class ProfileApiError extends Error {

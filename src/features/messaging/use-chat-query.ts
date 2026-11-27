@@ -1,7 +1,7 @@
 import { useFocusEffect } from 'expo-router'
 import { useCallback, useRef, useState } from 'react'
 
-import { watchChat } from './messaging-api'
+import { watchChat } from './api'
 
 export function useChatQuery<T>(load: (signal: AbortSignal) => Promise<T>, merge?: (current: T | undefined, incoming: T) => T) {
   const [data, setData] = useState<T>()

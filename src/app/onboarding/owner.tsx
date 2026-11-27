@@ -2,8 +2,8 @@ import { router } from 'expo-router'
 import { useRef, useState } from 'react'
 import { StyleSheet, View, type TextInputInstance } from 'react-native'
 
-import { AddressField } from '@/components/onboarding/address-field'
-import { stepProps } from '@/components/onboarding/steps'
+import { AddressField } from '@/features/onboarding/components/address-field'
+import { stepProps } from '@/features/onboarding/steps'
 import {
   AvatarField,
   Callout,
@@ -13,9 +13,9 @@ import {
   OnboardingStepPage,
   PhotoSourceSheet,
 } from '@/components/ui'
-import { ONBOARDING_LIMITS } from '@/data/onboarding-options'
+import { ONBOARDING_LIMITS } from '@/features/onboarding/options'
 import { validateBirthDate } from '@/lib/dates'
-import { useOnboardingDraft, type OwnerDraft } from '@/lib/onboarding-draft'
+import { useOnboardingDraft, type OwnerDraft } from '@/features/onboarding/onboarding-draft'
 import { pickImage, type ImageSource } from '@/lib/pick-image'
 
 type Field = 'birthDate' | 'address' | 'postalCode' | 'city'

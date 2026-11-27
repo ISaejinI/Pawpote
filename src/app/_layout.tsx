@@ -4,10 +4,10 @@ import * as SplashScreen from 'expo-splash-screen'
 import { useEffect, useState } from 'react'
 import { KeyboardProvider } from 'react-native-keyboard-controller'
 
-import { MatchCelebrationProvider } from '@/components/swipe/match-celebration'
+import { MatchCelebrationProvider } from '@/features/discovery/components/match-celebration'
 import { LoadingPage } from '@/components/ui'
 import { authClient } from '@/lib/auth-client'
-import { OnboardingStatusProvider, useOnboardingStatus } from '@/lib/onboarding-status'
+import { OnboardingStatusProvider, useOnboardingStatus } from '@/features/onboarding/onboarding-status'
 import { colors, fontDefinitions } from '@/theme'
 
 void SplashScreen.preventAutoHideAsync()

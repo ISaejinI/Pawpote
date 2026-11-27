@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import { Chip, FormField, Input, OnboardingStepPage } from '@/components/ui'
-import { ONBOARDING_LIMITS, TRAITS } from '@/data/onboarding-options'
-import { toggleValue, useOnboardingDraft } from '@/lib/onboarding-draft'
+import { ONBOARDING_LIMITS, TRAITS } from '@/features/onboarding/options'
+import { toggleValue, useOnboardingDraft } from '@/features/onboarding/onboarding-draft'
 
 import type { DogStepProps } from './dog-step-props'
 

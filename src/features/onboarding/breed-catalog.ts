@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { apiUrl } from './api-url'
+import { apiUrl } from '@/lib/api-url'
 
 type Breed = { id: number; name: string }
 

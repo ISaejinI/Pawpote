@@ -11,9 +11,9 @@ import {
   PullToClose,
   SwipeActions,
 } from '@/components/ui'
-import { formatDiscoveryDistance, getDogDetails, sendSwipe } from '@/lib/discovery-api'
-import { setSwipeIntent, type SwipeDirection } from '@/lib/swipe-intent'
-import { useDiscoveryQuery } from '@/lib/use-discovery-query'
+import { formatDiscoveryDistance, getDogDetails, sendSwipe } from '@/features/discovery/api'
+import { setSwipeIntent, type SwipeDirection } from '@/features/discovery/swipe-intent'
+import { useDiscoveryQuery } from '@/features/discovery/use-discovery-query'
 import { borderWidth, colors, spacing, typography } from '@/theme'
 
 const PHOTO_HEIGHT = 470

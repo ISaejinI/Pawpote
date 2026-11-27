@@ -1,7 +1,7 @@
 import * as SecureStore from 'expo-secure-store';
 import { createContext, use, useEffect, useState, type ReactNode } from 'react';
 
-import { getOnboardingStatus } from './onboarding-api';
+import { getOnboardingStatus } from './api';
 
 /**
  * Indique si l'utilisateur connecté doit passer par l'onboarding.

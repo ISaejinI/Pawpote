@@ -2,11 +2,11 @@ import { router } from 'expo-router'
 import { useRef, useState } from 'react'
 import { Alert } from 'react-native'
 
-import { ActivitiesStep } from '@/components/onboarding/activities-step'
-import { addDogStepProps } from '@/components/onboarding/steps'
-import { dogPhotoUris, toOnboardingDog, uploadMissingPhotos } from '@/lib/onboarding-api'
-import { useOnboardingDraft } from '@/lib/onboarding-draft'
-import { addDog } from '@/lib/profile-api'
+import { ActivitiesStep } from '@/features/onboarding/components/activities-step'
+import { addDogStepProps } from '@/features/onboarding/steps'
+import { dogPhotoUris, toOnboardingDog, uploadMissingPhotos } from '@/features/onboarding/api'
+import { useOnboardingDraft } from '@/features/onboarding/onboarding-draft'
+import { addDog } from '@/features/profile/api'
 
 /** Ajout d'un chien · étape 4 sur 4 : enregistre le chien puis revient au profil. */
 export default function AddDogActivitiesStep() {

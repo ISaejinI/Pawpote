@@ -8,7 +8,7 @@ import {
   PhotoSlot,
   PhotoSourceSheet,
 } from '@/components/ui'
-import { useOnboardingDraft } from '@/lib/onboarding-draft'
+import { useOnboardingDraft } from '@/features/onboarding/onboarding-draft'
 import { pickImage, type ImageSource } from '@/lib/pick-image'
 import { colors, spacing, typography } from '@/theme'
 

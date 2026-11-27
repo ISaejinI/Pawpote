@@ -14,9 +14,9 @@ import {
   PhotoSourceSheet,
 } from '@/components/ui'
 import { dateInputToIso, isoToDateInput, validateBirthDate } from '@/lib/dates'
-import { uploadPhoto } from '@/lib/onboarding-api'
+import { uploadPhoto } from '@/features/onboarding/api'
 import { pickImage, type ImageSource } from '@/lib/pick-image'
-import { saveOwnerIdentity, useOwnerInfo } from '@/lib/profile-api'
+import { saveOwnerIdentity, useOwnerInfo } from '@/features/profile/api'
 import { useLeaveConfirmation } from '@/lib/use-leave-confirmation'
 import { colors, typography } from '@/theme'
 import { NAME_MAX_LENGTH, type OwnerInfo } from '@shared/profile'
