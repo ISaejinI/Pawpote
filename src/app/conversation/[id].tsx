@@ -1,8 +1,9 @@
 import { randomUUID } from 'expo-crypto'
 import { router, useLocalSearchParams } from 'expo-router'
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Keyboard, StyleSheet, Text, View } from 'react-native'
 
+import { WalkCalendarActions } from '@/components/messaging/walk-calendar-actions'
 import { WalkSheet } from '@/components/messaging/walk-sheet'
 import {
   Badge, Button, ConversationHeader, ConversationPage, MatchBanner, MessageBubble, MessageComposer, WalkProposalCard,
@@ -72,6 +73,7 @@ function Thread({ id }: { id: string }) {
   ].map((message) => [message.id, message])).values()]
 
   function openWalk(alternative?: ChatMessage) {
+    Keyboard.dismiss()
     pendingWalkId.current = randomUUID()
     setSheet((current) => ({ key: (current?.key ?? 0) + 1, visible: true, alternative }))
   }
@@ -152,11 +154,12 @@ function Thread({ id }: { id: string }) {
       composer={<>
         {!!actionError && <Text style={styles.error} accessibilityRole="alert">{actionError}</Text>}
         <MessageComposer onSend={sendText} />
-        {sheet && <WalkSheet key={sheet.key} visible={sheet.visible} onClose={closeWalk} onSubmit={sendWalk}
-          initial={sheet.alternative?.walk ? {
-            place: sheet.alternative.body, minutes: sheet.alternative.walk.minutes,
-          } : undefined} />}
       </>}
+      overlayVisible={sheet?.visible}
+      overlay={sheet && <WalkSheet key={sheet.key} visible={sheet.visible} onClose={closeWalk} onSubmit={sendWalk}
+        initial={sheet.alternative?.walk ? {
+          place: sheet.alternative.body, minutes: sheet.alternative.walk.minutes,
+        } : undefined} />}
     >
       {cursor ? (
         <Button size="sm" variant="secondary" loading={loadingOlder} onPress={() => { void loadOlder() }}>
@@ -186,6 +189,12 @@ function Thread({ id }: { id: string }) {
                 duration={`${walk.minutes} min`}
                 onAccept={canRespond ? () => { void acceptWalk(message.id) } : undefined}
                 onSuggestOtherDate={canRespond ? () => openWalk(message) : undefined}
+                calendarActions={walk.status === 'accepted' && readChatTimestamp(walk.startsAt) !== undefined
+                  ? <WalkCalendarActions event={{
+                    id: message.id, place: message.body, startsAt: walk.startsAt, minutes: walk.minutes,
+                    ownDog: match.ownDog, otherDog: match.dogName,
+                  }} />
+                  : undefined}
               />
             ) : <MessageBubble from={from} time={formatChatDate(timeFormat, message.createdAt)}>{message.body}</MessageBubble>}
           </Fragment>

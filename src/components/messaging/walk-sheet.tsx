@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Keyboard, StyleSheet, Text, View } from 'react-native'
+import { Keyboard, Platform, StyleSheet, Text, View } from 'react-native'
 
 import { BottomSheet, Button, FormField, Input } from '@/components/ui'
 import { colors, spacing, typography } from '@/theme'
@@ -62,11 +62,11 @@ export function WalkSheet({ visible, onClose, onSubmit, initial }: Props) {
       visible={visible}
       onClose={() => { if (!saving) onClose() }}
       title={initial ? 'Proposer une autre date' : 'Proposer une balade'}
-      keyboardAware
+      inline={Platform.OS !== 'web'}
       footer={(
-        <View style={styles.fields}>
+        <View style={styles.footer}>
           {!!error && <Text style={styles.error} accessibilityRole="alert">{error}</Text>}
-          <Button loading={saving} onPress={() => { void submit() }}>Envoyer la proposition</Button>
+          <Button size="md" loading={saving} onPress={() => { void submit() }}>Envoyer la proposition</Button>
         </View>
       )}
     >
@@ -92,6 +92,7 @@ export function WalkSheet({ visible, onClose, onSubmit, initial }: Props) {
 }
 
 const styles = StyleSheet.create({
-  fields: { gap: spacing[3], paddingBottom: spacing[2] },
+  fields: { gap: spacing[3] },
+  footer: { gap: spacing[2], paddingBottom: spacing[2] },
   error: { ...typography.small, color: colors.danger },
 })

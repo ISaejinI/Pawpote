@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { borderWidth, colors, radius, shadows, typography } from '@/theme';
@@ -18,6 +19,7 @@ export type WalkProposalCardProps = {
   status?: WalkStatus;
   onAccept?: () => void;
   onSuggestOtherDate?: () => void;
+  calendarActions?: ReactNode;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -30,6 +32,7 @@ export function WalkProposalCard({
   status = 'pending',
   onAccept,
   onSuggestOtherDate,
+  calendarActions,
   style,
 }: WalkProposalCardProps) {
   return (
@@ -49,6 +52,7 @@ export function WalkProposalCard({
           {status !== 'pending' && (
             <Text style={styles.detailText}>{status === 'accepted' ? 'Balade confirmée' : 'Autre date proposée'}</Text>
           )}
+          {status === 'accepted' && calendarActions}
 
           {from === 'them' && status === 'pending' && onAccept && onSuggestOtherDate && (
             <View style={styles.actions}>
