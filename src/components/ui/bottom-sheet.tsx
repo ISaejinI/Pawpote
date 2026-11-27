@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
+  BackHandler,
+  Keyboard,
   Modal,
   Platform,
   Pressable,
@@ -10,7 +12,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
-import { KeyboardAvoidingView, KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import { KeyboardAvoidingView, useReanimatedKeyboardAnimation } from 'react-native-keyboard-controller';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -34,7 +36,8 @@ export type BottomSheetProps = {
   /** Sous-titre manuscrit. */
   subtitle?: string;
   footer?: ReactNode;
-  keyboardAware?: boolean;
+  /** Panneau rendu dans une superposition à la racine de l'écran, avec évitement du clavier. */
+  inline?: boolean;
   children: ReactNode;
 };
 
@@ -53,13 +56,12 @@ export function BottomSheet({
   title,
   subtitle,
   footer,
-  keyboardAware = false,
+  inline = false,
   children,
 }: BottomSheetProps) {
   const insets = useSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
-  const avoidKeyboard = keyboardAware && Platform.OS !== 'web';
-  const [footerHeight, setFooterHeight] = useState(0);
+  const avoidKeyboard = inline && Platform.OS !== 'web';
   const bottomPadding = insets.bottom + 24;
 
   // La modale reste montée le temps de l'animation de fermeture
@@ -73,7 +75,7 @@ export function BottomSheet({
   function finishClosing() {
     setMounted(false);
     // Sur iOS, on attend la vraie fermeture de la Modal (`onDismiss`) avant de prévenir
-    if (Platform.OS !== 'ios') notifyClosed();
+    if (inline || Platform.OS !== 'ios') notifyClosed();
   }
 
   function notifyClosed() {
@@ -95,6 +97,21 @@ export function BottomSheet({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
+  function requestClose() {
+    if (inline) Keyboard.dismiss();
+    onClose();
+  }
+
+  useEffect(() => {
+    if (!inline || !visible || Platform.OS !== 'android') return;
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (Keyboard.isVisible()) Keyboard.dismiss();
+      else onClose();
+      return true;
+    });
+    return () => subscription.remove();
+  }, [inline, visible, onClose]);
+
   const pan = Gesture.Pan()
     .activeOffsetY(10)
     .onUpdate((event) => {
@@ -102,7 +119,7 @@ export function BottomSheet({
     })
     .onEnd((event) => {
       if (event.translationY > DISMISS_DISTANCE || event.velocityY > DISMISS_VELOCITY) {
-        scheduleOnRN(onClose);
+        scheduleOnRN(requestClose);
       } else {
         dragY.value = withSpring(0, { damping: 20, stiffness: 220 });
       }
@@ -121,7 +138,7 @@ export function BottomSheet({
           <Text style={styles.title} accessibilityRole="header">{title}</Text>
           {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
         </View>
-        <IconButton icon="close" variant="white" size="sm" accessibilityLabel="Fermer" onPress={onClose} />
+        <IconButton icon="close" variant="white" size="sm" accessibilityLabel="Fermer" onPress={requestClose} />
       </View>
     </View>
   );
@@ -132,34 +149,60 @@ export function BottomSheet({
       aria-modal
       accessibilityViewIsModal
       accessibilityLabel={title}
+      onAccessibilityEscape={requestClose}
       style={[
         styles.sheet,
-        keyboardAware && styles.shrinkingSheet,
-        { paddingBottom: bottomPadding, maxHeight: windowHeight - insets.top - 12 },
+        inline
+          ? styles.keyboardSheet
+          : { paddingBottom: bottomPadding, maxHeight: windowHeight - insets.top - 12 },
         sheetStyle,
       ]}
     >
       {footer ? (
         <>
           <GestureDetector gesture={pan}>{header}</GestureDetector>
-          {avoidKeyboard ? (
-            <KeyboardAwareScrollView
-              style={styles.scrollBody}
-              bottomOffset={footerHeight + bottomPadding + SHEET_GAP + spacing[2]}
-              keyboardShouldPersistTaps="handled"
-            >
-              {children}
-            </KeyboardAwareScrollView>
-          ) : <ScrollView style={styles.scrollBody} keyboardShouldPersistTaps="handled">{children}</ScrollView>}
-          {avoidKeyboard ? (
-            <View onLayout={({ nativeEvent }) => setFooterHeight(nativeEvent.layout.height)}>{footer}</View>
-          ) : footer}
+          <ScrollView
+            style={styles.scrollBody}
+            contentContainerStyle={inline ? styles.keyboardScrollContent : undefined}
+            keyboardShouldPersistTaps="handled"
+            bounces={avoidKeyboard ? false : undefined}
+            overScrollMode={avoidKeyboard ? 'never' : undefined}
+          >
+            {children}
+            {inline && footer}
+          </ScrollView>
+          {!inline && footer}
         </>
       ) : <>{header}{children}</>}
     </Animated.View>
   );
 
   const content = footer ? sheet : <GestureDetector gesture={pan}>{sheet}</GestureDetector>;
+  const backdrop = (
+    <Animated.View style={[StyleSheet.absoluteFill, styles.backdrop, backdropStyle]}>
+      <Pressable
+        style={StyleSheet.absoluteFill}
+        onPress={requestClose}
+        accessible={!inline}
+        accessibilityRole="button"
+        accessibilityLabel="Fermer"
+      />
+    </Animated.View>
+  );
+
+  if (inline) {
+    if (!mounted) return null;
+    return (
+      <GestureHandlerRootView
+        style={[StyleSheet.absoluteFill, styles.overlay]}
+        accessibilityElementsHidden={!visible}
+        importantForAccessibility={visible ? 'auto' : 'no-hide-descendants'}
+      >
+        {backdrop}
+        {avoidKeyboard ? <KeyboardSheetFrame>{content}</KeyboardSheetFrame> : content}
+      </GestureHandlerRootView>
+    );
+  }
 
   return (
     <Modal
@@ -172,22 +215,29 @@ export function BottomSheet({
       onDismiss={notifyClosed}
     >
       <GestureHandlerRootView style={styles.root}>
-        <Animated.View style={[StyleSheet.absoluteFill, styles.backdrop, backdropStyle]}>
-          <Pressable
-            style={StyleSheet.absoluteFill}
-            onPress={onClose}
-            accessibilityRole="button"
-            accessibilityLabel="Fermer"
-          />
-        </Animated.View>
-
-        {avoidKeyboard ? (
-          <KeyboardAvoidingView style={styles.root} behavior="padding" automaticOffset pointerEvents="box-none">
-            {content}
-          </KeyboardAvoidingView>
-        ) : content}
+        {backdrop}
+        {content}
       </GestureHandlerRootView>
     </Modal>
+  );
+}
+
+function KeyboardSheetFrame({ children }: { children: ReactNode }) {
+  const { top, bottom, left, right } = useSafeAreaInsets();
+  const { progress } = useReanimatedKeyboardAnimation();
+  const safeBottom = useAnimatedStyle(() => ({
+    paddingBottom: bottom * (1 - Math.min(1, Math.max(0, progress.value))),
+  }));
+
+  return (
+    <KeyboardAvoidingView style={styles.root} behavior="padding" pointerEvents="box-none">
+      <Animated.View
+        style={[styles.root, { paddingTop: top + spacing[3], paddingLeft: left, paddingRight: right }, safeBottom]}
+        pointerEvents="box-none"
+      >
+        {children}
+      </Animated.View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -226,8 +276,18 @@ const styles = StyleSheet.create({
   headerBlock: {
     gap: 14,
   },
-  shrinkingSheet: {
+  overlay: {
+    justifyContent: 'flex-end',
+    zIndex: 1,
+  },
+  keyboardSheet: {
     flexShrink: 1,
+    maxHeight: '100%',
+    gap: spacing[3],
+    paddingBottom: spacing[3],
+  },
+  keyboardScrollContent: {
+    gap: spacing[3],
   },
   scrollBody: {
     flexGrow: 0,
