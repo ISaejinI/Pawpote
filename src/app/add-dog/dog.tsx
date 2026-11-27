@@ -1,7 +1,7 @@
 import { router } from 'expo-router'
 
-import { DogStep } from '@/components/onboarding/dog-step'
-import { addDogStepProps } from '@/components/onboarding/steps'
+import { DogStep } from '@/features/onboarding/components/dog-step'
+import { addDogStepProps } from '@/features/onboarding/steps'
 
 /** Ajout d'un chien · étape 1 sur 4. Le retour ramène au profil. */
 export default function AddDogIdentityStep() {

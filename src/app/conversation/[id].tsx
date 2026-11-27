@@ -3,16 +3,16 @@ import { router, useLocalSearchParams } from 'expo-router'
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 import { ActivityIndicator, Keyboard, StyleSheet, Text, View } from 'react-native'
 
-import { WalkCalendarActions } from '@/components/messaging/walk-calendar-actions'
-import { WalkSheet } from '@/components/messaging/walk-sheet'
+import { WalkCalendarActions } from '@/features/messaging/components/walk-calendar-actions'
+import { WalkSheet } from '@/features/messaging/components/walk-sheet'
 import {
   Badge, Button, ConversationHeader, ConversationPage, MatchBanner, MessageBubble, MessageComposer, WalkProposalCard,
 } from '@/components/ui'
-import { getChatThread, respondToWalk, sendChatMessage } from '@/lib/messaging-api'
-import { formatChatDate, readChatTimestamp } from '@/lib/message-dates'
-import { useChatQuery } from '@/lib/use-chat-query'
+import { getChatThread, respondToWalk, sendChatMessage } from '@/features/messaging/api'
+import { formatChatDate, readChatTimestamp } from '@/features/messaging/message-dates'
+import { useChatQuery } from '@/features/messaging/use-chat-query'
 import { colors, spacing, typography } from '@/theme'
-import type { ChatMessage, ChatThread, WalkDraft } from '../../../shared/messaging'
+import type { ChatMessage, ChatThread, WalkDraft } from '@shared/messaging'
 
 const dayFormat = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'full' })
 const timeFormat = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' })

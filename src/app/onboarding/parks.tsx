@@ -2,10 +2,10 @@ import { router } from 'expo-router'
 import { useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 
-import { stepProps } from '@/components/onboarding/steps'
+import { stepProps } from '@/features/onboarding/steps'
 import { FormField, Input, OnboardingStepPage, ParkRow } from '@/components/ui'
-import { MOCK_PARKS } from '@/data/onboarding-options'
-import { toggleValue, useOnboardingDraft } from '@/lib/onboarding-draft'
+import { MOCK_PARKS } from '@/features/onboarding/options'
+import { toggleValue, useOnboardingDraft } from '@/features/onboarding/onboarding-draft'
 import { colors, typography } from '@/theme'
 
 const DOT_COLORS = [colors.lime500, colors.pink300, colors.lavender200, colors.peach300]

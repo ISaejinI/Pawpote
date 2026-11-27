@@ -14,7 +14,7 @@ import {
   type IconName,
 } from '@/components/ui'
 import { authClient } from '@/lib/auth-client'
-import { getAuthErrorMessage } from '@/lib/auth-errors'
+import { getAuthErrorMessage } from '@/features/auth/auth-errors'
 import { colors, spacing, typography } from '@/theme'
 
 /** Mot à recopier pour débloquer la suppression. */

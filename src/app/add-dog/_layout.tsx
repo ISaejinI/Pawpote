@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router'
 
-import { OnboardingDraftProvider } from '@/lib/onboarding-draft'
+import { OnboardingDraftProvider } from '@/features/onboarding/onboarding-draft'
 
 /** Ajout d'un chien depuis le profil : les étapes 1 à 4 de l'onboarding, avec leur propre brouillon. */
 export default function AddDogLayout() {

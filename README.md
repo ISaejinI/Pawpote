@@ -102,7 +102,7 @@ Tout se lance depuis la racine. Les tests n’utilisent que des données créée
 
 ### Tests unitaires et de composants
 
-Ils sont placés à côté du code testé, dans des dossiers `__tests__` (`shared/`, `src/lib/`, `src/components/ui/`). Les tests d’écrans vont dans `src/__tests__/` : tout fichier placé dans `src/app/` deviendrait une route d’Expo Router.
+Ils sont placés à côté du code testé, dans des dossiers `__tests__` (`shared/`, `src/lib/`, `src/features/*/`, `src/components/ui/`). Les tests d’écrans vont dans `src/__tests__/` : tout fichier placé dans `src/app/` deviendrait une route d’Expo Router.
 
 - **Logique métier** : complétion de la fiche d’un chien, dates de naissance, coordonnées et arrondi de l’adresse, client de l’API de découverte (dont les erreurs HTTP).
 - **Composants** : boutons, boutons J’aime / Passer, champ mot de passe, formulaire de connexion (champs invalides, erreur de l’API, serveur injoignable). Seul le client d’authentification est simulé ; on teste ce que l’utilisateur voit et fait, sans snapshots.
@@ -179,16 +179,26 @@ Ne pas modifier une ancienne migration déjà appliquée.
 ```text
 Pawpote/
 ├── src/
-│   ├── app/              # Écrans et navigation Expo Router
-│   ├── components/       # Composants React Native
-│   ├── theme/            # Design system
-│   └── lib/              # Configuration et utilitaires
+│   ├── app/              # Écrans et navigation Expo Router (routes uniquement)
+│   ├── features/         # Une fonctionnalité par dossier : API, hooks, état et composants métier
+│   │   ├── auth/
+│   │   ├── discovery/
+│   │   ├── messaging/
+│   │   ├── onboarding/
+│   │   └── profile/
+│   ├── components/ui/    # Design system rangé par thème (base, forms, media, layout, messaging…), sans logique métier
+│   ├── lib/              # Outils transverses : client d'auth, URL de l'API, dates, photos
+│   └── theme/            # Couleurs, typographie, espacements
+│
+├── shared/               # Types et règles partagés app <-> serveur (alias `@shared/*`)
 │
 ├── server/
 │   ├── src/
 │   │   ├── db/           # Schémas Drizzle
-│   │   ├── auth.ts       # Better Auth
-│   │   └── index.ts      # API Hono
+│   │   ├── lib/          # Outils transverses (stockage des photos, validation)
+│   │   ├── modules/      # Un dossier par domaine : routes Hono et logique associée
+│   │   │   └── auth/     # Better Auth, session, limitation des connexions
+│   │   └── index.ts      # Assemble l'API Hono
 │   ├── drizzle/          # Migrations SQL
 │   ├── drizzle.config.ts
 │   └── neon.ts           # Déclaration de la fonction Neon

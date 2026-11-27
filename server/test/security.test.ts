@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 
 import { db } from '../src/db'
 import { profiles } from '../src/db/schema'
-import { SIGN_IN_MAX_ATTEMPTS } from '../src/sign-in-limit'
+import { SIGN_IN_MAX_ATTEMPTS } from '../src/modules/auth/sign-in-limit'
 import { api, authApi, createDog, PASSWORD, signUp, type TestUser } from './helpers'
 
 function setLocation(user: TestUser, latitude: number, longitude: number) {

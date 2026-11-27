@@ -4,7 +4,7 @@ import { StyleSheet, Text } from 'react-native'
 
 import { Callout, EditHeader, EditPage, FormField, FormSection, Input } from '@/components/ui'
 import { authClient } from '@/lib/auth-client'
-import { getAuthErrorMessage, isValidEmail } from '@/lib/auth-errors'
+import { getAuthErrorMessage, isValidEmail } from '@/features/auth/auth-errors'
 import { useLeaveConfirmation } from '@/lib/use-leave-confirmation'
 import { colors, typography } from '@/theme'
 

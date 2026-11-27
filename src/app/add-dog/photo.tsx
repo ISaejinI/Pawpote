@@ -1,7 +1,7 @@
 import { router } from 'expo-router'
 
-import { PhotoStep } from '@/components/onboarding/photo-step'
-import { addDogStepProps } from '@/components/onboarding/steps'
+import { PhotoStep } from '@/features/onboarding/components/photo-step'
+import { addDogStepProps } from '@/features/onboarding/steps'
 
 /** Ajout d'un chien · étape 2 sur 4. */
 export default function AddDogPhotoStep() {
