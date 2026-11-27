@@ -84,6 +84,35 @@ $env:EXPO_PUBLIC_API_URL = 'http://localhost:8787'
 npx expo start --web
 ```
 
+## Tests
+
+Tout se lance depuis la racine. Les tests n’utilisent que des données créées pour l’occasion et ne touchent à aucune base Neon.
+
+| Commande | Ce qu’elle vérifie |
+| --- | --- |
+| `npm run check` | Tout ce qui suit. À lancer avant d’ouvrir une PR. |
+| `npm test` | Tests unitaires et de composants de l’app (Jest + React Native Testing Library). |
+| `npm run test:api` | Tests d’intégration de l’API (Vitest). |
+| `npm run lint` | ESLint. |
+| `npm run typecheck` | TypeScript, pour l’app et pour le serveur. |
+
+### Tests unitaires et de composants
+
+Ils sont placés à côté du code testé, dans des dossiers `__tests__` (`shared/`, `src/lib/`, `src/components/ui/`). Les tests d’écrans vont dans `src/__tests__/` : tout fichier placé dans `src/app/` deviendrait une route d’Expo Router.
+
+- **Logique métier** : complétion de la fiche d’un chien, dates de naissance, coordonnées et arrondi de l’adresse, client de l’API de découverte (dont les erreurs HTTP).
+- **Composants** : boutons, boutons J’aime / Passer, champ mot de passe, formulaire de connexion (champs invalides, erreur de l’API, serveur injoignable). Seul le client d’authentification est simulé ; on teste ce que l’utilisateur voit et fait, sans snapshots.
+
+### Tests d’intégration de l’API
+
+Dans `server/test/`. Chaque fichier crée une base Postgres en mémoire ([PGlite](https://pglite.dev)) à partir des vraies migrations de `server/drizzle/`. Les requêtes passent par l’application Hono et Better Auth complètes, sans serveur ni réseau. Ils couvrent :
+
+- **Authentification** : inscription, connexion refusée, données invalides, routes protégées sans session, origine inconnue, suppression du compte.
+- **Swipe et match** : contenu du fil, swipes invalides, match uniquement réciproque.
+- **Permissions** : la messagerie et les fiches des chiens restent invisibles pour quelqu’un d’extérieur.
+
+Vitest est utilisé ici plutôt que Jest parce que le serveur est en modules ES (comme Better Auth et PGlite), que Jest ne gère pas sans configuration lourde. L’écriture des tests est la même (`describe`, `it`, `expect`).
+
 ## Déployer sur Neon Functions
 
 Les commandes Neon ci-dessous se lancent depuis `server/` avec la CLI fournie par le projet.
