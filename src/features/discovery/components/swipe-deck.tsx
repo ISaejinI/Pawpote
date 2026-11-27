@@ -1,5 +1,4 @@
-import { SwipeActions } from '@/components/ui'
-import { MATCH_CARD_RADIUS, MatchCard } from '@/components/ui/match-card'
+import { MATCH_CARD_RADIUS, MatchCard, SwipeActions } from '@/components/ui'
 import { formatDiscoveryDistance, sendSwipe } from '@/features/discovery/api'
 import { consumeSwipeIntent, type SwipeDirection } from '@/features/discovery/swipe-intent'
 import { colors, spacing } from '@/theme'

@@ -186,7 +186,7 @@ Pawpote/
 │   │   ├── messaging/
 │   │   ├── onboarding/
 │   │   └── profile/
-│   ├── components/ui/    # Design system (atomes, molécules, organismes), sans logique métier
+│   ├── components/ui/    # Design system rangé par thème (base, forms, media, layout, messaging…), sans logique métier
 │   ├── lib/              # Outils transverses : client d'auth, URL de l'API, dates, photos
 │   └── theme/            # Couleurs, typographie, espacements
 │

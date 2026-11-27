@@ -1,124 +1,139 @@
-// Atomes
+/**
+ * Design system de Pawpote, rangé par thème d'interface.
+ * Composants de présentation uniquement : ni appel à l'API ni logique métier (voir eslint.config.js).
+ */
+
+// Éléments de base : boutons, icônes, étiquettes
 export {
   ActionTile,
   type ActionTileColor,
   type ActionTileProps,
-} from './action-tile';
-export { Avatar, type AvatarProps } from './avatar';
-export { Badge, type BadgeProps, type BadgeVariant } from './badge';
+} from './base/action-tile';
+export { Badge, type BadgeProps, type BadgeVariant } from './base/badge';
 export {
   Button,
   type ButtonProps,
   type ButtonSize,
   type ButtonVariant,
-} from './button';
-export { Callout, type CalloutProps } from './callout';
-export { ChatBackground } from './chat-background';
-export { Chip, type ChipColor, type ChipProps } from './chip';
-export { Icon, type IconProps } from './icon';
+} from './base/button';
+export { Chip, type ChipColor, type ChipProps } from './base/chip';
+export { Icon, type IconProps } from './base/icon';
 export {
   IconButton,
   type IconButtonProps,
   type IconButtonSize,
   type IconButtonVariant,
-} from './icon-button';
-export { icons, type IconName } from './icons';
-export { IconTile, type IconTileColor, type IconTileProps } from './icon-tile';
-export { Input, type InputProps } from './input';
-export { Logo, type LogoProps } from './logo';
-export { MessageBubble, type MessageBubbleProps } from './message-bubble';
-export { PageDots, type PageDotsProps } from './page-dots';
-export { PhotoSlot, type PhotoSlotProps, type PhotoSlotVariant } from './photo-slot';
-export { ProgressBar, type ProgressBarProps } from './progress-bar';
+} from './base/icon-button';
+export { IconTile, type IconTileColor, type IconTileProps } from './base/icon-tile';
+export { icons, type IconName } from './base/icons';
+export { Logo, type LogoProps } from './base/logo';
 export {
   Sticker,
   type StickerProps,
   type StickerSize,
   type StickerVariant,
-} from './sticker';
-export { Tag, type TagColor, type TagProps } from './tag';
-export { TextArea, type TextAreaProps } from './text-area';
-export { TextLink, type TextLinkProps } from './text-link';
-export { WaveBackground } from './wave-background';
+} from './base/sticker';
+export { Tag, type TagColor, type TagProps } from './base/tag';
+export { TextLink, type TextLinkProps } from './base/text-link';
 
-// Molécules
-export { AvatarField, type AvatarFieldProps } from './avatar-field';
+// États et progression
+export { Callout, type CalloutProps } from './feedback/callout';
+export { LoadStatus, type LoadStatusProps } from './feedback/load-status';
+export { PageDots, type PageDotsProps } from './feedback/page-dots';
+export { PawLoader, type PawLoaderProps } from './feedback/paw-loader';
+export { ProgressBar, type ProgressBarProps } from './feedback/progress-bar';
+
+// Formulaires
+export { AvatarField, type AvatarFieldProps } from './forms/avatar-field';
 export {
   ChoiceGroup,
   type ChoiceGroupProps,
   type ChoiceOption,
-} from './choice-group';
-export { ConversationRow, type ConversationRowProps } from './conversation-row';
-export { DateInput, type DateInputProps } from './date-input';
-export { DogRow, type DogRowProps } from './dog-row';
-export { DuoAvatar, type DuoAvatarProps } from './duo-avatar';
-export { FormField, useFormField, type FormFieldProps } from './form-field';
-export { FormSection, type FormSectionProps } from './form-section';
-export { LoadStatus, type LoadStatusProps } from './load-status';
-export { MatchBanner, type MatchBannerProps } from './match-banner';
-export { MenuRow, type MenuRowProps } from './menu-row';
-export { MessageComposer, type MessageComposerProps } from './message-composer';
-export { NewMatchItem, type NewMatchItemProps } from './new-match-item';
-export { OnboardingSteps, type OnboardingStepsProps } from './onboarding-steps';
-export { ParkRow, type ParkRowProps } from './park-row';
-export { PasswordInput, type PasswordInputProps } from './password-input';
-export { PawLoader, type PawLoaderProps } from './paw-loader';
-export { ProfileAvatars, type ProfileAvatarsProps } from './profile-avatars';
-export { SearchField, type SearchFieldProps } from './search-field';
+} from './forms/choice-group';
+export { DateInput, type DateInputProps } from './forms/date-input';
+export { FormField, useFormField, type FormFieldProps } from './forms/form-field';
+export { FormSection, type FormSectionProps } from './forms/form-section';
+export { Input, type InputProps } from './forms/input';
+export { PasswordInput, type PasswordInputProps } from './forms/password-input';
+export { SearchField, type SearchFieldProps } from './forms/search-field';
 export {
   SegmentedControl,
   type SegmentedControlProps,
   type SegmentedOption,
-} from './segmented-control';
-export { Select, type SelectProps } from './select';
-export { SwipeActions, type SwipeActionsProps } from './swipe-actions';
-export { WalkProposalCard, type WalkProposalCardProps } from './walk-proposal-card';
+} from './forms/segmented-control';
+export { Select, type SelectProps } from './forms/select';
+export { TextArea, type TextAreaProps } from './forms/text-area';
 
-// Templates
-export { ConversationPage, type ConversationPageProps } from './conversation-page';
-export { EditPage, type EditPageProps, type EditPageScrollRef } from './edit-page';
-export { LoadingPage, type LoadingPageProps } from './loading-page';
-export {
-  OnboardingStepPage,
-  type OnboardingStepPageProps,
-} from './onboarding-step-page';
-export { TabPage, type TabPageProps } from './tab-page';
-
-// Organismes
-export { BottomSheet, type BottomSheetProps } from './bottom-sheet';
-export { CompletionCard, type CompletionCardProps } from './completion-card';
-export {
-  ConversationHeader,
-  type ConversationHeaderProps,
-} from './conversation-header';
-export { ConversationList, type ConversationListProps } from './conversation-list';
+// Photos et avatars
+export { Avatar, type AvatarProps } from './media/avatar';
 export {
   DogPhotosEditor,
   type DogPhotosEditorProps,
   type DogPhotoTarget,
-} from './dog-photos-editor';
-export {
-  DogProfile,
-  type DogProfilePark,
-  type DogProfileProps,
-} from './dog-profile';
-export { EditHeader, type EditHeaderProps } from './edit-header';
-export { MatchCard, type MatchCardProps } from './match-card';
-export { MenuSection, type MenuSectionProps } from './menu-section';
-export { NewMatchesStrip, type NewMatchesStripProps } from './new-matches-strip';
-export { PhotoCarousel, type PhotoCarouselProps } from './photo-carousel';
+} from './media/dog-photos-editor';
+export { DuoAvatar, type DuoAvatarProps } from './media/duo-avatar';
+export { PhotoCarousel, type PhotoCarouselProps } from './media/photo-carousel';
+export { PhotoSlot, type PhotoSlotProps, type PhotoSlotVariant } from './media/photo-slot';
 export {
   PhotoSourceSheet,
   type PhotoSourceSheetProps,
-} from './photo-source-sheet';
-export {
-  ProfileSummaryCard,
-  type ProfileSummaryCardProps,
-} from './profile-summary-card';
-export { PullToClose, type PullToCloseProps } from './pull-to-close';
+} from './media/photo-source-sheet';
+export { ProfileAvatars, type ProfileAvatarsProps } from './media/profile-avatars';
+
+// Mise en page et navigation
+export { BottomSheet, type BottomSheetProps } from './layout/bottom-sheet';
+export { EditHeader, type EditHeaderProps } from './layout/edit-header';
+export { EditPage, type EditPageProps, type EditPageScrollRef } from './layout/edit-page';
+export { LoadingPage, type LoadingPageProps } from './layout/loading-page';
+export { PullToClose, type PullToCloseProps } from './layout/pull-to-close';
+export { TabPage, type TabPageProps } from './layout/tab-page';
 export {
   Tapbar,
   TapbarTab,
   useTapbarInset,
   type TapbarTabProps,
-} from './tapbar';
+} from './layout/tapbar';
+export { WaveBackground } from './layout/wave-background';
+
+// Messagerie
+export { ChatBackground } from './messaging/chat-background';
+export {
+  ConversationHeader,
+  type ConversationHeaderProps,
+} from './messaging/conversation-header';
+export { ConversationList, type ConversationListProps } from './messaging/conversation-list';
+export { ConversationPage, type ConversationPageProps } from './messaging/conversation-page';
+export { ConversationRow, type ConversationRowProps } from './messaging/conversation-row';
+export { MatchBanner, type MatchBannerProps } from './messaging/match-banner';
+export { MessageBubble, type MessageBubbleProps } from './messaging/message-bubble';
+export { MessageComposer, type MessageComposerProps } from './messaging/message-composer';
+export { NewMatchItem, type NewMatchItemProps } from './messaging/new-match-item';
+export { NewMatchesStrip, type NewMatchesStripProps } from './messaging/new-matches-strip';
+export { WalkProposalCard, type WalkProposalCardProps } from './messaging/walk-proposal-card';
+
+// Découverte des chiens
+export {
+  DogProfile,
+  type DogProfilePark,
+  type DogProfileProps,
+} from './discovery/dog-profile';
+export { MATCH_CARD_RADIUS, MatchCard, type MatchCardProps } from './discovery/match-card';
+export { SwipeActions, type SwipeActionsProps } from './discovery/swipe-actions';
+
+// Profil
+export { CompletionCard, type CompletionCardProps } from './profile/completion-card';
+export { DogRow, type DogRowProps } from './profile/dog-row';
+export { MenuRow, type MenuRowProps } from './profile/menu-row';
+export { MenuSection, type MenuSectionProps } from './profile/menu-section';
+export { ParkRow, type ParkRowProps } from './profile/park-row';
+export {
+  ProfileSummaryCard,
+  type ProfileSummaryCardProps,
+} from './profile/profile-summary-card';
+
+// Onboarding
+export {
+  OnboardingStepPage,
+  type OnboardingStepPageProps,
+} from './onboarding/onboarding-step-page';
+export { OnboardingSteps, type OnboardingStepsProps } from './onboarding/onboarding-steps';

@@ -4,7 +4,7 @@ import * as Sharing from 'expo-sharing'
 import { useState } from 'react'
 import { Platform, StyleSheet, Text, View } from 'react-native'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui'
 import { createWalkCalendarFile, googleCalendarUrl, type WalkCalendarEvent } from '@/features/messaging/walk-calendar'
 import { colors, spacing, typography } from '@/theme'
 
